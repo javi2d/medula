@@ -1,0 +1,10 @@
+
+
+
+for n in nuke.allNodes():
+	
+	if 'reload' in n.knobs():
+	
+		n['reload'].execute()
+		brain.Lib.path.colorize_node( n )
+			

@@ -1,0 +1,309 @@
+
+#
+
+
+
+
+def walk( ):
+		
+	hosts = brain.Sources['names']
+
+	for host in hosts:
+
+		try:
+		
+			hostname = brain.Sources( host )( '_hostname' , host ) 
+		
+		except:
+			
+			raise AttributeError( host )
+		
+		
+		if this.HOSTNAME.lower() == hostname.lower():
+			
+			# put current hostname first 
+			
+			hosts.remove( host )
+			hosts.insert( 0 , host )
+			
+		
+	for host in hosts:
+		
+		for resource in [ r for r in brain.Sources( host )['names'] if not r.startswith('_') ] :
+			
+			hostname = brain.Sources( host )( '_hostname' , host ) 
+			
+			local_resources , remote_resources = brain.Sources( host )( resource )
+
+			#local_resources = [ brain.Lib.path.normalize( path ) for path in local_resources ]
+			#remote_resources = [ brain.Lib.path.normalize( path ) for path in remote_resources ]
+
+			yield ( host , hostname , resource , local_resources , remote_resources )
+
+
+
+
+
+
+def host_resource( path ):
+
+	for H , HN , R , LR , RR  in  walk():
+		
+		to_review = ( LR + RR if HN.lower() == this.HOSTNAME.lower() else RR )
+
+		for resource in to_review:
+
+			if path.startswith( resource ):
+
+				return H , R
+
+
+def host( path ):
+	
+	host_resource = space.host_resource( path )
+	
+	if host_resource:
+		
+		host , resource = host_resource
+		
+		return host
+	
+
+
+def resource( path ):
+
+	host_resource = space.host_resource( path )
+
+	if host_resource:
+
+		host , resource = host_resource
+
+		return resource
+	
+
+
+
+
+
+
+def compatible( path , host = this.HOSTNAME ):
+	
+	# compatible means a list of paths that are compatible with the passed path
+	
+	# host is used to retrieve compatible paths from other hosts and relink filenames 
+	
+	
+	for H , HN , R , LR , RR  in  walk():
+		
+		if HN.lower() == host.lower():
+			
+			for resource in LR + RR:
+				
+				if path.startswith( resource ):
+					
+					return LR + RR
+		
+		else:
+		
+			for remote_resource in RR:
+
+				if path.startswith( remote_resource ):
+
+					return RR
+			
+	return []
+		
+		
+	
+
+	
+def compatible_match( path , host = this.HOSTNAME ):
+	
+	# this will return a list of compatible paths with arg 'path' and the match itself
+	
+	compatible = space.compatible( path , host )
+	
+	for pth in compatible:
+		
+		#print '[ sources.py ] ' , pth 
+		
+		if path.startswith( pth ):
+			
+			return compatible , pth
+	
+	return [] , None
+
+
+
+def compatible_match_cache( path , host = this.HOSTNAME ):
+	
+	# this will return a list of compatible paths with arg 'path' and the match itself
+	
+	cache = brain.Sources( '__cache' , {} )
+	
+	key = ( path , host )
+	
+	if key not in cache:
+		
+		cache[ key ] = compatible_match(  path , host )
+	
+	#print 'DEBUG: using brain.Sources.__cache' 
+	
+	return cache[ key ]
+
+
+
+
+
+
+def mount_points_walk():
+	
+	for H , HN , R , LR , RR  in  walk():
+		
+		for rr in RR:
+			
+			rr = brain.Lib.path.normalize( rr )
+			
+			if rr.startswith('//'):
+
+				fragment = brain.Lib.path.fragment( rr )[:4]
+
+				host_share = ( H , fragment[-1] )
+				
+				mount_shell = sh( '/Facility/%s/%s' % host_share )
+
+				mount_point = '/Facility/%s/%s' % host_share
+			
+				share_point = '/'.join( fragment )
+				
+				remote_resources = brain.Sources( '%s.%s' % ( H , R ) )[-1]
+				
+				if mount_point not in RR:
+					
+					remote_resources.append( mount_point )
+					
+					brain.Sources >> main.fsh.Brain( 'Sources.memory' )
+					
+				yield  mount_shell , share_point , mount_point
+	
+	
+
+
+
+def mount_resources( umount = False ):
+	
+	
+	
+	for mount_shell , share_point, mount_point in mount_points_walk():
+		
+		if sys.platform == 'darwin':
+			
+			if umount and mount_shell[ '$FOLDERS' ]:
+				
+				print '\n\nUmount External Command:\n'
+
+				cmd = 'umount %s' % mount_point
+
+				print '>> %s\n' % cmd
+
+				os.system( cmd )
+			
+			
+			if not mount_shell[ '$FOLDERS' ]:
+				
+				
+				#cmd = 'mount_smbfs %s %s' % ( share_point , mount_point )
+                #
+				#cmd.replace( '//' , '//%s:%s@' % ( 'user' , 'filemon' )  )#
+				
+				
+				
+				print '\n\nMount External Command:\n'
+
+				cmd = 'mount_smbfs %s %s' % ( share_point , mount_point )
+				
+				cmd.replace( '//' , '//%s@' % 'guest' ) #
+				
+				print '>> %s\n' % cmd
+
+				os.system( cmd )
+					
+
+					
+	#sys.exit()
+
+
+def __relink( this , source_host = None ):
+	
+	# find file and proxy knobs in Node
+	
+	# get the file value and check folder
+	
+	file_value = this.VALUES.file
+	
+	dirname , basename = os.path.split( file_value )
+	
+	if not os.path.isdir( dirname ):
+		
+		host = ( source_host or this.HOSTNAME )
+		
+		compatible, match = brain.Lib.sources.compatible_match_cache( file_value , host )
+		
+		for comp in [ c for c in compatible if not c == match ]:
+			
+			test_dirname = dirname.replace( match , comp )
+			
+			print 'Testing : '  
+			
+			if os.path.isdir( comp ):
+				
+				print 'Relinking %s : %s >> %s' % ( this.NODE.name() , match , comp )
+		
+				new_file_value = Normalize.join( test_dirname , basename)
+
+				this.KNOBS.file.setValue( new_file_value )
+
+				#brain.relink_changes.append( ( this.KNOBS.file , new_file_value , file_value ) )
+	
+				return 
+	
+
+
+
+def relink_read_nodes( source_host = None ):
+	
+	brain.relink_changes = []
+	
+	for n in nuke.allNodes():
+
+		if 'file' in n.knobs() and not n.Class().startswith('Write'):
+			
+			__relink( this(n) , source_host )
+			
+
+def relink_write_nodes( source_host = None ):
+	
+	brain.relink_changes = []
+	
+	for n in nuke.allNodes():
+
+		if 'file' in n.knobs() and n.Class().startswith('Write'):
+
+			__relink( this(n) , source_host )	
+
+
+def relink_all_nodes( source_host = None ):
+	
+	brain.relink_changes = []
+	
+	for n in nuke.allNodes():
+
+		if 'file' in n.knobs():
+
+			__relink( this(n) , source_host )
+
+
+
+
+
+

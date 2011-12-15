@@ -1,0 +1,234 @@
+
+
+
+
+class Management:
+	
+	wm_category  = enumKnob( '' ,  [] ) 
+
+	wm_label      = strKnob( '' , 'Untitled_%s' % this.HOSTLABEL , clearflags = 'STARTLINE' )
+	
+	wm_ext = linkKnob( '' , 'file_type' , clearflags = 'STARTLINE')
+	
+	wm_colorspace  = linkKnob( '' , 'colorspace' , clearflags = 'STARTLINE')
+	
+	sep0   = sepKnob( ' ' )
+	
+	wm_channels    = linkKnob( '' , 'channels'  )
+	
+
+	sep1   = sepKnob()
+
+	wm_folderize  = boolKnob( ' in folder' , True , flags = 'STARTLINE') #, flags = 'STARTLINE'
+	wm_perversion  = boolKnob( ' per version' , True )
+	wm_overwrite  = boolKnob( 'overwrite' , False )
+	
+	sep2 = sepKnob()
+	
+	wm_tree     = txtKnob( '' , '----'   )
+	
+	sep3 = sepKnob()
+	
+	wm_path_target = enumKnob( 'target'  , ['file' , 'both'] )  #, clearflags = 'STARTLINE' 
+	
+	wm_refresh = bttnKnob( 'refresh' )
+	
+	
+	
+	sep4 = sepKnob()
+	
+	wm_file_path = linkKnob( 'file' , 'file'  )
+	
+	wm_proxy_path = linkKnob( 'proxy' , 'proxy' )
+	
+	
+	sep5 = sepKnob( ' ' )
+	
+
+	
+	
+	wm_render      = linkKnob( 'render' , 'Render' , flags = 'STARTLINE')
+	
+	wm_task        = boolKnob( 'task' )
+	
+	
+	wm_quality = enumKnob( ' in ' , [ 'full' , 'proxy' ] , clearflags = 'STARTLINE' )
+	
+	wm_target_host = enumKnob( ' where ' , [ 'local' , 'farm' ] , clearflags = 'STARTLINE')
+		
+	wm_frame_order = enumKnob( ' how ' , ['linear' , 'reversed' , 'preview' , 'random'] , clearflags = 'STARTLINE')
+	
+	
+	
+	
+	sep6 = sepKnob( ' ' )
+	
+	wm_user_path = strKnob( 'user' , '' , flags = 'INVISIBLE' )
+	
+	#sep7 = sepKnob( ' ' )
+
+
+
+
+def _refresh( this ):
+	
+	nuke.executeInMainThreadWithResult( this.NODE.hideControlPanel )
+	nuke.executeInMainThreadWithResult( this.NODE.showControlPanel )
+	
+	return
+
+
+	
+#new code task system with sqlite	
+########################
+
+def wm_task( this ):
+	
+	
+	print 'Debug Reloading : brain.Lib.mRender = medula.local.main.Lib.mRender()'
+	
+	brain.Lib.mRender = medula.local.main.Lib.mRender()
+	# interactive
+	
+
+	brain.Lib.mRender.task_node( this )
+	
+	
+	
+	#
+	#print this.KNOBS.wm_task.label()
+	#
+	#if this.KNOBS.wm_task.label() == 'delete':
+	#	
+	#	this.KNOBS.wm_task.setLabel( 'task' )
+	#	
+	#else:
+	#	
+	#	this.KNOBS.wm_task.setLabel( 'delete' )
+	#
+    #
+	#Core.thread( _refresh , this( this.NODE ) ).start()
+	
+	
+
+	
+#new code task system with sqlite
+########################
+
+def onUserCreate( this ):
+	
+	#print 'Newly created Node'
+	pass
+
+def onCreate( this ):
+
+	
+	current_value = this.VALUES.wm_category
+	
+	new_categories = list(  [ 'disabled' ] + brain.Categories['names']  )
+	
+	if not str(current_value).isdigit() and current_value not in new_categories:
+		
+		new_categories.append( current_value )
+	
+	
+	if not this.KNOBS.wm_category.values() == new_categories:
+		
+		this.KNOBS.wm_category.setValues( new_categories )
+		
+		wm_category( this )
+		
+
+
+#*************************************************************************************************
+# Last edited
+
+
+
+def _isEnabled( this ):
+	
+	return ( False if this.VALUES.wm_category == 'disabled' else True )
+
+
+
+def wm_category( this ):
+	
+	
+	if not _isEnabled( this ):
+
+		if this.VALUES.wm_user_path:
+    
+			this.KNOBS.file.fromScript( this.VALUES.wm_user_path )
+			this.KNOBS.wm_user_path.setValue('')
+	
+	# Enable or Disable 
+	
+	for name in [ n for n in this.KNOBS['names'] if n.startswith('wm_') and not n == 'wm_category' ]:
+    
+		knob = this.KNOBS( name )	
+		knob.setEnabled( _isEnabled( this ) )
+		
+	#print 'DEBUG ::: wm_category'
+	
+	
+def file_type( this ):
+	
+	if this.VALUES.file_type == 'jpeg' and this.VALUES._jpeg_quality == .75 :
+		
+		this.KNOBS._jpeg_quality.setValue( 1. )
+			
+	brain.Lib.mWrites.build_path( this )
+	
+	
+	
+def knobChanged( this ):
+	
+	if this.KNOB.name() in 'wm_category wm_label wm_folderize wm_perversion wm_overwrite wm_refresh wm_path_target showPanel'.split():
+		
+		#print 'DEBUG REBUILD WRITE PATH with : %s' % this.KNOB.name()
+		
+		brain.Lib.mWrites.build_path( this )
+		
+
+def afterRender( this ):
+
+	if not this.VALUES.wm_category == 'disabled':
+		
+		print '\nRender Finished , updating file_knobs'
+		
+		brain.Lib.mWrites.build_path( this )
+
+	
+
+
+		
+
+
+def autolabel( this ):
+	
+
+	if _isEnabled( this ):
+		
+		proxy_mode = this.ROOT.VALUES.proxy #nuke.tcl( 'value root.proxy' )
+		
+		print 'DEBUG write autolabel proxy mode' , proxy_mode
+		
+		filename = this.VALUES.proxy if proxy_mode else this.VALUES.file
+		
+		print 'DEBUG write autolabel filename' , filename
+		
+		label = this.VALUES.wm_category
+		
+		color = brain.Categories( '%s.color' % label , 'Green' )
+
+		basename = os.path.basename( filename )
+
+		asterisk = (  '*' if this.VALUES.wm_overwrite else '' )
+
+		return '<center><font size=3>%s\n<b><font size=6 color= %s>%s%s</font>\n%s</b></font>\n(%s)</center>' % ( this.NODE.name() , color , label , asterisk , basename , this.VALUES.colorspace ) # 
+
+	else:
+
+		return None
+
+

@@ -1,0 +1,92 @@
+
+
+
+class User:
+	
+	auto_refresh_node = boolKnob( 'auto refresh nodes' , brain( 'AUTO_REFRESH_NODE' , False ) )
+	auto_knobChanged  = boolKnob( 'auto knobChanged callback' , brain( 'GLOBAL_KNOB_CHANGE' , False ) )
+	
+
+def auto_refresh_node( this ):
+	
+	value = this.VALUES.auto_refresh_node
+	
+	if value:
+		
+		brain.AUTO_REFRESH_NODE = True
+				
+	else:		
+		
+		brain.AUTO_REFRESH_NODE = False
+
+
+	print '\n>> brain.AUTO_REFRESH_NODE = %s\n' % repr( brain.AUTO_REFRESH_NODE )
+	
+	
+	
+def auto_knobChanged(  this ):
+	
+	value = this.VALUES.auto_knobChanged
+	
+	if value:
+		
+		callback = main.brain.GLOBAL_KNOB_CHANGE
+
+		if callback:
+
+			print '\n\nRemoving old GLOBAL_KNOB_CHANGE callback\n'
+
+			nuke.removeKnobChanged( main.brain.GLOBAL_KNOB_CHANGE )
+
+			main.brain.GLOBAL_KNOB_CHANGE = None
+
+
+		main.brain.GLOBAL_KNOB_CHANGE = global_knobChanged_Callback
+
+		nuke.addKnobChanged( main.brain.GLOBAL_KNOB_CHANGE )
+
+		print '\nmain.brain.GLOBAL_KNOB_CHANGE = %s\n' % main.brain.GLOBAL_KNOB_CHANGE
+	
+	else:
+		
+		callback = main.brain( 'GLOBAL_KNOB_CHANGE' , None )
+
+		if callback:
+
+			nuke.removeKnobChanged( main.brain.GLOBAL_KNOB_CHANGE )
+			main.brain.GLOBAL_KNOB_CHANGE = None
+
+
+		print '\nmain.brain.GLOBAL_KNOB_CHANGE = %s\n' % main.brain.GLOBAL_KNOB_CHANGE
+	
+		
+		
+	
+	
+		
+def global_knobChanged_Callback():
+	
+	node = this.NODE #nuke.thisNode()
+	
+	try:
+	
+		if not isinstance( node, nuke.PanelNode ):
+		
+			print '\nNode:  %s = %s ' % ( node.name() , repr( node ) )
+	
+		else:
+		
+			print '\nPanel:  PanelNode = %s ' %  repr( node )
+	
+	except:
+		
+		print '\nNode: None '
+	
+	finally:	
+	
+	
+		print 'Knob:  %s = %s ' % ( nuke.thisKnob().name() , nuke.thisKnob().value() )
+	
+	
+	
+

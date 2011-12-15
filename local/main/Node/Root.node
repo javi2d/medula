@@ -1,0 +1,26 @@
+
+DEFAULTS = {
+
+'last_frame' : 10	
+
+}
+
+
+
+TABS = [ 'Root_Facility2.tab', 'Root.node' ] #
+
+			
+def onScriptLoad( this ):	
+	
+	sop.Core.lap( '/SCRIPT.load' )
+
+	print '\n\nTimmings:\n'
+	
+	sop.Core.lap( '.' )
+	
+	print '\n\n'
+
+
+
+	
+	

@@ -1,0 +1,300 @@
+
+
+
+class Facility:
+	
+	source_host = strKnob( 'source host' , '' )
+	relink  = bttnKnob( 'relink' )
+	restore = bttnKnob( 'restore' , flags = 'DISABLED')
+
+
+def onScriptSave( this ):
+
+	print '\n>> Script Saved\n'
+	
+	if nuke.Root().modified() : #and this.VALUES.psave_active
+		
+		brain.Lib.script.copyScript( '_historyScripts'  )	
+		
+		# If script is saved and unit is changed we need to change read node colors
+
+		if not this.BRAIN( 'last_script_unit' , '' ) == this.UNIT_PATH:
+			
+			this.BRAIN.last_script_unit = this.UNIT_PATH
+			
+			# Reload Read Nodes Color
+			
+			for read_node in [ n for n in nuke.allNodes() if n.Class() == 'Read' ]:
+				
+				callbacks = brain.nodeScript.byClass['Read'].system_callbacks['onCreate']
+				
+				for cb in callbacks:
+					
+					cb( this( read_node ) )
+						
+			# Reload Write Node Targets folders
+			
+			for write_node in [ n for n in nuke.allNodes() if n.Class() == 'Write' ]:
+			
+				callbacks = brain.nodeScript.byClass['Write'].system_callbacks['onCreate']
+				
+				for cb in callbacks:
+					
+					cb( this( write_node ) )
+
+			
+		nuke.addFavoriteDir( '[ current_unit ]' , this.UNIT_PATH + '/' )
+		
+		
+	
+
+
+def onScriptLoad( this ):
+
+
+	print '\n>> Script Loaded : < %s >' % this.SCRIPT_NAME
+	
+	this.BRAIN.last_script_unit = this.UNIT_PATH
+	
+	print '\n>> Redefining CURRENT UNIT fav path to ../%s' %  this.UNIT_NAME
+		
+	nuke.addFavoriteDir( '[ current_unit ]' , this.UNIT_PATH + '/' )
+	
+	
+	if not this.ROOT.VALUES.source_host == this.HOSTNAME:
+
+		relink( this )
+		
+		
+	# Cargar el toolset de proyecto
+	
+	print this.UNIT_PROJECT_NAME
+	
+	
+
+
+def relink( this ):
+	
+
+	# Check if there is any ( targets ) nodes in Error
+	
+	changes = this.BRAIN.relink_changes = []
+	
+	for n in nuke.allNodes():
+
+		if 'file' in n.knobs() and not n.Class().startswith('Write'):
+			
+			old_file_value = this(n).VALUES.file
+			
+			old_dirname , old_basename  = os.path.split( old_file_value )
+			
+			if not os.path.isdir( old_dirname ):  # hasError() takes too long
+				
+				hosts = [ this.HOSTNAME ]
+				
+				source_host = this.ROOT.VALUES.source_host
+				
+				if source_host and source_host not in hosts:
+					
+					hosts.append( source_host )
+				
+
+				for host in hosts:
+					
+					compatible, match = brain.Lib.sources.compatible_match_cache( old_file_value , host )
+					
+					#print 'DEBUG RELINK Comp/Match :: [ %s ] , [ %s ] , [ %s ]\n\n' % ( host , compatible , match )
+					
+					for comp in compatible:
+
+						if comp != match:
+
+							test_dirname = old_dirname.replace( match , comp )
+
+							if os.path.isdir( test_dirname ) and os.listdir( test_dirname ):
+
+								print 'Relinking %s : %s >> %s' % ( n.name() , match , comp )
+
+								new_file_value = Normalize.join( test_dirname , old_basename)
+
+								this(n).KNOBS.file.setValue( new_file_value )
+
+								changes.append( ( this(n).KNOBS.file , new_file_value , old_file_value ) )
+
+								break
+
+
+							#print '\n>> %s message : Folder cannot be found in sources, %s ' % ( n.name() , old_dirname )
+					
+				
+				
+				#for H , HN , R , LR , RR  in  brain.Lib.sources.walk():
+				#	
+				#	if H not in hosts:
+						
+						
+					
+					
+					
+				
+				
+				
+				
+				
+				
+			
+
+
+
+
+	if changes:
+
+		print '\n    >> %s knobs relinked' % len(changes)
+
+		this.KNOBS.restore.clearFlag( nuke.DISABLED )
+
+	else:
+
+		print '\n    >> Nothing Relinked'
+		
+
+	
+	
+
+	
+	
+	
+
+def restore( this ):
+
+	for change in reversed( this.BRAIN( 'relink_changes' , [] )  ):
+
+		knob , new_file_value , old_file_value = change
+
+		print '>> Restoring : %s.%s , %s' % ( knob.node().name() , knob.name() , new_file_value )
+
+		knob.setValue( new_file_value )
+	
+	this.BRAIN.relink_changes = [] 
+	
+	this.KNOBS.restore.setFlag( nuke.DISABLED )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+# Not used
+def _production_render_review( this ):
+	
+	def modify_render_path_version( path , add = 0 ):
+		
+		dirname, basename = os.path.split( file_value )
+		
+		name = basename.split('.')[0]
+		sufix = '.'.join( basename.split('.')[1:] )
+		
+		pattern = []
+		version = 1
+		
+		for item in name.split('_'):
+			
+			if item.startswith('v') and item[1:].isdigit():
+				
+				version = int( item[1:] )
+				
+				if add:
+					
+					old_version = item
+					
+					item = 'v%02d' % ( version + add )
+					
+					dirname = dirname.replace( old_version , item )
+					
+				else:
+					
+					item = 'v%02d'
+				
+			pattern.append( item )
+					
+		pattern = '_'.join( pattern )
+		
+		pattern = '%s/%s.%s' % ( dirname , pattern , sufix )
+		
+		return pattern , version
+	
+	
+	
+	print '\n     >> Checking Production Renders'
+	
+	
+	for wn in [ n for n in nuke.allNodes() if n.Class() == 'Write' ]:
+			
+		if this( wn ).VALUES.wm_category == 'Production':
+			
+			print '\n          >> Production Render Found < %s >' % wn.name()
+		
+			
+			file_value = this( wn ).VALUES.file
+			
+			render_len = wn.lastFrame() - wn.firstFrame() + 1
+			
+			render_stats = [ render_len , 0 ]
+			
+			
+			
+			if not this( wn ).VALUES.wm_overwrite:
+				
+				pattern , version = modify_render_path_version( file_value , add = -1 )
+				
+			
+			else:
+				
+				pattern = file_value 
+			
+			
+			
+			for i in wn.frameRange():
+				
+				frame_path = pattern %  i
+				
+				if os.path.exists(frame_path):
+					
+					render_stats[1] += 1
+					
+				else:
+					
+					break
+					
+					
+			todo , done = render_stats
+			
+			
+			if done == 0:
+				
+				nuke.message( 'Production Render is UNRENDERED')
+			
+			
+			elif todo == done:
+				
+				nuke.message( 'Production Render is COMPLETED.\nSave as new version' )
+				
+
+			
+			
+			else:
+				
+				nuke.message( 'Production Render is INCOMPLETED\n\nAt least %s of %s frames rendered.' % ( done , todo ) )
+			
+			
+			print '\n          >> Production Render < %s > :  Warning Done' % wn.name()

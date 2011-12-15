@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib
+END
+nodeScript.py
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/nodeScript.py
+END
+userNodes3.py
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/userNodes3.py
+END
+knobs.py
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/knobs.py
+END
+path.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/path.py
+END
+solvers.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/solvers.py
+END
+time.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/time.py
+END
+nodes7.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/nodes7.py
+END
+output.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/output.py
+END
+panel3.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/panel3.py
+END
+include.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/include.py
+END
+sources.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/sources.py
+END
+this.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_core_a3/Lib/this.py
+END

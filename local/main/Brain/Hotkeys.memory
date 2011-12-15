@@ -1,0 +1,25 @@
+
+
+
+Info_or_Show_Group = 'i'
+Show_Group_Parent = 'u'
+
+
+contextRead = 'r'
+
+
+Rebuild_Selection_Forced = 'alt+º'
+Rebuild_Script_Forced = 'ctrl+º'
+Refresh_Node = 'º'
+
+
+
+Safe_Save = 'ctrl+s'
+Safe_Save_As = 'ctrl+shift+s'
+Safe_Save_Selection = 'alt+shift+s'
+Reload_All_Nodes = 'shift+r'
+Soft_Reload = 'ctrl+shift+w'
+
+
+
+Search_and_Replace_v03 = 'ctrl+f'

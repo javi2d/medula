@@ -1,0 +1,216 @@
+
+# This panel allow to publish footage to a target path
+# TODO 
+
+
+LABEL_TEMPLATE = '<font>%s</font>'
+
+CONFIRM_TEMPLATE = '<font color="Green">%s</font>'
+
+UNIT_INPUT = this.UNIT_PATH + '/Input/' 
+
+#space['info']
+
+
+
+
+		
+LIB = space['shell'].Publish_v03.library['exec']   #   Core.execution( space['shell'].Publish_v03.library['file'] )
+
+class User:
+	
+	
+	history = enumKnob( 'history'  )
+	
+	sep = sepKnob( ' ' )
+	
+	target_folder = fileKnob( 'path' , UNIT_INPUT )
+	
+	sep2 = sepKnob( ' ' )
+	
+	copy  = bttnKnob( LABEL_TEMPLATE % 'copy' , flags = 'STARTLINE')
+	
+	move  = bttnKnob( LABEL_TEMPLATE % 'move')
+	
+	confirm = bttnKnob( CONFIRM_TEMPLATE % 'confirm' , flags = 'INVISIBLE')
+	cancel = bttnKnob( '<font color="Red">cancel</font>' , flags = 'INVISIBLE')
+	
+	sep1 = sepKnob( 'read operations' )
+	
+	get_target_ref = bttnKnob('get target reference' , flags = 'STARTLINE')
+
+
+def switch( this ):
+	
+	for node in [ x for x in nuke.selectedNodes() if x.Class() == 'Read' ]:
+
+
+		f_ref = this( node ).VALUES.file
+		t_ref = this( node ).VALUES.target_reference
+
+		if t_ref:
+
+			ff = this( node ).VALUES( 'origfirst' , this(node).VALUES.first )
+			lf = this( node ).VALUES( 'origlast' , this(node).VALUES.last )
+			
+		
+			this( node ).KNOBS.target_reference.setValue( f_ref )
+			this( node ).KNOBS.file.fromUserText( '%s %s-%s' % ( t_ref , ff , lf ) )
+
+
+def get_target_ref( this ):
+	
+	for node in [ x for x in nuke.selectedNodes() if x.Class() == 'Read' ]:
+		
+		node = this( node )
+		
+		f_ref = node.VALUES.file
+		t_ref = node.VALUES.target_reference
+		
+		if t_ref and not os.path.isdir( t_ref ):
+			
+			ff = node.VALUES( 'origfirst' , node.VALUES.first )
+			lf = node.VALUES( 'origlast'  , node.VALUES.last  )
+			
+			name = 'COPY_OF_%s_instance1' % node.VALUES.name
+			
+			fvalue  = '%s %s-%s' % ( t_ref , ff , lf )
+			
+			xp = node.VALUES.xpos + 20
+			yp = node.VALUES.ypos - 20
+					
+			read_params = 'name %s file "%s" xpos %s ypos %s ' % ( name  , fvalue , xp , yp ) #file "%s" , 
+			
+			r = nuke.createNode( 'Read' , read_params )
+			
+
+def onCreate( this ):
+	
+	
+	history_values = [ this.UNIT_PATH + '/Publish/' ]
+	
+	#print history_values
+	
+	history_memory = brain.Publish( 'history' , history_values )
+	
+	this.KNOBS.history.setValues( history_memory )
+	
+	last_history_item = this.KNOBS.history.values()[-1]
+	
+	this.KNOBS.history.setValue( last_history_item )
+	this.KNOBS.target_folder.setValue( last_history_item )
+	
+	#this.KNOBS.overwrite.setValue( brain.Publish( 'overwrite' , False ) )
+	
+	
+	
+def dump_memory( this ):
+	
+	brain.Publish.history = this.KNOBS.history.values()
+	
+	brain.Publish >> ush.Brain( 'Publish.memory' )
+
+	print '>> Publish.memory dumped.' 
+
+
+def target_folder( this ):
+	
+	tf = this.VALUES.target_folder
+	
+	if os.path.isfile( tf ):
+		
+		tf = os.path.dirname( tf )
+		
+	if not tf.endswith('/'):
+		
+		tf += '/'
+	
+	
+	this.KNOBS.target_folder.setValue( tf )
+	
+	history_values = this.KNOBS.history.values()
+	
+	if tf in history_values:
+		
+		history_values.remove( tf )
+		
+	this.KNOBS.history.setValues( history_values + [ tf ] )
+	this.KNOBS.history.setValue( tf )
+		
+	dump_memory( this )
+		
+	
+
+
+def knobChanged( this ):
+	
+	knob_name = this.KNOB.name()
+	
+	if knob_name in 'copy move move_and_relink'.split():
+		
+		this.BRAIN.selected_operation = knob_name
+		dump_memory( this )
+		show_confirm( this )
+		
+		
+		
+		
+def history( this ):
+
+	this.KNOBS.target_folder.setValue( this.VALUES.history )
+	
+
+def hide_confirm( this ):
+	
+	this.BRAIN.selected_operation = None
+	
+	this.KNOBS.confirm.setFlag( nuke.INVISIBLE )
+	this.KNOBS.cancel.setFlag( nuke.INVISIBLE )
+
+
+
+def show_confirm( this ):
+	
+	this.KNOBS.confirm.setLabel(  CONFIRM_TEMPLATE % 'confirm %s' % this.BRAIN.selected_operation  )
+		
+	this.KNOBS.confirm.clearFlag( nuke.INVISIBLE )
+	this.KNOBS.cancel.clearFlag( nuke.INVISIBLE )
+
+
+def cancel( this ):
+	
+	hide_confirm( this )
+
+
+def confirm( this ):
+	
+	operation = this.BRAIN.selected_operation  
+	
+	if operation:
+	
+		import threading
+
+		threading.Thread( None , LIB.file_ops_thread , args = ( operation , this.VALUES.target_folder )  ).start()
+
+	hide_confirm( this )
+	
+
+
+def move_and_relink( this ):
+
+	# Add path to history list and save memory file
+
+	dump_memory( this )
+
+	# Start the publish thread
+
+	import threading
+
+	threading.Thread( None , LIB.file_ops_thread , args = ( 'move_and_relink' , this.VALUES.target_folder )  ).start()
+
+
+
+	
+	
+	
+	

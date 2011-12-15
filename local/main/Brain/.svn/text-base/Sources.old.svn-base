@@ -1,0 +1,35 @@
+
+
+
+class tomoko:
+
+	_hostname = 'tomoko'
+	proyectos = (['/Users/hulkie/Desktop/PROJECTS'], [])
+
+class neo:
+
+	_hostname = 'neo'
+	proyectos = (['X:\\PROYECTOS_NUKE', 'D:\\trabajos_neo\\PROYECTOS_NUKE'], ['//NEO/trabajos_neo/PROYECTOS_NUKE'])
+
+class javi2d:
+
+	_hostname = 'javi2d'
+	proyectos = (['/Users/user/PROYECTOS1'], ['//javi2d/PROYECTOS1', '/Facility/javi2d/PROYECTOS1'])
+	proyectos2 = (['/Users/user/Desktop/PROJECTS'], [])
+
+class hulkie:
+
+	_hostname = 'hulkie'
+	proyectos = (['/Users/hulkie/PROYECTOS1'], ['//hulkie/PROYECTOS1', '/Facility/hulkie/PROYECTOS1'])
+
+class NAS3D:
+
+	_hostname = 'NAS3D'
+	arrayE = ([], ['//nas3d/ArrayE/proyectos'])
+
+class NAS2D:
+
+	_hostname = 'NAS2D'
+	arrayE = ([], ['//nas2d/ArrayE/proyectos'])
+
+

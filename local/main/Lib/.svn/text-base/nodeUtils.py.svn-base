@@ -1,0 +1,140 @@
+
+def info( node ):
+	
+	this = space.this( node )
+
+
+
+	file_value = this.VALUES.file
+	
+	if file_value: # if its VOID will not happen
+
+		file_value = brain.Lib.path.normalize_padding( this.VALUES.file )
+	
+	
+	
+	proxy_value = this.VALUES.proxy
+	
+	if proxy_value:
+
+		proxy_value = brain.Lib.path.normalize_padding( proxy_value )
+
+	elif file_value:
+
+		proxy_value = brain.Lib.path.valid_proxy_from_file( this )
+	
+	
+	
+	
+	auto_folder = None
+	
+	if file_value:
+
+		dirname , basename = os.path.split( file_value )
+
+		name = basename.split('.')[0].split('%')[0]
+
+		if name:
+
+			auto_folder =  name
+
+		else:
+
+			auto_folder = os.path.basename( dirname )
+	
+	
+		
+
+	yield  file_value , proxy_value , this.VALUES.first , this.VALUES.last , auto_folder
+	
+
+
+
+
+
+def check_reference( node , knob = 'file' ): # path may include % or #
+
+	'''
+	A node is given with knob "knob" representing a path to a file or sequence.
+	
+	A list is returned < complete > , ff , lf , [ frames ok ] , [ bad frames ]
+	
+	'''
+	
+	this = space.this( node )
+	
+	file_value = this.VALUES( knob )
+	
+	if file_value:
+		
+		ff = this.VALUES.first or this.NODE.firstFrame()
+		
+		lf = this.VALUES.last or this.NODE.lastFrame()
+		
+		file_value = brain.Lib.path.normalize_padding( file_value )
+		
+		to_eval_frames = range( ff , lf + 1 )
+		
+		frames_ok  = []
+		frames_bad = []
+		
+		if '%' in file_value:
+			
+			for f in to_eval_frames:
+				
+				if os.path.exists( file_value % f ):
+					
+					frames_ok.append( f )
+				
+				else:
+					
+					frames_bad.append( f )
+		
+		else:
+			
+			if os.path.exists( file_value ):
+				
+				frames_ok.append( f )
+			
+			else:
+				
+				frames_bad.append( f )	
+			
+		
+		return ( len( frames_ok ) == len( to_eval_frames ) ) , ff , lf ,  frames_ok , frames_bad
+		
+		# complete , ff , lf , fok , fbad = brain.Lib.nodeUtils.check_reference
+		
+	
+	else:
+		
+		raise RuntimeError( '\n\nError in read_utils.check_reference , with knob "%s" in node "%s" ' % ( knob , node.name()  )  )
+			
+			
+			
+			
+			
+			
+			
+			
+		
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

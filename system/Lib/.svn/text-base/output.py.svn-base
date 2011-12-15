@@ -1,0 +1,30 @@
+
+
+def hide():
+	
+	main.nuke_stdout = sys.stdout
+
+	sys.stdout = open( sh('hidden.log')['file'] , 'w' )
+
+
+	
+def show():
+	
+	sys.stdout.close()
+
+	sys.stdout = main.nuke_stdout
+	
+	
+def redirect():
+	
+	brain.nuke_stdout = sys.stdout	
+	sys.stdout = sys.__stdout__
+	
+
+def restore():
+	
+	if brain( 'nuke_stdout' , None ):
+	
+		sys.stdout = brain.nuke_stdout
+	
+	brain.nuke_stdout = None

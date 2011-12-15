@@ -1,0 +1,10 @@
+
+
+
+
+# Snapshot renders only current frame
+class Snapshot:
+	
+	pattern  = 'snapshot_$LABEL'	
+	params = 'channels all colorspace default file_type exr'
+	color = 'White'

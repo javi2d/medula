@@ -1,0 +1,16 @@
+
+
+
+
+
+
+DEFAULT_RESOURCE = local( 'home/Sessions' )
+
+DEFAULT_PROJECT  = 'sessionsProject'
+
+DEFAULT_UNIT     = 'sessionsUnit_%s' % Core.date()
+
+
+SCRIPTS = 'nuke' 
+INPUT   = 'Input'
+OUTPUT  = 'Output'

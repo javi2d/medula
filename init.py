@@ -1,0 +1,3 @@
+
+
+nuke.pluginAddPath( 'system' )

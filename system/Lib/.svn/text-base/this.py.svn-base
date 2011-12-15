@@ -1,0 +1,611 @@
+
+
+#import nuke
+#import socket
+
+class this(object):
+	
+	__counter__ = 0
+	
+	def __call__(self , NODE = None , KNOB = None ):
+		
+		if NODE or KNOB:
+			
+			new_this = this( NODE = NODE , KNOB = KNOB )
+			
+			return new_this
+			
+		else:
+		
+			self._NODE = NODE 
+			self._KNOB = KNOB 
+
+			return self
+		
+
+		
+		
+	def __init__(self , NODE = None , KNOB = None ):
+		
+		# main.this is a instance of this with all to None, so it will refer to the current this
+		
+		#print '\n++++++++++ new this +++++++++++\n'
+		
+		self._NODE = NODE
+		self._KNOB = KNOB
+		
+		this.__counter__ += 1
+			
+	
+	
+	def __getattr__(self, att):
+		
+		return self.__common_getattr__( self , att )
+		
+		
+	@staticmethod
+	def __common_getattr__( self , att ):
+	
+		if att == 'ROOT':
+			
+			try:
+			
+				new_this = this( nuke.Root() )
+				return new_this
+				
+			except:
+				
+				raise	
+				
+		
+		elif att == 'NODE':
+			
+			return  ( self._NODE or nuke.thisNode() ) #self.SELECTED_NODE or 
+		
+		
+		elif att == 'CLASS':
+			
+			return self.NODE.Class()  # ( self._NODE or nuke.thisNode()  ).Class()  # or nuke.Root()
+		
+					
+		elif att == 'KNOB':
+			
+			return  ( self._KNOB or nuke.thisKnob() )
+		
+		
+		elif att == 'VALUE':
+			
+			knob =  self.KNOB  #( self._KNOB or nuke.thisKnob() )
+			
+			if knob:
+				
+				return knob.value()
+		
+			
+		elif att == 'KNOBS':
+			
+			node = self.NODE  #( self._NODE or nuke.thisNode() )
+			
+			if node:
+			
+				KNOBS = Brain()
+				
+				for knob_name , knb in node.knobs().items():
+					
+					setattr( KNOBS, knob_name, knb )
+				
+				return KNOBS['lock']
+		
+				
+		elif att == 'SORTED_KNOBS':
+			
+			node = self.NODE  # ( self._NODE or nuke.thisNode() )
+			
+			if hasattr( node , 'allKnobs' ):
+				
+				return node.allKnobs()
+			
+			else:
+				
+				return [ node.knob(i) for i in range( node.getNumKnobs() ) ]
+		
+			
+		elif att == 'SORTED_VALUES':
+			
+			node = self.NODE  # ( self._NODE or nuke.thisNode() )
+			return [ node.knob(i).value() for i in range( node.getNumKnobs() ) ]			
+		
+		
+		elif att == 'SORTED_NAMES':
+			
+			return self.NODE.writeKnobs( nuke.WRITE_ALL ).split()
+			
+			
+			#node = self.NODE  #( self._NODE or nuke.thisNode() )
+			#return [ node.knob(i).name() for i in range( node.getNumKnobs() ) ]
+		
+		
+		elif att == 'SORTED_ITEMS': # ( name , value )
+			
+			node = self.NODE  #( self._NODE or nuke.thisNode() )
+			
+			return [ ( node.knob(i).name() , node.knob(i).value() ) for i in range( node.getNumKnobs() ) ]
+		
+		
+		elif att == 'SORTED_TOSCRIPT_ITEMS': # ( name , toScript )
+			
+			node = self.NODE  #( self._NODE or nuke.thisNode() )
+			
+			return [ ( node.knob(i).name() , node.knob(i).toScript( True , context = None ) ) for i in range( node.getNumKnobs() ) ]
+		
+		
+		elif att == 'VALUES':
+			
+			node = self.NODE  # ( self._NODE or nuke.thisNode() )
+			
+			if node:
+			
+				VALUES = Brain()
+				for knob_name , knb in node.knobs().items():
+					setattr( VALUES, knob_name, knb.value() )
+			
+				return VALUES['lock']
+		
+		
+		elif att == 'BRAIN':
+			
+			NODE = self.NODE  # ( self._NODE or nuke.thisNode() )
+			
+			if isinstance( NODE, nuke.PanelNode ):
+				
+				return main.brain('DATA.PANELS.%s' % NODE.knobs()['panel_id'].value().replace('.','_') , Brain() )
+			
+			else:
+				
+				return main.brain('DATA.NODES.%s' % NODE.Class() , Brain() )
+		
+				
+		elif att == 'NODES':
+			
+			Node = self.NODE  #( self._NODE or nuke.thisNode() )
+			
+			NODES = Brain()
+			
+			if isinstance( Node, nuke.Group ):
+				
+				allNodes = Node.nodes()
+			
+			else:
+				
+				allNodes = nuke.allNodes()
+					
+			for node in allNodes:
+					
+				NODES( node.name() , node )
+						
+			return NODES['lock']
+		
+		
+		elif att == 'THIS_NODES': # same as nodes but in 'this' format
+			
+			Node = self.NODE  # ( self._NODE or nuke.thisNode() )
+			
+			NODES = Brain()
+			
+			if isinstance( Node, nuke.Group ):
+				
+				allNodes = Node.nodes()
+			
+			else:
+				
+				allNodes = nuke.allNodes()
+					
+			for node in allNodes:
+					
+				NODES( node.name() , this( node ) )
+						
+			return NODES['lock']
+			
+		
+		elif att == 'ALL_NODES':
+			
+			return nuke.allNodes()
+		
+		
+		elif att == 'ALL_THIS_NODES':
+			
+			return [ this( n ) for n in nuke.allNodes() ]
+		
+		
+		
+		elif att == 'SELECTED_NODE':
+			
+			try:
+				
+				return this( nuke.selectedNode() )
+			
+			except ValueError:
+				
+				return  None #this( nuke.Root() )
+		
+		
+		elif att == 'ROOT_SELECTED_NODE':
+			
+			nuke.Root().begin()
+			
+			return self.SELECTED_NODE
+			
+			
+		
+		elif att == 'SELECTED_NODES':
+			
+			return [ this( n ) for n in  nuke.selectedNodes() ]
+		
+		
+		elif att == 'ROOT_SELECTED_NODES':
+			
+			
+			nuke.Root().begin()
+			
+			return self.SELECTED_NODES
+		
+		
+		
+		
+		elif att == 'NODES_BY_CLASS':
+
+			Node = self.NODE  # ( self._NODE or nuke.thisNode() )
+			
+			NODES = Brain()
+			
+			if isinstance( Node, nuke.Group ):
+				
+				allNodes = Node.nodes()
+			
+			else:
+				
+				allNodes = nuke.allNodes()
+				
+			
+
+			for node in allNodes:
+				
+				current_class_list = NODES( node.Class() , [] )
+				current_class_list.append( node )
+
+			return NODES['lock']
+		
+		
+		elif att == 'PARENT':
+			
+			parent = nuke.thisParent() 
+			
+			if not parent:
+				
+				parent = nuke.Root()
+			
+			return parent
+		
+		
+		# NODES AND KNOBS
+		######################################################		
+		# NETWORK		
+
+		
+			
+		elif att == 'HOSTNAME':
+			
+			return socket.gethostname().split('.')[0]
+			
+			
+		elif att == 'HOSTLABEL':
+			
+			hostlabel = ''
+			
+			for char in self.HOSTNAME:
+				
+				hostlabel += ( char if char.isalnum() else '_' )					
+			
+			return hostlabel
+		
+		
+		elif att == 'USER':
+			
+			return os.path.basename( os.path.expandvars( '$HOME' ) )
+		
+		
+		elif att == 'HOME':
+			
+			return os.path.expandvars( '$HOME' )
+			
+		
+		
+		elif att == 'OPERATOR':
+			
+			return brain.Sources( '%s._operator' % self.HOSTLABEL , self.HOSTLABEL )
+			
+
+
+		# NETWORK
+		######################################################		
+		# NBRAIN	
+
+
+		#elif att == 'NBRAIN':
+			
+		#	return  self.PANEL_NBRAIN or self.NODE_NBRAIN or self.CLASS_NBRAIN
+		
+		
+		elif att == 'PANEL_NBRAIN':
+
+			byPanel = brain.nodeScript( 'byPanel' , {} )
+			
+			panel_id = self.VALUES( 'panel_id' , None )
+			
+			if panel_id and panel_id in byPanel:
+
+				return byPanel[ panel_id ]
+		
+		
+		elif att == 'NODE_NBRAIN':
+
+			byNode  = brain.nodeScript( 'byNode' , {} )
+
+			userNode_id = self.VALUES( 'userNode_id' , None )
+
+			if userNode_id and userNode_id in byNode:
+
+				return byNode[ userNode_id ]
+		
+		
+		
+		elif att == 'CLASS_NBRAIN':
+			
+			byClass = brain.nodeScript( 'byClass' , {} )
+			
+			if self.CLASS in byClass:
+				
+				return byClass[ self.CLASS ]
+		
+				
+
+		
+		
+
+		
+			
+	
+		elif att == 'SPACE':
+			
+			return self.NBRAIN.space
+		
+		
+		# NBRAIN
+		######################################################		
+		# SCRIPT
+
+
+
+
+		elif att == 'SCRIPT_PATH':
+			
+			tcl_value = nuke.tcl( 'value root.name' )
+			
+			if tcl_value:
+				
+				return Normalize.path( tcl_value )
+				
+			else:
+				
+				return ''
+		
+		
+		elif att == 'SCRIPT_NAME':
+			
+			if self.SCRIPT_PATH:
+				
+				return os.path.splitext( os.path.basename( self.SCRIPT_PATH ) )[0]
+			
+		
+		
+		elif att == 'SCRIPT_FOLDER':
+			
+			
+			if self.SCRIPT_PATH:
+	
+				return os.path.dirname( self.SCRIPT_PATH )
+
+			else:
+
+				return self.SESSIONS_UNIT_PATH + '/nuke'
+
+
+		elif att == 'SCRIPT_HISTORY':
+
+			pass # returns all history script paths relative to current script
+
+		elif att == 'SCRIPT_RENDER_HISTORY':
+
+			pass # returns all history script paths relative to current selected read node
+		
+		
+		
+		# SCRIPT
+		######################################################		
+		# UNIT		
+		
+		
+		
+		
+		elif att == 'SESSIONS_UNIT_PATH': 
+			
+			return self.sessions_unit()
+
+		
+		elif att == 'UNIT_PATH':
+			
+			return ( self.unit_path( )  or  self.SESSIONS_UNIT_PATH )	
+		
+		
+		elif att == 'UNIT_NAME':
+
+			return os.path.basename( self.UNIT_PATH )
+
+
+		elif att == 'UNIT_ID':
+
+			return self.unit_id( )
+
+
+		elif att == 'UNIT_PROJECT_PATH':
+
+			return ( self.unit_project( ) or os.path.dirname( self.UNIT_PATH ) )
+		
+		
+		elif att == 'UNIT_PROJECT_NAME':
+
+			return os.path.basename( self.UNIT_PROJECT_PATH )
+		
+		
+		else:
+			
+			raise AttributeError( '''
+
+!! this.%s attribute not exists. 
+
+			''' % att )
+
+# UNIT
+######################################################		
+
+
+	def sessions_unit( self ):
+
+		sessions_unit = Normalize.path( '$HOME/.nuke/sopbox_default_project/sopbox_default_unit' )
+
+		sh( sessions_unit )
+
+		return sessions_unit
+
+
+
+
+	def unit_path( self ):
+
+		''' unit path is resolved by script name:
+
+		1. Script is not saved yet: unit defaults to SESSIONS_UNIT_PATH
+		2. Script is saved but not under a /nuke folder : the unit is where script is saved
+		3. Script path is not under any Source : 
+
+		'''
+
+		if self.SCRIPT_PATH:
+			
+			base_folder = os.path.dirname( self.SCRIPT_PATH )
+
+			script_folder = base_folder
+
+			while len( base_folder ) > 2 :
+
+				base_folder , basename = os.path.split( base_folder )
+
+				if basename.lower() == 'nuke':
+
+					return base_folder
+
+			return script_folder
+
+
+
+
+
+
+	def unit_project( self ):
+
+
+		project = None	
+
+		compatible , match = brain.Lib.sources.compatible_match_cache( self.UNIT_PATH )
+
+
+		if match:
+
+			if self.UNIT_PATH == match:
+
+				return self.UNIT_PATH
+
+			else:
+
+				tmp = self.UNIT_PATH
+
+				#print 'Finding Project....'
+
+				while len( tmp ) > 2 :
+
+					tmp , dirname = os.path.split( tmp ) 
+
+					if tmp == match:
+
+						return Normalize.join( tmp , dirname ) 
+
+				print 'THIS SHOULD NEVER PRINT : Project not found'
+
+
+		return 
+
+
+
+
+	def unit_id( self ): # HEADER ID PL_JDM_003_004   the rest is user description
+
+		unit_id = []
+
+		found = False
+
+		for item in self.UNIT_NAME.split( '_' ):
+
+
+			if item.isdigit() or item[:-1].isdigit():  # to allow 001 or 001B 
+
+				unit_id.append( item )
+				found = True
+
+			elif found  and not item.isdigit():
+
+				break
+
+			else:
+
+				unit_id.append( item )
+
+
+		return '_'.join( unit_id )
+
+
+
+	def unit_output_folder( self ):
+
+		pass
+
+
+	def unit_input_folder( self ):
+
+		pass
+
+
+	def unit_scripts_folder( self ):
+
+		pass # returns +/nuke
+
+
+
+
+
+
+
+
+
+
+
+	
