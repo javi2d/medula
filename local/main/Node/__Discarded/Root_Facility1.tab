@@ -65,11 +65,7 @@ def onScriptLoad( this ):
 
 		relink( this )
 		
-		
-	# Cargar el toolset de proyecto
-	
-	print this.UNIT_PROJECT_NAME
-	
+
 	
 
 

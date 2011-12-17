@@ -211,11 +211,11 @@ def autolabel( this ):
 		
 		proxy_mode = this.ROOT.VALUES.proxy #nuke.tcl( 'value root.proxy' )
 		
-		print 'DEBUG write autolabel proxy mode' , proxy_mode
+		#print 'DEBUG write autolabel proxy mode' , proxy_mode
 		
 		filename = this.VALUES.proxy if proxy_mode else this.VALUES.file
 		
-		print 'DEBUG write autolabel filename' , filename
+		#print 'DEBUG write autolabel filename' , filename
 		
 		label = this.VALUES.wm_category
 		

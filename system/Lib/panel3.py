@@ -25,7 +25,7 @@ class Static_Panel( object ):
 		
 		nukescripts.registerPanel( self.nbrain.name , self.panel   ) 
 
-		nuke.menu('Pane').addCommand( self.nbrain.name , self.show  ) 
+		nuke.menu('Pane').addCommand( self.nbrain.name , self.show  )
 	
 	
 	def panel( self ):
@@ -60,13 +60,11 @@ class Dynamic_Panel(object):
 			self.update_nbrain()
 			
 			self.build_panel()
-		
+			
 			self.apply_callbacks()
 		
 			self.nbrain.static_bundle = self.nbrain.dynamic_bundle
 		
-
-	
 		
 	def hide( self ):
 		
@@ -193,7 +191,7 @@ class Dynamic_Panel(object):
 			old_widget.destroy()
 		
 
-		print '\nDEBUG : Recreated Panel %s' % self.nbrain.name
+		print '\n&& Panel Recreated :: %s' % self.nbrain.name
 
 		return panel
 		

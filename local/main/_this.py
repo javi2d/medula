@@ -29,20 +29,16 @@ def FARM( self ):
 	
 	return brain.Lib.database.Cursor( local.home( 'Farm/farm.db' )['file'] )
 	# Link to farm database
-	
-
 
 
 	
 def DEFAULT_UNIT_PATH( self ):
 	
+	
+	
+	
 	return Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT , brain.Project.DEFAULT_UNIT , brain.Project.SCRIPTS )
 	
-	#default_unit_shell = sh(  Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT , brain.Project.DEFAULT_UNIT )  )
-	#
-	#default_unit_shell( brain.Project.SCRIPTS )
-	#
-	#return default_unit_shell['$PATH']
 
 
 
@@ -50,9 +46,9 @@ def UNIT_PATH( self ):
 	
 	''' unit (shot) path is resolved by script name:
 	
-	1. Script is not saved yet: unit defaults to SESSIONS_UNIT_PATH
+	1. Script is not saved yet: unit defaults to DEFAULT_UNIT_PATH
 	2. Script is saved but not under a /nuke folder : the unit is where script is saved
-	3. Script is under /nuke folder, unit is the parent folder of /nuke folder
+	3. Script is under /nuke folder: unit is the parent folder of /nuke folder
 	
 	'''
 
@@ -60,13 +56,29 @@ def UNIT_PATH( self ):
 		
 		base_folder = Normalize.dirname( self.SCRIPT_PATH )
 		
-		return base_folder.split( '/' + brain.Project.SCRIPTS )[0]
+		unit_path = base_folder.split( '/' + brain.Project.SCRIPTS )[0]
 	
 	else:
 		
-		return self.DEFAULT_UNIT_PATH
+		unit_path = self.DEFAULT_UNIT_PATH
+	
 
+		
+	# Esta pasa cuando forzamos que la unidad sea equivalente a un projecto, solo deberia ser valido bajo el default resource
+	
+	dirname , basename = os.path.split( unit_path )
 
+	if basename == brain.Project.SCRIPTS:
+	
+		return dirname
+	
+	else:
+	
+		return unit_path
+	
+	
+	
+	
 
 def UNIT_NAME( self ):
 
@@ -75,6 +87,7 @@ def UNIT_NAME( self ):
 
 def UNIT_SCRIPTS_PATH( self ):	
 	
+
 	return Normalize.join( self.UNIT_PATH , brain.Project.SCRIPTS )
 	
 
@@ -86,6 +99,23 @@ def UNIT_RESOURCE_PATH( self ):
 	compatible , match = brain.Lib.sources.compatible_match_cache( unit_path )
 
 	return match
+
+
+
+def UNIT_PROJECT_PATH( self ):
+
+	unit_resource = self.UNIT_RESOURCE_PATH
+
+	if unit_resource:
+		
+		return Normalize.join( unit_resource , self.UNIT_PROJECT_NAME )
+		
+	else:
+		
+		return Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT )
+
+
+
 
 
 def UNIT_PROJECT_NAME( self ):
@@ -102,17 +132,7 @@ def UNIT_PROJECT_NAME( self ):
 
 
 
-def UNIT_PROJECT_PATH( self ):
 
-	unit_resource = self.UNIT_RESOURCE_PATH
-
-	if unit_resource:
-		
-		return Normalize.join( unit_resource , self.UNIT_PROJECT_NAME )
-		
-	else:
-		
-		return Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT )
 
 
 

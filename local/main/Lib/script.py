@@ -76,7 +76,9 @@ def next_version( path ):
 def saveScript():
 
 	script_path = this.SCRIPT_PATH
-
+	
+	#print 'DEBUG script.saveScript' , repr( script_path )
+	
 	if script_path:
 
 		inject_src_host()

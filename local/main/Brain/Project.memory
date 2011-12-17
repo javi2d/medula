@@ -4,11 +4,11 @@
 
 
 
-DEFAULT_RESOURCE = local( 'home/Sessions' )
+DEFAULT_RESOURCE = local( 'home/Sessions' )['$PATH']
 
-DEFAULT_PROJECT  = 'sessionsProject'
+DEFAULT_PROJECT  = '' #'sessionsProject'
 
-DEFAULT_UNIT     = 'sessionsUnit_%s' % Core.date()
+DEFAULT_UNIT     = '' #'sessions_from_%s' % Core.date()
 
 
 SCRIPTS = 'nuke' 

@@ -295,10 +295,16 @@ def GUI_LOAD_TOOLSET( shell , avoid = [] ):
 		# .menu files in Toolset root
 		
 		name  =  shell( fn )['name']
+
+		menu_brain = Brain() 
+    	
+		menu_brain( 'toolbar' , 'Nuke' )
 		
-		menu_brain = Brain() << shell( fn )
-    
-		SHELL2MENU(  shell( name ) , menu_brain( 'toolbar' , 'Nuke' ) )
+		menu_brain << shell( fn )
+		
+		shell( fn )['write']( menu_brain['code'] , backup = False )
+		
+		SHELL2MENU(  shell( name ) , menu_brain.toolbar )
 				
 		
 
@@ -599,7 +605,7 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 	
 	nuke_menu.addCommand( route_string , auto_command , hotkey , icon  )	 
 	
-	#print 'DBG2' ,  route_string , auto_command , hotkey , icon
+	print '		addCommand DBG' ,  route_string , auto_command , hotkey , icon
 	
 
 

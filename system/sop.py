@@ -1111,7 +1111,7 @@ space['files'] = %s
 		
 			if not tries:
 				
-				raise IOError( 'Please revise and delete file: %s .' % lock_file )
+				raise IOError( 'Please revise and manually delete file: %s .' % lock_file )
 				
 			time.sleep(.1)
 		
@@ -1121,7 +1121,7 @@ space['files'] = %s
 		
 		try:
 		
-			f.write( Normalize.code( ''.join( new_code ) , end_error = False )  )
+			f.write( new_code  )  #Normalize.code( ''.join( new_code ) , end_error = False )  pasado a __code__
 		
 		except:
 			
@@ -1236,8 +1236,8 @@ Error description on operation brain.__code__
 						
 						''' % ( name , repr( value ) )  )
 		
-		
-		return CODE
+
+		return Normalize.code( ''.join( CODE ) , end_error = False )
 	
 	
 	
@@ -1438,7 +1438,11 @@ Error description on operation brain.__code__
 		
 		if False:
 			pass
-				
+		
+		elif query == 'code':
+			
+			return self.__code__()
+			
 		elif query == 'routes':
 			
 			return self.__routes__()
@@ -2130,7 +2134,6 @@ Try some of this:
 	def __write__( self , text , backup = True ):
 		
 		
-		
 		self.__validate__()
 			
 		if backup:
@@ -2535,7 +2538,7 @@ class Shell(object):
 					
 					self.__makedirs__( fullPath )
 					
-					print '\n>> AUTOMATIC folder creation : [...]%s\n' % fullPath[-30:]
+					print '\n>> AUTOMATIC folder creation : [...]%s\n' % fullPath[-50:]
 
 					if not os.path.exists( fullPath ):
 						

@@ -62,9 +62,9 @@ def onScriptLoad( this ):
 	
 	this.BRAIN.last_script_unit = this.UNIT_PATH
 	
-	print '\n>> Redefining CURRENT UNIT fav path to ../%s' %  this.UNIT_NAME
+	print '\n>> Redefining [ UNIT ] fav path to ../%s unit' %  this.UNIT_NAME
 		
-	nuke.addFavoriteDir( '[ current_unit ]' , this.UNIT_PATH + '/' )
+	nuke.addFavoriteDir( '[ UNIT ]' , this.UNIT_PATH + '/' )
 	
 	if not this.ROOT.VALUES.source_host == this.HOSTNAME:
 

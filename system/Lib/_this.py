@@ -484,6 +484,7 @@ class this(object):
 
 		elif att == 'SCRIPT_PATH':
 			
+	
 			tcl_value = nuke.tcl( 'value root.name' )
 			
 			if tcl_value:

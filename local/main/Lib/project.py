@@ -62,37 +62,10 @@ def project_name( path ):
 
 def load_toolset( this , avoid = [] ):
 	
-	if local['$PATH'] == medula.local['$PATH']:
-		
-		return None
-	
-	
-	script = None
-	
-	if this.SAFE_NODE:
-		
-		if this.CLASS == 'Root' and this.KNOB.name() == 'name' and this.VALUE:
-			
-			script = this.VALUE
-				
-	else:
-		
-		if this.KNOB.name() == 'name' and this.VALUE:
-			
-			script = this.VALUE
-			
-	
-	if script:	
 
-		project = brain.Lib.project.project_name( script )
-		
-		if project:
-		
-			local._project = local._project( '../%s' % project ) 
-			
-			brain.Lib.include.LOAD_TOOLSET( local._project , avoid = avoid )
-		
-			return local._project
+	pass
+	
+
 	
 	
 	

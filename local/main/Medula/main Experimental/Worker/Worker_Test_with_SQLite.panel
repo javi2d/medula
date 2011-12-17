@@ -1,0 +1,52 @@
+
+
+farm = this.FARM
+
+brain.Lib.database = local.main.Lib.database()
+
+
+class User:
+	
+	reset = bttnKnob( 'reset' )
+	test = bttnKnob( 'test' )
+	
+	rebuild = bttnKnob('rebuild')
+	
+	info = strKnob( 'info' , '' )
+
+
+
+def test( this ):
+		
+	print '\n\nTEST RESULT:\n'
+	
+	con = farm['connection']
+	
+	print '\nTABLES' , farm['tables']
+	
+	print con.SELECT_ALL( '__root__' )
+	
+	print '\nACTIVE TABLE' , farm['table']
+	
+	print '\nCOLUMNS' , farm['columns']
+	
+	print '\nVALUES' , farm['values']
+
+	farm.list = [1,2,3]
+	
+	print farm.list#[2]
+	
+	print farm.newTable
+	
+
+
+def info( this ):
+	
+	farm.info =  this.VALUES.info 
+	
+	
+def reset( this ):
+	
+	farm['reset']()
+	
+	

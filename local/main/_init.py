@@ -49,7 +49,7 @@ if 'debug' in args:
 	
 	if len( args ) == 2:
 		
-		script = Normalize.join( local.cwd , args[0] )
+		script = Normalize.join( cwd['$PATH'] , args[0] )
 		
 		dirname , basename , name, ext = Normalize.split( script )
 		
@@ -102,17 +102,25 @@ else:
 
 	# Add Fav paths
 	
-	brain.Lib.include.ADD_FAV( 'LOCAL' , local['$PATH'] )
+	brain.Lib.include.ADD_FAV( '[ LOCAL ]' , local['$PATH'] )
 	
-	brain.Lib.include.ADD_FAV( 'UNIT' , this.UNIT_PATH + '/' )
+	brain.Lib.include.ADD_FAV( '[ UNIT ]' , this.UNIT_PATH + '/' )
 	
-	#brain.Lib.include.ADD_FAV_ALIVE_RESOURCES()
+	brain.Lib.include.ADD_FAV_ALIVE_RESOURCES()
 
 	# Include Toolsets
 	
 	brain.Lib.include.TOOLSET( medula.local.main )
 	
-	brain.Lib.include.TOOLSET( local.home )
+	if local._user == local.home:
+	
+		brain.Lib.include.TOOLSET( local.home , recreate = True )
+	
+	else:
+		
+		brain.Lib.include.TOOLSET( local.home )
+		
+		
 	
 	brain.Lib.include.TOOLSET( local._user )
 	

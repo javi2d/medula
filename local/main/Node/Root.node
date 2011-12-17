@@ -12,13 +12,14 @@ TABS = [ 'Root_Facility2.tab', 'Root.node' ] #
 			
 def onScriptLoad( this ):	
 	
-	sop.Core.lap( '/SCRIPT.load' )
+	# this callback works with a tag defined in global callbacks right before a script is loaded
+	
+	sop.Core.lap( '/script.load' )
 
-	print '\n\nTimmings:\n'
+	print '\nScript Timmings:\n'
 	
-	sop.Core.lap( '.' )
-	
-	print '\n\n'
+	sop.Core.lap( '.script' )
+
 
 
 

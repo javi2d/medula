@@ -3,6 +3,7 @@
 # this file is evaluated in main
 
 
+
 import sys
 
 try:
@@ -25,7 +26,8 @@ cwd = sop.Expose.object( sh( os.getcwd() ) , 'cwd' )
 
 medula = sop.Expose.object( sh( '..' ) , 'medula' )
 
-local = sop.Expose.object( medula( 'local' ) , 'local' )
+local  = sop.Expose.object( medula( 'local' ) , 'local' )
+
 
 if 'logs' not in medula['$FOLDER_NAMES']:
 	
@@ -48,7 +50,7 @@ brain.Lib << medula.system.Lib
 
 
 
-local( '_init.py' )()
+medula.local( '_init.py' )()
 # execute user/local config.init
 
 

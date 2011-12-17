@@ -1,0 +1,8 @@
+
+#panel with knobs
+
+class User:
+	
+	knob1 = strKnob( 'I am knob1' , 'and this is my value' )
+	
+	knob2 = nuke.String_Knob( 'name_is_overwrited' , 'I am knob2' , '' )

@@ -401,7 +401,7 @@ def apply_onUserCreate_onCreate_callback( nbrain ):
 			
 				add_nodeScript_knobs( this )
 		
-				print '\n>> Rebuilded Node : ', this.NODE.name() 
+				print '\n&& Rebuilded Node ::', this.NODE.name() 
 			
 
 

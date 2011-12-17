@@ -1,0 +1,14 @@
+
+>> Lib ( brain << shell )
+
+     >> INFO brain.database << database
+     >> INFO brain.mReads << mReads
+Debug RELOADED mRender.py
+     >> INFO brain.mRender << mRender
+     >> INFO brain.mWrites << mWrites
+     >> INFO brain.project << project
+     >> INFO brain.script << script
+     >> INFO brain.selection << selection
+     >> INFO brain.sequence << sequence
+     >> INFO brain.worker << worker
+

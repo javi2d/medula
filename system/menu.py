@@ -18,7 +18,7 @@ sop.Core.redirect_output( logs( '%s.init.log' % this.HOSTLABEL )['file']  )
 brain.Lib.include.SHELL2MENU( sh.Medula , 'Nuke' )
 brain.Lib.include.SHELL2MENU( sh.Help , 'Nuke' )
 
-local( '_menu.py' )()
+medula.local( '_menu.py' )()
 # execute user/local config.menu
 
 
@@ -34,7 +34,9 @@ sop.Core.lap( '/startup.medula.menu' )
 
 sop.Core.lap( '.startup' )
 
-if brain( 'FIRST_RUN' , False , create_att = False ):
+if brain( 'FIRST_RUN' , False  ):
+	
+	del brain.FIRST_RUN
 	
 	def delayed_msg():
 	
