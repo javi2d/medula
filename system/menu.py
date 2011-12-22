@@ -11,14 +11,15 @@ Copyright (c) 2011 nukeSopbox. All rights reserved.
 
 sop.Core.lap( 'startup.medula.menu' )
 
-sop.Core.redirect_output( logs( '%s.init.log' % this.HOSTLABEL )['file']  )
+#sop.Core.output_redirect( logs( '%s.init.log' % this.HOSTLABEL )['file']  )
 # redirect output to a log file
 
 
 brain.Lib.include.SHELL2MENU( sh.Medula , 'Nuke' )
 brain.Lib.include.SHELL2MENU( sh.Help , 'Nuke' )
 
-medula.local( '_menu.py' )()
+
+local( '_menu.py' )()
 # execute user/local config.menu
 
 
@@ -28,10 +29,9 @@ brain.Lib.include.GUI_LOAD_QUEUED_TOOLSETS()
 
 
 
-sop.Core.restore_output( )
+#sop.Core.output_restore( )
 
 sop.Core.lap( '/startup.medula.menu' )
-
 sop.Core.lap( '.startup' )
 
 if brain( 'FIRST_RUN' , False  ):

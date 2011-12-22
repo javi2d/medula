@@ -51,15 +51,12 @@ def force_rebuild_node( this ):
 	
 	if nbrain:
 		
-
 		remove_nodeScript_knobs( this )
 
 		add_nodeScript_knobs( this )
 	
 		print '\n\n>> Forced Node Rebuild : %s\n' % this.NODE.name()
 	
-
-		
 	return nbrain
 
 
@@ -99,15 +96,17 @@ def knob_smc_values( knob ):
 	multiple = ( knob.values() if hasattr( knob , 'values') else [] )
 	command  = ( knob.command() if hasattr( knob , 'command') else None )
 	
+	#if knob.Class() == 'Enumeration_Knob':
+	#	msg = '***********DBG value of enumeration knob (  %s = %s )' % ( knob.name(), single )
+	#	sys.__stdout__.write( '\n%s\n' % msg )
+	
 	return single , multiple , command
 	
 	
 
 
-
-
-def old_values( knobs = [] ):
-
+def old_values( knobs = [] ): #
+	
 	current_old_values = {}	
 	
 	#to_delete_knobs = nodeScript_knobs( this )
@@ -117,7 +116,7 @@ def old_values( knobs = [] ):
 		for knob in  [ k for k in knobs if k.Class() not in 'Tab_Knob Link_Knob Text_Knob'.split() ]:
 			
 			single , multiple , command = knob_smc_values( knob )
-			
+
 			if single or multiple or command:
             
 				current_old_values[ knob.name() ] = single , multiple , command
@@ -126,27 +125,19 @@ def old_values( knobs = [] ):
 
 
 
+	
 
 	
-def remove_nodeScript_knobs( this ):	
+def remove_nodeScript_knobs( this ):
 	
 	new_knobs_to_add = new_nodeScript_knobs( this )
-	
-	if len( new_knobs_to_add ) == 1:
-		
-		# only 'END_OF_USER_KNOBS' separator, so nothing to delete
-		
-		return
 
-	# if not returned, there is new knobs to add, so you must delete current knobs
+	current_nodeScript_knobs = user_knobs( this ) + nodeScript_knobs( this ) 
 	
-	current_nodeScript_knobs = nodeScript_knobs( this )
+	this.CLASS_NBRAIN.old_values = old_values(  current_nodeScript_knobs  )  # harvest the current values of the node knobs
 	
-	this.CLASS_NBRAIN.old_values = old_values(  current_nodeScript_knobs  ) # harvest the current values of the node knobs
-	
-	unable_to_remove_knobs = []
-	
-	for knob in reversed( current_nodeScript_knobs ):
+		
+	for knob in reversed( current_nodeScript_knobs  ):
 		
 		try:
 		
@@ -154,23 +145,81 @@ def remove_nodeScript_knobs( this ):
 	
 		except:
 			
-			unable_to_remove_knobs.append( '%s.%s %s' % ( this.NODE.name() , knob.name() , type(knob) ) )
+			pass
+			
+			#msg = '\nWARNING!!! >> Unable to remove : %s.%s %s' % ( this.NODE.name() , knob.name() , type(knob) )
+			
+			#sys.__stdout__.write( '\n%s\n' % msg )
 	
-	if unable_to_remove_knobs:
+	
 		
-		msg = '\n\nWARNING!!!\n\nUnable to remove :\n' 
-	
-		for k in unable_to_remove_knobs:
-			
-			msg += '\n%s' % k
-			
-		print msg
-			
-		#msg += '''\n\nThis Error only should happen in nuke versions prior to 6.2'''
 
-		#nuke.message( msg )
+
+
+	
+
+def add_nodeScript_knobs( this ):
+	
+	if len( new_nodeScript_knobs( this ) ) == 1: 
+			
+		return  # only 'END_OF_USER_KNOBS' separator, so nothing to delete
+
+	new_knobs  = new_nodeScript_knobs( this )
+	
+	for knob in new_knobs:
+		
+		single , multiple, command = this.CLASS_NBRAIN( 'old_values' ,{} ).get( knob.name() , ( None , None ,None ) )	
+		
+		if multiple and hasattr( knob , 'setValues'): # Enumeration Knob		
+							
+			knob.setValues( multiple )
+			
+			#sys.__stdout__.write( '\n DEBUG >> Restored Multiple Values in %s to %s' % ( knob.name() , multiple ) )
+
+			
+		if command and hasattr( knob , 'setCommand'):
+			
+			knob.setCommand( command )
+			
+			#sys.__stdout__.write( '\n DEBUG >> Restored Command in %s to %s' % ( knob.name() , command ) )
+		
+				
+		this.NODE.addKnob( knob )
 		
 		
+	
+	for knob in new_knobs:
+		
+		single , multiple, command = this.CLASS_NBRAIN( 'old_values' ,{} ).get( knob.name() , [ None , None ,None ] )	
+		
+		#single = this.CLASS_NBRAIN( 'knobs_in_conflict' , [] ).get( knob.name() , None )  or single
+		
+		#sys.__stdout__.write( '\nDEBUG >> Restored Single Value in %s to %s' % ( knob.name() , single ) )
+		
+		if single:
+			
+			knob.fromScript( single )
+			
+			sys.__stdout__.write( '\nDEBUG >> Restored Single Value in %s to %s' % ( knob.name() , single ) )
+			
+	
+	
+	this.CLASS_NBRAIN.old_values = {}
+	
+	this.CLASS_NBRAIN.used = True
+		
+	
+	
+	
+
+
+
+
+
+
+
+		
+				
 
 def new_nodeScript_knobs( this ):
 	
@@ -250,121 +299,10 @@ def node_needs_rebuild( this ):
 	return True
 
 
+	
+	
 
 
-	
-
-def add_nodeScript_knobs( this ):
-	
-	
-	
-	if len( new_nodeScript_knobs( this ) ) == 1:
-		
-		return
-	
-	
-	new_knobs = new_nodeScript_knobs( this )
-	
-	
-	# REMOVE DEFINITION CONFLICT
-	
-	user_conflict_knobs = []
-		
-	for knob in  [ k for k in user_knobs( this ) if k.Class() not in 'Tab_Knob Link_Knob Text_Knob'.split() and  k.name() in [ K.name() for K in new_knobs ] ]:
-		
-		user_conflict_knobs.append( knob )
-		
-		this.NODE.removeKnob( knob )
-			
-		#knob.setName( new_knob_name )
-	
-	if user_conflict_knobs:
-	
-		new_unconflicted_knobs = []
-		
-		for knob in new_knobs:
-		
-			for user_knob in user_conflict_knobs:
-			
-				if knob.name() == user_knob.name():
-				
-					knob = user_knob
-					break
-			
-			new_unconflicted_knobs.append( knob )
-			
-		new_knobs = new_unconflicted_knobs
-		
-		sys.__stdout__.write( '\nDEBUG >> Conflict Knobs in %s node.' % ( this.NODE.name() ) )
-	
-	
-	
-	
-	for knob in new_knobs:
-		
-		single , multiple, command = this.CLASS_NBRAIN( 'old_values' ,{} ).get( knob.name() , ( None , None ,None ) )	
-		
-		if multiple and hasattr( knob , 'setValues'):
-			
-			knob.setValues( multiple )
-			
-			#sys.__stdout__.write( '\n DEBUG >> Restored Multiple Values in %s to %s' % ( knob.name() , multiple ) )
-
-			
-		if command and hasattr( knob , 'setCommand'):
-			
-			knob.setCommand( command )
-			
-			#sys.__stdout__.write( '\n DEBUG >> Restored Command in %s to %s' % ( knob.name() , command ) )
-
-		
-		this.NODE.addKnob( knob )
-	
-	
-	for knob in new_knobs:
-		
-		single , multiple, command = this.CLASS_NBRAIN( 'old_values' ,{} ).get( knob.name() , [ None , None ,None ] )	
-		
-		if single:
-
-			knob.fromScript( single )
-			
-			#sys.__stdout__.write( '\nDEBUG >> Restored Single Value in %s to %s' % ( knob.name() , single ) )
-			
-	
-	
-	this.CLASS_NBRAIN.old_values = {}
-	
-	this.CLASS_NBRAIN.used = True
-		
-
-
-
-#def safe_node():
-#
-#	this = space.this()
-#
-#	try:
-#
-#		this.NODE.name()
-#		return this.NODE
-#
-#	except:
-#
-#		return
-#
-#
-#def safe_knob():
-#
-#	this = space.this()
-#
-#	node = space.safe_node()
-#
-#	if node:
-#
-#		return this.KNOB
-#
-	
 
 
 

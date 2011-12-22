@@ -8,6 +8,62 @@ MIN_STRUCTURE = 'Brain Lib Node Panel Toolbar'.split()
 TOOLBAR_STRUCTURE = [ 'Animation' , 'Axis' , 'Node Graph' , 'Nodes' , 'Nuke' , 'Pane' , 'Properties' , 'Viewer' ]
 
 
+
+def THIS( this_space ):
+	
+	this << this_space
+
+
+def CALLBACKS( cb_space ):
+	
+	if not cb_space['file']:
+		
+		raise RuntimeError , 'monofile space needed'
+	
+	cb_space['exec']
+	
+	brain( 'Callbacks' , {} )
+		
+	for k,v in cb_space['user_logic'].items():
+		
+		cb_name = k[0].upper() + k[1:]
+		
+		cb_add_function = getattr( nuke ,  'add' + cb_name  , None )
+
+		if cb_add_function:
+			
+			cb_id = cb_space['file'] + '/%s' % k      #Normalize.join( cb_space['file'] , k )
+			
+			active_callback = brain.Callbacks.get( cb_id , None )    #brain.Callbacks( cb_id , None )
+		
+			if active_callback:
+				
+				cb_remove_function = getattr( nuke ,  'remove' + cb_name  , None )
+				
+				cb_remove_function( active_callback )	
+				
+				#brain.Callbacks( cb_id , None , replace_att = True )
+				
+				del brain.Callbacks[ cb_id ]
+				
+				print '\nDEBUG GLOBAL CALLBACK xx %s' % ( k )
+				
+				
+			cb_add_function( v )
+
+			#brain.Callbacks( cb_id , v , replace_att = True )
+			
+			brain.Callbacks[ cb_id ] = v
+			
+			print '\nDEBUG GLOBAL CALLBACK ++ %s >> %s' % ( k , cb_space['file'] )
+			
+		else:
+			
+			print '\nDEBUG GLOBAL CALLBACK , WARNING : %s not match any nuke callback type' % k
+
+
+
+
 def ADD_RECURSIVE( shell_or_path ):
 	
 	''' Given a shell or path to folder, add recursively all child folders to the nuke plugin path '''
@@ -90,22 +146,6 @@ def TOOLSET( shell_or_path , recreate = False , avoid = [] ):
 	
 
 
-# CHAIN LOADERS
-
-
-def LOAD_QUEUED_TOOLSETS():
-
-	done = []
-	
-	for shell, recreate , avoid in brain( 'toolsets' , [] ):
-
-		if shell not in done:
-
-			LOAD_TOOLSET( shell , recreate = recreate , avoid = avoid )
-			
-			done.append( shell )
-
-
 
 
 # FAVS MANAGEMENT
@@ -180,6 +220,26 @@ def ADD_FAV_ALIVE_RESOURCES():
 
 
 
+
+# CHAIN LOADERS
+
+
+def LOAD_QUEUED_TOOLSETS():
+
+	done = []
+	
+	for shell, recreate , avoid in brain( 'toolsets' , [] ):
+
+		if shell not in done:
+
+			LOAD_TOOLSET( shell , recreate = recreate , avoid = avoid )
+			
+			done.append( shell )
+
+
+
+
+
 def GUI_LOAD_QUEUED_TOOLSETS():
 
 	done = []
@@ -203,7 +263,11 @@ def GUI_LOAD_QUEUED_TOOLSETS():
 	
 def LOAD_TOOLSET( shell_or_path , recreate = False , avoid = [] ):
 	
+	
 	shell = Normalize.shell( shell_or_path )
+	
+	#print 'DEBUG RECREATE' , recreate , shell
+	
 	
 	shell( 'Brain/Hotkeys.memory' ) # ( autocreate Hotkeys.memory file)
 
@@ -470,40 +534,43 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 		
 		icon = None
 	
-	
+	# Convert defaultConfig to a brain structure
 	
 	config = Brain() << defaultConfig
 	
-	def reset():
-		
-		# Reset command memory file
-		
-		config.hotkey = ''		
-		config >> sh( memory_file )
-
 	# Check if memory file is present and push into config 
 	
 	if memory: # argument
 	
 		if os.path.isfile( memory_file ):
 
-
-			memory_config = Brain() << sh( memory_file )
+			
+			try:
+			
+				memory_config = Brain() << sh( memory_file )
+			
+				config << memory_config 
 		
-			config << memory_config 
+				#print memory_config['items'] , config['items']
 		
-			#print memory_config['items'] , config['items']
-		
-			if not memory_config['items'] == config['items']:
+				if not memory_config['items'] == config['items']:
 			
-				#print 'DEBUG 2'
+					#print 'DEBUG 2'
 			
-				config >> sh( memory_file )
+					config >> sh( memory_file )
 			
-				print '\nCommand memory file updated : %s\n\n' % memory_file
+					print '\nCommand memory file updated >> %s\n\n' % os.path.basename( memory_file )
 			
-			
-		
+			except:
+				
+				nuke.warning( 'Error in command memory file >> %s' % os.path.basename( memory_file ) )
+				
+				if Core.__interpreter__:
+					
+					Core.__interpreter__.showsyntaxerror()
+				
+				
+				
 		else:
 			# Create a new 	memory_file	
 		
@@ -605,7 +672,7 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 	
 	nuke_menu.addCommand( route_string , auto_command , hotkey , icon  )	 
 	
-	print '		addCommand DBG' ,  route_string , auto_command , hotkey , icon
+	#print '		addCommand DBG' ,  route_string , auto_command , hotkey , icon
 	
 
 

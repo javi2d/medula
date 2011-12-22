@@ -34,7 +34,7 @@ def walk( ):
 
 def normalize():
 	
-	print '\n\n>> Normalizing Sources'
+	#print '\n\n>> Normalizing Sources'
 	
 	if this.HOSTLABEL not in brain.Sources['names']:
 		
@@ -51,7 +51,7 @@ def normalize():
 		
 		#print brain.Sources( H )( R )
 	
-	print 'debug end Normalize Sources'
+	#print 'debug end Normalize Sources'
 
 		
 
@@ -274,8 +274,13 @@ def __relink( this , knob ,  source_host = None ):
 				
 				brain( '_relink_changes' , [] ).append( ( this.KNOBS( knob ) , new_knob_value , knob_value ) )
 				
-						
-		print 'Cannot be relinked %s : %s %s' % ( this.NODE.name() , host , match )
+				return
+		
+			
+		msg = 'Cannot be relinked %s : %s %s' % ( this.NODE.name() , host , match )
+		
+		sys.__stdout__.write( '\n%s\n' % msg )				
+
 		
 
 

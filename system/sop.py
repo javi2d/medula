@@ -349,12 +349,14 @@ class Expose:
 
 class Core:
 	
+	__interpreter__ = None
+	
 	__stdout__ = None
 	
 	#__domains__ = [  ] 
 	
 	@staticmethod
-	def redirect_output( path = None ):
+	def output_redirect( path = None ):
 		
 		Core.__stdout__ = sys.stdout
 		
@@ -368,7 +370,7 @@ class Core:
 		
 		
 	@staticmethod
-	def restore_output():
+	def output_restore():
 		
 		if not Core.__stdout__:
 			
@@ -673,12 +675,19 @@ class Core:
 					__code__ = Normalize.code( __code__ )
 					
 					interpreter = code.InteractiveInterpreter( vars( space ) )
-					interpreter.runsource( __code__  , 'sop.Space >> %s' % path , 'exec') #os.path.basename(path)
-		
+					
+					Core.__interpreter__ = interpreter
+					
+					code_object = code.compile_command( __code__ , 'sop.Space >> %s' % path , 'exec' )
+
+					interpreter.runcode( code_object )
+						
+					#interpreter.runsource( __code__  , 'sop.Space >> %s' % path , 'exec') #os.path.basename(path)
+							
+					
 		except:
-			
-			raise
-		
+	
+			raise 	
 			
 		finally:
 			
@@ -846,7 +855,7 @@ class Brain(object):
 				
 				else:
 					
-					raise AttributeError( '\nERROR ! Unexistent att in brain with default_value Void : %s att route with att %s.\n\n' % ( att_route , att ) )
+					raise AttributeError( '\nERROR ! Unexistent att in brain ( Void )\n\n    brain routes = %s\n    att_route = "%s".\n    invalid att = "%s".\n\n' % ( self['routes'] , att_route , att ) )
 			
 			
 			return current
@@ -927,7 +936,7 @@ class Brain(object):
 				
 			base_index = len( other['$PATH'] ) + 1
 
-			print '\n>> %s ( brain << shell )\n' % other['$NAME']  #'#Injecting Folder : %s\n' % other['$PATH'] 
+			print '\n( brain << shell ) %s\n' % other['$PATH']  #'#Injecting Folder : %s\n' % other['$PATH'] 
 			
 			for relpath in other['$DIR']:
 				
@@ -953,10 +962,7 @@ class Brain(object):
 					raise IOError( 'ERROR 1 in brain << other non monofile space , files : %s ' % other['files'] )
 					
 				else:
-					
-					
-					
-					
+
 					exts = []
 
 					for solver in Solver.__solvers__:
