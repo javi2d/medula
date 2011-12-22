@@ -8,6 +8,9 @@ except: pass
 #import sop_finder
 import sop
 
+try: sys.dont_write_bytecode = False
+except: pass
+
 
 #print sh.license['read']
 
