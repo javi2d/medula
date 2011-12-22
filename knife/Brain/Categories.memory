@@ -1,0 +1,31 @@
+
+
+class Export:
+	
+	params  = 'channels rgb  colorspace default file_type jpeg'
+	color = 'Red'
+
+
+class Production:
+	
+	pattern  = 'vfx_$UNITID_$LABEL'
+	params  = 'channels rgb  colorspace default file_type dpx'
+	color = 'Red'
+
+class Daily:
+	
+	pattern = None
+	params = 'channels rgb colorspace default file_type exr'
+	color = 'Red'
+	
+class Cache:
+	
+	params = 'channels all colorspace default file_type exr'
+	color = 'Red'
+
+# Snapshot renders only current frame
+class Snapshot:
+	
+	pattern  = 'snapshot_$LABEL'	
+	params = 'channels all colorspace default file_type exr'
+	color = 'White'

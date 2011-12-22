@@ -1,0 +1,64 @@
+
+
+
+Class = 'Output'
+
+
+class Export:
+	
+	name = strKnob( 'name' , 'Export' )
+	
+	test = bttnKnob( 'test' )
+	
+	export = bttnKnob( 'export' )
+	
+	collapse = bttnKnob( 'collapse' )
+
+
+def collapse( this ):
+	
+	# convierte los 
+	
+	pass
+
+
+def export( this ):
+	
+	# 
+	
+	pass
+
+
+
+
+def test( this ):
+	
+	dependencies = [ ]
+	
+	nodes = [ this.NODE ]
+	
+	while nodes:
+		
+		n = nodes.pop(0)			
+		
+		dependencies.append( n )
+		
+		#print '\n' , n.name() 
+		
+		deps =  n.dependencies( nuke.EXPRESSIONS | nuke.INPUTS | nuke.HIDDEN_INPUTS )
+		
+		nodes.extend(  deps  )
+		
+	script = ''
+	
+	for node in dependencies + [ this.ROOT.NODE ]:
+		
+		node_data   = node.writeKnobs(  nuke.WRITE_ALL | nuke.TO_VALUE | nuke.TO_SCRIPT | nuke.WRITE_NON_DEFAULT_ONLY | nuke.WRITE_USER_KNOB_DEFS )
+		
+		script += '\n%s {%s\n}' % ( node.Class() , node_data )
+	
+	
+	print script
+	
+	
+	#nuke.scriptReadText( script )

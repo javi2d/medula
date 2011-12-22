@@ -1,0 +1,129 @@
+
+
+
+class User:
+	
+	
+	target = enumKnob( '' , [] )
+	
+	units = enumKnob( '' , [] , clearflags = 'STARTLINE') 
+	
+	refresh = bttnKnob( 'refresh' )
+	
+	sep = sepKnob( ' ' )
+	
+	info = txtKnob( '' , ' ' )
+	
+	sep2 = sepKnob( ' ' )
+	
+	#class Load:
+	
+	scripts = enumKnob( 'scripts' , [] )
+	
+	load = bttnKnob( 'load' )
+	
+	#class New:
+		
+	prefix = enumKnob( '' , ' main_comp_ mattes_ color_'.split() )
+		
+	tag = strKnob( '' , '' , clearflags = 'STARTLINE') 
+		
+	new = bttnKnob( 'new' )
+	
+	
+	
+def load( this ):
+	
+	script_path = os.path.join( _scripts_folder( this ) , this.VALUES.scripts )
+	
+	nuke.scriptOpen( script_path )
+
+def _scripts_folder( this ):
+	
+	host, resource = this.VALUES.target.split('/')
+			
+	path = brain.Lib.sources.alive_path( host , resource )
+	
+	active_unit = brain( 'active_unit' , None )
+	
+	if active_unit:
+		
+		return Normalize.join( path , active_unit , brain.Project.SCRIPTS )
+		
+	else:
+		
+		return ''
+
+
+
+def refresh( this ):
+	
+	print 'Hi'
+	
+	local_targets = []
+	
+	remote_targets = [] 
+	
+	for H , R , path in brain.Lib.sources.alive_resources():
+		
+		if H == this.HOSTLABEL:
+			
+			local_targets.append( '%s/%s' % ( H,R ) )
+		
+		else:
+			
+			remote_targets.append( '%s/%s' % ( H,R ) )
+	
+	this.KNOBS.target.setValues( local_targets + remote_targets )
+	
+	
+def onCreate( this ):
+	
+	refresh( this )
+	
+	target( this )
+			
+			
+def target( this ):
+	
+	scripts_folder = _scripts_folder( this )
+	
+	unit_folder  = os.path.dirname( scripts_folder )
+	
+	if os.path.exists( unit_folder ):
+		
+		this.KNOBS.info.setValue( this.HTML( brain( 'active_unit' , None ) , color = 'Green'  ) )
+		
+		if os.path.exists( scripts_folder ):
+			
+			scripts = sh( scripts_folder )[ '$FILE_NAMES *.nk' ]
+			
+			if scripts:
+				
+				this.KNOBS.scripts.setValues( scripts )
+				this.KNOBS.scripts.setValue( len(scripts) - 1 )
+		
+	else:
+		
+		this.KNOBS.info.setValue( this.HTML( brain.active_unit , color = 'Red'  ) )
+	
+	
+		
+	#snapshot = '%s/snapshot.jpg' % Projects.Project( brain.active_unit )['$PATH']
+	#
+	#print snapshot
+	#
+	#if os.path.exists( snapshot ):
+	#	
+	#	
+	#
+	#	html = '<img src="%s" width="600" height="600"/>' % snapshot
+	#
+	#	print html
+	#
+	#	this.KNOBS.info.setValue( html )
+
+	
+	
+	
+	

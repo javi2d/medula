@@ -1,0 +1,78 @@
+
+
+
+
+
+def selection_in_full():
+
+	this.ROOT.KNOBS.proxy.setValue( False )
+
+	nodes = nuke.selectedNodes()
+
+	while nodes:
+
+		n = nodes.pop()
+
+		ff =  n.firstFrame() 
+		lf = n.lastFrame()
+
+		print '\n>> Executing IN FULL RESOLUTION : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+
+		nuke.execute( n , ff, lf )
+
+		print '<< Executing IN FULL RESOLUTION : %s , [ %s , %s ]\n' % ( n.name() , ff ,lf )
+
+
+
+def selection_in_proxy():
+
+
+	root = this.ROOT
+
+	root.KNOBS.proxy.setValue( True )
+
+	for n in nuke.selectedNodes():
+
+		ff = n.firstFrame() 
+		lf = n.lastFrame()
+
+		print '\n>> Executing with PROXY MODE ON : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+
+		nuke.execute( n , ff, lf )
+
+		print '<< Executing with PROXY MODE ON : %s , [ %s , %s ]\n' % ( n.name() , ff ,lf )
+		
+		
+def selection_full_and_proxy():
+	
+	root = this.ROOT
+	
+	for n in nuke.selectedNodes():
+		
+		this_node = this( n )
+
+		ff =  n.firstFrame() 
+		lf = n.lastFrame()
+		
+		print '\n>> Executing IN FULL RESOLUTION : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+
+		root.KNOBS.proxy.setValue( False )
+		nuke.execute( n , ff, lf )
+		
+		print '<< Executing IN FULL RESOLUTION : %s , [ %s , %s ]\n' % ( n.name() , ff ,lf )
+		
+		print '\n>> Executing with PROXY MODE ON : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+		
+		root.KNOBS.proxy.setValue( True )
+		nuke.execute( n , ff, lf )
+		
+		print '<< Executing with PROXY MODE ON : %s , [ %s , %s ]\n' % ( n.name() , ff ,lf )
+		
+		
+		
+		
+		
+		
+		
+		
+		

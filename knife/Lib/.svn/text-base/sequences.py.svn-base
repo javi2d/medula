@@ -1,0 +1,179 @@
+
+
+
+
+def LIB_disociated( folder_path ):
+
+	disociated = {}
+	
+	for f in sh( folder_path )['$FILE_NAMES']:
+		
+		alfa_string = ''
+		
+		for char in f:
+			
+			if char.isdigit() and not alfa_string:
+				
+				alfa_string += '#'
+			
+			
+			elif char.isdigit() and not alfa_string[-1] == '#':
+				
+				alfa_string += '#'
+			
+			elif not char.isdigit():
+				
+				alfa_string += char
+					
+					
+		digits_string = ''
+		
+		for char in f:
+			
+			digits_string += ( char if char.isdigit() else ' ' )
+			
+		digits = [ i for i in digits_string.split() if i ]
+		
+		
+		if alfa_string in disociated:
+			
+			disociated[ alfa_string ].append( digits )
+			
+		else:
+			
+			disociated[ alfa_string ] = [ digits ]
+
+	return disociated.items()	
+
+
+
+def LIB_best_solution_index(  all_digits ):
+	
+	sets = {}
+		
+	for digits in all_digits:
+	
+		for i in range( len( digits ) ):
+		
+			if i in sets:
+			
+				if digits[i] not in sets[i]:
+		
+					sets[i].append( digits[i] )
+			
+			else:
+			
+				sets[i] = [ digits[i] ]
+	
+	
+	best_index = None
+	
+	solution_len = 0
+	
+	
+	if sets:
+		
+		for index , frames in sets.items():
+			
+			frames_len = len( frames )
+			
+			if  frames_len > solution_len:
+				
+				best_index = index
+				
+				solution_len = frames_len
+		
+		if frames_len == 1:
+			
+			best_index = None
+		
+		
+	return best_index
+	
+		
+		
+def sequences( folder_path ):
+
+	if not os.path.exists( folder_path ):
+		
+		return [ ]
+
+	sequences = {}
+	
+	for name , all_digits in LIB_disociated( folder_path ):
+
+		index = LIB_best_solution_index( all_digits )
+		
+		if index == None: # Single Element without numeric reference
+			
+			if '#' in name:
+				
+				for dig in all_digits[0]:
+					
+					name = name.replace( '#' , dig , 1 )
+			
+			
+			sequences[ name ] = [ 1 ]
+			
+			continue
+		
+		else:
+			
+			#print name , all_digits
+						
+			for digits in all_digits:
+				
+				seq_name = name
+				
+				for i in range( len( digits ) ):
+					
+					if i == index:
+						
+						seq_name = seq_name.replace( '#' , '@' , 1 )
+					
+					else:
+						
+						seq_name = seq_name.replace( '#' , digits[i] , 1 )
+					
+				if seq_name not in sequences:
+					
+					sequences[ seq_name ] = [ digits[ index ] ]
+					
+				else:
+					
+					sequences[ seq_name ].append( digits[ index ] )
+	
+
+	for name , frames in sequences.items():
+			
+		if '@' in name:
+			
+			padding = str( len( frames[-1] ) ).zfill( 2 )
+			
+			values = sequences[ name ]
+			
+			del sequences[ name ]
+			
+			name = name.replace( '@' , '%' + padding + 'd' )
+			
+			first_frame = int( values[0] )
+			
+			last_frame  = int( values[-1] )
+			
+			sequential = ( len( values ) == ( last_frame - first_frame + 1 ) )
+
+			sequences[ name ] = [ first_frame , last_frame , sequential ]
+			
+		elif len( frames ) == 1:
+
+			sequences[ name ] = [ None , None , True ]
+	
+		
+			
+	return sequences	
+		
+		#print '\n', name , '%s-%s' % ( frames[0] , frames[-1] ) 
+		
+
+		
+

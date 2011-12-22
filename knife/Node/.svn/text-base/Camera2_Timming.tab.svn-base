@@ -1,0 +1,111 @@
+
+
+class Timming:
+	
+	tmm_mode = enumKnob( 'mode' , [ 'disabled' , 'frame hold' , 'time offset' ] )
+	
+	tmm_frame_hold = intKnob( 'frame' , 0 )
+	
+	tmm_frame_hold_set = bttnKnob( 'set to this frame' )
+	
+	tmm_time_offset = intKnob( 'offset' , 0 )
+	
+	test = bttnKnob( 'test' )
+
+
+
+def tmm_mode( this ):
+	
+	mode = this.VALUES.tmm_mode
+	
+	if mode == 'disabled':
+		
+		onDisabled( this )
+	
+	elif mode == 'frame hold':
+		
+		onFrameHold( this )
+		
+	elif mode == 'time offset':
+		
+		onTimeOffset( this )
+
+
+def field_walk( this ):
+	
+	for knob in this.SORTED_KNOBS:
+		
+		if hasattr( knob , 'animations' ):
+		
+			animations = knob.animations()
+		
+			for animationCurve in animations:
+				
+				yield animationCurve , animationCurve.knob() , animationCurve.knobIndex() , animationCurve.expression() 	
+
+
+def hide_all_knobs( this ):
+	
+	for knob_name in 'tmm_frame_hold tmm_frame_hold_set tmm_time_offset'.split():
+		
+		this.KNOBS( knob_name ).setVisible( False )
+	
+
+def find_curve_ops( expr ):
+	
+	if 'curve' in expr:
+		
+		csplit = expr.split('curve')
+		
+		return csplit[1:]
+		
+		for item in csplit[1:]:  # avoid first
+		
+			print  item
+		
+			
+		
+		
+
+
+def onDisabled( this ):
+	
+	hide_all_knobs( this )
+	
+	
+def test( this):	
+	
+	for curve , knob , idx , expr   in field_walk( this ):
+		
+		print '>>> for Knob "%s" with expr : [ %s ]' % ( knob.name() , expr )
+		
+		print '      ' , find_curve_ops( expr ) 
+		
+	
+
+		
+	
+def onFrameHold( this ):
+	
+	hide_all_knobs( this )
+	
+	for knob_name in 'tmm_frame_hold tmm_frame_hold_set'.split():
+		
+		this.KNOBS( knob_name ).setVisible( True )
+	
+	
+		
+def onTimeOffset( this ):
+
+	hide_all_knobs( this )
+
+	for knob_name in 'tmm_time_offset'.split():
+
+		this.KNOBS( knob_name ).setVisible( True )
+
+			
+			
+
+		
+		
+		

@@ -1,0 +1,28 @@
+
+
+
+
+#class Convertor:
+	
+	#cnv_clear = bttnKnob(  )
+	
+	# clear 
+	
+	# inplace , parent , manual 
+	
+	# bool switched inputs
+	
+	# process
+
+
+
+
+def onCreate( this ):
+	
+	
+	print 'Hi from onCreate on Tabs'
+	
+	
+def other_function():
+	
+	return 1000000

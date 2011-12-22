@@ -17,7 +17,7 @@ sop.Expose.object( sh( os.getcwd() ) , 'cwd' )
 
 sop.Expose.object( sh( '..' ) , 'medula' )
 
-if 'logs' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
+
 	
 
 sop.Expose.modules( 'nuke nukescripts shutil math threading' )
@@ -31,6 +31,9 @@ brain.Lib << medula.system.Lib
 
 ## Local config
 
+if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
+
+
 _medula_tmp_code = '''
 
 local = medula.local
@@ -40,6 +43,7 @@ local = medula.local
 medula_local_config = sop.Brain() << medula( 'local/_config.memory' , write = _medula_tmp_code )
 
 del _medula_tmp_code
+
 
 
 sop.Expose.object(  medula_local_config.local  , 'local' )
@@ -57,6 +61,7 @@ local( '_init.py' )()
 
 sop.Core.lap( 'startup.medula.init' )
 ## Start tag lapse 
+
 
 
 

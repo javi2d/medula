@@ -1,0 +1,273 @@
+
+
+#
+
+# Join Section
+
+DOTS = '...                           '
+
+class User:
+
+	
+	src_host = strKnob( 'target host' , '' )
+	src_hosts = enumKnob( '' , [ DOTS ] , clearflags = 'STARTLINE')
+	
+	
+	sep1 = sepKnob( ' ' )
+	
+	src_resource = strKnob( 'target resource' , '' ) 
+	src_resources = enumKnob( '' , [ DOTS ] , clearflags = 'STARTLINE')
+	
+	sep2 = sepKnob( ' ' )
+	
+	
+	
+	src_path = fileKnob( 'path' , os.path.dirname( this.ROOT.VALUES.name ) )
+	
+	sep0 = sepKnob( ' ' )
+	
+	
+	src_dump = bttnKnob( 'Dump' , flags = 'STARTLINE' )
+	
+	sep3 = sepKnob( ' ' )
+	
+	src_info = txtKnob( '' , '---' )
+
+
+	html = txtKnob( 'link' , ' ' ) #'''<a href="http://www.w3schools.com">Visit W3Schools.com!</a>''')
+
+
+
+
+# Mirar que el nuevo source no este dentro de otro source
+
+
+
+#def knobChanged( this ):
+#	
+#	# State save feature, only here
+#	
+#	this.BRAIN.Memory = Brain()
+#	
+#	for knob_name in 'src_host src_resource src_path'.split():
+#		
+#		setattr( this.BRAIN.Memory , knob_name , this.KNOBS( knob_name ).toScript() )
+#
+#		this.BRAIN.Memory >> fsh.Brain('Bound_Source.memory')
+
+HTML = '''
+
+#<h2 class="Sub-Title">This contsd <span style="color: rgb(0, 0, 0); font-family: Calibri, sans-serif; font-size: 15px; font-style: normal; font-weight: normal; letter-spacing: normal; line-height: 22px; ">ualisque pri.</span></h2> <table class="Vertical-Emphasis-2"> <tbody> <tr> <td class="hd">Lorem</td> <td class="hd">Ipsum</td> <td class="hd">Fierent</td> </tr> <tr>                  			 			<td class="fcalt">Lorem ipsum </td> <td class="alt">pro ut tale erant </td> <td class="alt">mnesarchum ne </td> </tr> <tr> <td class="fc">mnesarchum ne </td> <td>sapientem</td> <td>fierent mnesarchum </td> </tr> <tr> <td class="fcalt">takimata omittantur</td> <td class="alt">mnesarchum ne </td> <td class="alt">sapientem</td> </tr> </tbody> </table> <p class="Pull-Quote">Lorem ipsum fierent mnesarchum ne vel, et usu posse takimata omittantur, pro ut tale erant sapientem. </p> <p>Lorem ipsum fierent mnesarchum ne vel, et usu posse takimata omittantur, pro ut tale erant sapientem. Et regione tibique ancillae nam. Tale modus iuvaret eu usu.</p>
+
+
+'''
+
+				
+
+def onCreate( this ):
+	
+	this.KNOBS.html.setValue( HTML )
+	
+	sthis = this.SELECTED_NODE
+
+	if sthis:
+
+		value = sthis.VALUES( 'file' , None , False )
+		
+		if value:
+		
+			this.KNOBS.src_path.setValue(  os.path.dirname( value )  )
+		
+	_updateKnobs( this )
+	
+
+
+def src_dump( this ):
+	
+	host = this.VALUES.src_host
+	
+	resource = this.VALUES.src_resource
+	
+	path = brain.Lib.path.normalize( this.VALUES.src_path )
+	
+	LR , RR = brain.Sources( '%s.%s' % ( host , resource ) , ( [] , [] )  )
+	
+	target = ( LR if this.HOSTLABEL == host else RR )
+	
+	
+	if path and path not in target:
+	
+		target.append( path )
+		
+		brain.Sources >> fsh( 'Brain/Sources.memory' )
+		
+		this.KNOBS.src_path.setValue( '' )
+	
+	_updateKnobs( this )
+		
+	
+
+def src_hosts( this ):
+	
+	value = this.VALUES.src_hosts
+	
+	this.KNOBS.src_host.setValue( '' if value.startswith( '...' ) else value )
+	
+	this.KNOBS.src_resources.setValue( 0 )
+	
+	_updateKnobs( this )
+	
+	
+def src_host( this ):
+	
+	value = brain.Lib.path.normalize_name( this.VALUES.src_host )
+	
+	this.KNOBS.src_host.setValue( value )
+	
+	_updateKnobs( this )
+	
+
+def src_resources( this ):
+
+	value = this.VALUES.src_resources
+
+	this.KNOBS.src_resource.setValue( '' if value.startswith( '...' ) else value )
+
+	_updateKnobs( this )
+
+
+def src_resource( this ):
+
+	value = brain.Lib.path.normalize_name( this.VALUES.src_resource )
+
+	this.KNOBS.src_resource.setValue( value )
+
+	_updateKnobs( this )
+
+
+	
+
+def _updateKnobs( this ):
+	
+	INFO = ''
+	
+	host = this.VALUES.src_host
+	
+	hosts = [ '... ( x%s )' % len( brain.Sources['names'] ) ]	+ brain.Sources['names']
+	
+	this.KNOBS.src_hosts.setValues( hosts )	
+	
+	if host not in hosts:
+		
+		this.KNOBS.src_hosts.setValue( 0 )
+		
+		this.KNOBS.src_resources.setValues( [ DOTS ] )
+		
+	else:
+		
+		this.KNOBS.src_hosts.setValue( host )
+		
+		resource = this.VALUES.src_resource
+		
+		resources = [ r for r in  brain.Sources( host )['names'] if not r.startswith('_') ]
+	
+		this.KNOBS.src_resources.setValues( ['... ( x%s )' % len( resources) ] + resources )
+		
+		if resource not in resources:
+			
+			this.KNOBS.src_resources.setValue( 0 )
+			
+		
+		else:
+			
+			this.KNOBS.src_resources.setValue( resource )
+			
+			LR , RR = brain.Sources( '%s.%s' % ( host , resource )  )
+			
+			INFO += '%s/%s\n' % ( host, resource )
+
+			INFO += '\nLocal Resources  : %s ' % LR
+			
+			INFO += '\n\nRemote Resources : %s ' % RR
+			
+			
+		
+	
+	this.KNOBS.src_info.setValue( INFO )
+	
+	
+	
+#	
+#	
+#	resource_value =  this.VALUES.src_resource
+#	
+#	path_value = this.VALUES.src_path
+#	
+#	resources = []
+#	
+#	if host_value in hosts:
+#		
+#		resource_value =  this.VALUES.src_resource
+#		
+#		resources = [ r for r in  brain.Sources( host_value )['names'] if not r.startswith('_') ]
+#		
+#		this.KNOBS.src_resources.setValues( ['... ( x%s resources )' % len( resources) ] + resources )
+#
+#		if resource_value not in resources:
+#	
+#			this.KNOBS.src_resources.setValue( 0 )
+#	
+#		else:
+#		
+#			this.KNOBS.src_resources.setValue( resource_value )
+#	
+#		
+#		
+#		new_value = this.VALUES.src_resources
+#
+#		this.KNOBS.src_resource.setValue( '' if new_value.startswith( '...' ) else new_value )
+#		
+#	
+#	if resource_value in resources:
+#		
+#		LR , RR = brain.Sources( '%s.%s' % ( host_value , resource_value )  )
+#		
+#		print LR, RR
+#		
+#		
+#				
+#		if host_value == this.HOSTLABEL:
+#			
+#			this.KNOBS.src_paths.setValues( ['... ( x%s local resources )' % len( LR) ] + LR )
+#		
+#		else:
+#			
+#			this.KNOBS.src_paths.setValues( ['... ( x%s remote resources )' % len( RR) ] + RR )
+#		
+#		
+#		
+		
+		
+		
+		
+		
+
+
+
+
+	
+	
+# Source Manager Section
+
+
+# Definir un target source ( en la maquina local ) , poner tb que se vean los recursos remotos
+
+# Creamos la estructura de directorios 
+
+# salvamos como en la nueva unidad
+
+#  hacemos green todos los read que no esten an local
+
+# Podemos forzar un green intensivo que copiaria todo lo necesario a la unidad
+
+

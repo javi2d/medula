@@ -1,0 +1,64 @@
+
+
+
+DEFAULTS = {
+
+'disable' : True
+
+}
+
+
+
+class Operations:
+
+	copy_values = bttnKnob( 'from -> to' )
+	html_help = txtKnob( '' , '\n') 
+
+
+
+def onCreate( this ):
+		
+	print this.KNOBS.html_help.setValue(  _html_form( _corner_pin_help() )  )
+	
+
+def copy_values( this ):
+	
+	this.KNOBS.to1.setValue( this.VALUES.from1 )
+	this.KNOBS.to2.setValue( this.VALUES.from2)
+	this.KNOBS.to3.setValue( this.VALUES.from3 )
+	this.KNOBS.to4.setValue( this.VALUES.from4 )
+	
+	this.KNOBS.disable.setValue( False )
+	
+	print 'Hi'
+
+
+
+
+
+def _html_form( code ):
+
+	html_code = ''
+
+	for line in code.split('\n'):
+
+		html_code += line + '<br>'
+
+	return '<p><font size=5 color="silver">' + html_code + '</font></p>'
+
+
+def _corner_pin_help():
+	
+	return '''
+	
+	Usage
+	
+	This node is created automatically disabled
+	
+	1. Position "from" points
+	2. Press "from -> to" button
+	
+	The node will be automatically enabled.
+
+	.'''
+

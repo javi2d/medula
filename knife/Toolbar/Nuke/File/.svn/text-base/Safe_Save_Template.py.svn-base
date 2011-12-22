@@ -1,0 +1,29 @@
+
+
+# Commenting this line will do Lib.script.py file interactive or static
+
+brain.Lib.script = fsh.Lib.script()
+
+brain.Lib.script.saveTemplateAs()
+
+
+	
+	
+	
+
+
+			
+			
+		
+		
+
+	
+	
+
+
+		
+	
+	
+
+
+

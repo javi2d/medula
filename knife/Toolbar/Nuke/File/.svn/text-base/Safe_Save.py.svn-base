@@ -1,0 +1,18 @@
+
+
+# Commenting this line will do this interactive or static
+
+brain.Lib.script = fsh.Lib.script()
+
+brain.Lib.script.saveScript()
+
+
+	
+
+
+		
+	
+	
+
+
+
