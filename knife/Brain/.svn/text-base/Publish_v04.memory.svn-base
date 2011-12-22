@@ -1,5 +1,0 @@
-
-
-Home = 'tmpl_preset_name Home\ntmpl_target_folder /Users/user/.nuke/sopbox_default_project/Publish\ntmpl_date true\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
-
-
