@@ -155,8 +155,10 @@ class Dynamic_Panel(object):
 			old_widget.hide()
 			
 		else:
-
-			panel = Dialog( self.nbrain.name.replace( '_' , ' ' ) , self.nbrain.name ) #pyui.
+			
+			#self.nbrain.name.replace( '_' , ' ' )
+				
+			panel = Dialog( Normalize.label( self.nbrain.name ) , self.nbrain.name ) #pyui.
 		
 		
 		node  = nuke.PanelNode() 

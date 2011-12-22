@@ -67,6 +67,39 @@ class Normalize:
 			normalized = '_' + normalized
 
 		return normalized
+		
+	@staticmethod
+	def label( name , keep_prefix_digits = False ):
+		
+		label = ' '.join(  [ x for x in name.replace( '_' , ' ' ).split()  if x ]  )
+		
+		if keep_prefix_digits:
+			
+			return label
+			
+		else:
+			
+			unprefixed_label = []
+			
+			finished = False
+			
+			for item in label.split():
+				
+				if finished:
+					
+					unprefixed_label.append( item )
+					
+				else:
+					
+					if not item.isdigit():
+						
+						unprefixed_label.append( item )
+						
+						finished = True
+			
+			return  ' '.join( unprefixed_label )
+					
+
 
 	@staticmethod
 	def dirname( path_string ):
