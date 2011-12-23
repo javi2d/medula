@@ -2454,11 +2454,13 @@ class Shell(object):
 			
 			if hasattr( main , 'sop_finder' ):
 				
-				self.__path__ =  Normalize.path( os.path.dirname( main.sop_finder.__file__ ) )
+				self.__path__ =  Normalize.path( os.path.dirname( os.path.abspath( main.sop_finder.__file__ ) ) )
 			
 			else:
 			
-				self.__path__ =  Normalize.path( os.path.dirname( sop.__file__ ) )
+				self.__path__ =  Normalize.path( os.path.dirname( os.path.abspath( sop.__file__ ) ) )
+			
+			
 			
 			
 		
