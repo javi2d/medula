@@ -159,7 +159,7 @@ def ADD_FAV( fav , path ):
 
 
 
-def ADD_FAV_ALIVE_RESOURCES():
+def ADD_FAV_ALIVE_RESOURCES( alive_only = False ):
 	
 	def alive_resource_search():
 		
