@@ -3,7 +3,7 @@ import urllib2
 
 
 
-in_backup = ['...'] + [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if not d == 'Downloads' ] 
+in_backup = ['...'] + [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if d.startswith( 'Medula_' ) ] 
 
 
 class User:
@@ -31,7 +31,10 @@ def restore( this ):
 	
 	if nuke.ask( 'Are you sure to restore %s backup? This will no backup current version' % value  ):
 		
-		_move( medula.versions( value ) )
+		
+		restored_backup_folder = medula.versions( 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
+		
+		_move( medula.versions( value ) , restored_backup_folder )
 
 	
 
@@ -48,40 +51,38 @@ def update( this ):
 		nuke.message( 'medula Update Cancelled' )
 
 
-def _move( src_shell , do_backup = True ):
+def _backup_and_move( version_folder ):
+
+	import shutil
+
+	new_medula_shell = medula.versions.downloads( version_folder )
+	
+	backup_folder = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
+	
+	_move( new_medula_shell , backup_folder  )
+
+
+
+def _move( src_shell , backup_shell ):
 	
 	import shutil
 	
-	for relpath in src_shell['$FOLDER_NAMES']:
+	for relpath in [ d for d in src_shell['$FOLDER_NAMES'] if not d == 'local' ]:
 		
 		src_path = src_shell( relpath )['$PATH']
 		
 		trg_path = medula( relpath )['$PATH']
 		
-		if do_backup:
+		if backup_shell:
 		
-			backup = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
-			
-			shutil.move( trg_path , backup['$PATH'] )
+			shutil.move( trg_path , backup_shell['$PATH'] )
 		
 		shutil.move( src_path , medula['$PATH'] )
 	
 	
 	nuke.message( 'Restart nuke to complete update process' )
 	
-	
 
-
-
-def _backup_and_move( version_folder ):
-	
-	import shutil
-		
-	new_medula_shell = medula.versions.downloads( version_folder )
-	
-	_move( new_medula_shell , do_backup = True )
-
-	
 	
 def _download_and_unzip( ):
 	
