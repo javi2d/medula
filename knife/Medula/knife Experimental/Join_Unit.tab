@@ -92,7 +92,7 @@ def target( this ):
 	
 	if os.path.exists( unit_folder ):
 		
-		this.KNOBS.info.setValue( this.HTML( brain( 'active_unit' , None ) , color = 'Green'  ) )
+		this.KNOBS.info.setValue( brain.Lib.html.txt( brain( 'active_unit' , None ) , color = 'Green'  ) )
 		
 		if os.path.exists( scripts_folder ):
 			
@@ -105,7 +105,7 @@ def target( this ):
 		
 	else:
 		
-		this.KNOBS.info.setValue( this.HTML( brain.active_unit , color = 'Red'  ) )
+		this.KNOBS.info.setValue( brain.Lib.html.txt( brain.active_unit , color = 'Red'  ) )
 	
 	
 		

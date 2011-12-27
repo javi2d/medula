@@ -212,14 +212,18 @@ class this(object):
 			
 			node = self.NODE  #( self._NODE or nuke.thisNode() )
 			
-			return [ ( node.knob(i).name() , node.knob(i).value() ) for i in range( node.getNumKnobs() ) ]
+			return [ ( k.name() , k.value() ) for k in self.SORTED_KNOBS  ]
+			
+			#return [ ( node.knob(i).name() , node.knob(i).value() ) for i in range( node.getNumKnobs() ) ]
 		
 		
 		elif att == 'SORTED_TOSCRIPT_ITEMS': # ( name , toScript )
 			
 			node = self.NODE  #( self._NODE or nuke.thisNode() )
 			
-			return [ ( node.knob(i).name() , node.knob(i).toScript( True , context = None ) ) for i in range( node.getNumKnobs() ) ]
+			return [ ( k.name() , k.toScript( True , context = None ) ) for k in self.SORTED_KNOBS  ]
+			
+			#return [ ( node.knob(i).name() , node.knob(i).toScript( True , context = None ) ) for i in range( node.getNumKnobs() ) ]
 		
 		
 		elif att == 'VALUES':

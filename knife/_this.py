@@ -8,14 +8,6 @@
 # Sources and Project memories are needed in this
 
 
-# apply default local source 
-brain.Sources( this.HOSTLABEL , Brain() )._hostname = this.HOSTNAME	
-
-# apply home sources
-brain.Sources << local.home( 'Brain/Sources.memory' )
-
-brain.Lib.sources.normalize()
-
 
 # apply default project data
 brain.Project << medula.knife.Brain( 'Project.memory' )
@@ -167,40 +159,5 @@ def UNIT_ID( self ):
 
 
 
-def HTML( self ):
-	
-	def html( txt , size = 3 , color = 'Silver' , bold = False , center = True ):
-		
-		txt = txt.replace( '\n' , '<br>')
-		
-		base_html = '<font size = "%s" color = "%s">%s</font>' % ( size , color , txt )
-		
-		if bold:
-			
-			base_html = '<b>%s</b>' %  base_html
-			
-		if center:
-			
-			base_html = '<center>%s</center>' %  base_html
-		
-		return base_html
-	
-	return html
-	
-	
-def ICON( self ):
 
-	def html( icon , size = 12  ):
-
-		if size:
-
-			html_string = '<center><img src="%s" width="%s"/></center>' % ( icon , size )  #height="%s"
-		
-		else:
-			
-			html_string = '<img src="%s"/>' % icon 
-		
-		return html_string  #, size 
-
-	return html	
 

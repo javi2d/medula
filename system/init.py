@@ -14,15 +14,12 @@ except: pass
 
 #print sh.license['read']
 
-## expose some handy shells
 
 sop.Expose.object( sh( os.getcwd() ) , 'cwd' )
 
 sop.Expose.object( sh( '..' ) , 'medula' )
 
-
 	
-
 sop.Expose.modules( 'nuke nukescripts shutil math threading' )
 ## modules are exposed in main and sop
 
@@ -31,32 +28,39 @@ brain.Lib << medula.system.Lib
 ## Load medula system Lib folder into brain
 
 
+# Initialize the icons folder
+brain.Lib.include.ADD_RECURSIVE( medula.system.Icons )
 
-## Local config
 
+## This is a trigger to show the welcome message to medula
 if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
 
 
-_medula_tmp_code = '''
-
-local = medula.local
-
-'''
-
-medula_local_config = sop.Brain() << medula( 'local/_config.memory' , write = _medula_tmp_code )
-
-del _medula_tmp_code
+## Local config
+sop.Expose.object(  medula( 'local' )  , 'local' )
 
 
-
-sop.Expose.object(  medula_local_config.local  , 'local' )
-
-
+# This line create a default 
+local( 'home' )
 
 
+# Load the Sources.memory file
+brain.Sources << local.home( 'Brain/Sources.memory' )
 
+if this.HOSTLABEL not in brain.Sources['names']:
+	
+	# If current host is not present in Sources.memory the file is dumped with the host added.
+	
+	brain.Lib.sources.normalize()
+	brain.Sources >> local.home.Brain( 'Sources.memory' )
+
+# By default local.home is included, this just put the toolset in a queue, this dont load anything yet.
+brain.Lib.include.TOOLSET( local.home )
+
+
+# Executes the file medula/local/_init.py
 local( '_init.py' )()
-## Execute _init.py file in "local"
+
 
 
 ## INCLUDED TOOLSETS PROCESSING
@@ -64,8 +68,6 @@ local( '_init.py' )()
 
 sop.Core.lap( 'startup.medula.init' )
 ## Start tag lapse 
-
-
 
 
 #sop.Expose.object( local( 'logs' ) , 'logs' )

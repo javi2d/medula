@@ -9,7 +9,7 @@ def __root_name_changed__():
 	project = brain.Lib.project.project_name( this.VALUE )
 	
 	if project and not project == brain.Project.SCRIPTS:
-		
+			
 		print '\nLOADING SCRIPTS PROJECT TOOLSET'
 		
 		local._project = local( 'projects/%s' % project ) 
@@ -31,14 +31,11 @@ def knobChanged():
 	brain.Lib.userNodes4.knobChanged( this )
 	
 	name = this.KNOB.name()	
-	
-	
-	
-	if name in 'xpos ypos selected'.split():
 		
+	if name in 'xpos ypos selected'.split():
+			
 		return
 	
-
 	if not this.SAFE_NODE and this.KNOB and this.KNOB.name() == 'name' and this.VALUE:
 		
 		__root_name_changed__()

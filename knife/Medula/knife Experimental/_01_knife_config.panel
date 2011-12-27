@@ -1,0 +1,17 @@
+
+config = brain.knifeConfig
+
+
+class User:
+	
+	per_user_toolset = boolKnob( 'use per-user toolset' , config( 'per_user_toolset' , False ) )
+	per_project_toolset = boolKnob( 'use per-project toolset' , config( 'per_project_toolset' , False ) )
+
+
+def knobChanged( this ):
+	
+	for kn ,ts in this.SORTED_ITEMS:
+		
+		config( kn , ts , replace_att = True )
+		
+	config >> local.home( 'Brain/knifeConfig.memory')	
