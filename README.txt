@@ -3,13 +3,20 @@ Hi,
 médula is an experimental pipeline builder for use with the foundry´s NUKE 
 is licensed under the GNU General Public License http://www.gnu.org/licenses/.
 
-For more info visit https://github.com/javi2d/medula/wiki
 
-or take a look at some videos at http://www.youtube.com/user/sopmedula?feature=mhee
+For more info visit 
 
-or wip documentation at https://docs.google.com/open?id=0B1d6E5jbVhBtYjM2ZjQ3MTctYzEzMC00ZmQ1LWE4NDgtYjVjMTIyM2Q0MjBl
+https://github.com/javi2d/medula/wiki
 
+or take a look at some videos at 
 
+http://www.youtube.com/user/sopmedula?feature=mhee
+
+or wip documentation at 
+
+https://docs.google.com/open?id=0B1d6E5jbVhBtYjM2ZjQ3MTctYzEzMC00ZmQ1LWE4NDgtYjVjMTIyM2Q0MjBl
+
+Docs are open to edit so feel free to comment, edit or correct anything. 
 
 
 Thanks for your time,

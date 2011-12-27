@@ -1,7 +1,7 @@
 
 import urllib2
 
-medula_last_url = 'https://github.com/javi2d/medula/zipball/master'
+
 
 in_backup = ['...'] + [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if not d == 'Downloads' ] 
 
@@ -29,15 +29,15 @@ def restore( this ):
 		return
 	
 	
-	if nuke.ask( 'Are you sure to restore %s backup?' % value  ):
+	if nuke.ask( 'Are you sure to restore %s backup? This will no backup current version' % value  ):
 		
-		_move( medula.versions( value ) , do_backup = True )
+		_move( medula.versions( value ) )
 
 	
 
 def update( this ):
 	
-	version_folder = _download_and_unzip( )
+	version_folder = _download_and_unzip()
 	
 	if version_folder:
 		
@@ -77,37 +77,38 @@ def _backup_and_move( version_folder ):
 	
 	import shutil
 		
-	new_medula_shell = medula.versions.Downloads( version_folder )
+	new_medula_shell = medula.versions.downloads( version_folder )
 	
 	_move( new_medula_shell , do_backup = True )
-
 
 	
 	
 def _download_and_unzip( ):
 	
-	
-	versions = medula( 'versions' )
-	
-	downloads = versions( 'Downloads' )
-	
-	medula_zip = urllib2.urlopen( medula_last_url )
-	
-	last_version = downloads( 'last_version.zip' )['rewrite']( medula_zip.read() )
-	
+	medula_url = 'https://github.com/javi2d/medula/zipball/master'
+
+	medula_zip = urllib2.urlopen( medula_url )
+
+	target_local_zip_file = Normalize.join( medula( 'versions/downloads' )['$PATH'] , 'medula_current.zip' )
+
+	with open( target_local_zip_file , 'wb' ) as mzip:
+
+		mzip.write( medula_zip.read() )
+
+
 	import zipfile
 	
-	medula_zip = zipfile.ZipFile( last_version['file'] )
+	medula_zip = zipfile.ZipFile( target_local_zip_file )
 	
 	version_folder = Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
 	
-	if version_folder in downloads['$FOLDER_NAMES']:
+	if version_folder in medula( 'versions/downloads' )['$FOLDER_NAMES']:
 		
 		if not nuke.ask( 'Seems that you have already installed this version, update again?' ):
-
+	
 			return 
 	
-	medula_zip.extractall( downloads['$PATH'] )
+	medula_zip.extractall( medula( 'versions/downloads' )['$PATH'] )
 	
 	return version_folder
 	
