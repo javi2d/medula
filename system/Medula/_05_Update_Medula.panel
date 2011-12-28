@@ -3,19 +3,95 @@ import urllib2
 
 
 
-in_backup = ['...'] + [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if d.startswith( 'Medula_' ) ] 
-
 
 class User:
 	
-	update = bttnKnob( 'update to last version' )
+	update = bttnKnob( 'update medula' )
 	
-	sep = sepKnob()
+	in_backup_versions = enumKnob( 'or restore a backup if any >> ' , [] , clearflags = 'STARTLINE' )
 	
-	restore = bttnKnob( 'restore backup'  )
+	restore = bttnKnob( 'restore backup' )
 	
-	in_backup_versions = enumKnob( '' , in_backup , clearflags = 'STARTLINE' )
 	
+
+def onCreate( this ):
+	
+
+	in_backup = ['...'] 
+
+	if 'versions' in medula['$FOLDER_NAMES']:
+
+		in_backup.extend(  [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if d.startswith( 'Medula_' ) ]    )
+		
+	this.KNOBS.in_backup_versions.setValues( in_backup )
+	
+
+
+def update( this ):
+	
+	def update_thread( this ):
+		
+		taskbar = nuke.ProgressTask( 'Updating medula ...' )
+		
+		medula_url = 'https://github.com/javi2d/medula/zipball/master'
+		
+		taskbar.setMessage( 'Connecting to github'	 )
+			
+		medula_zip = urllib2.urlopen( medula_url )
+		
+		if medula( 'version_info.txt' )['read'] == medula_zip.info:
+		
+			def ask():
+			
+				brain.tmp.updater.ask = nuke.ask( 'Medula is up to date, update again?' ) 
+		
+			nuke.executeInMainThread( ask )
+			
+			if not brain.tmp.updater.ask:
+
+				return
+		
+		target_local_zip_file = Normalize.join( medula( 'versions/downloads' )['$PATH'] , 'medula_current.zip' )
+		
+		taskbar.setMessage( 'Connection done, downloading last medula version.'	 )
+			
+		with open( target_local_zip_file , 'wb' ) as mzip:
+			
+			mzip.write( medula_zip.read() )
+
+		taskbar.setMessage( 'Downloaded , unzipping now.' )
+			
+		import zipfile
+
+		medula_zip = zipfile.ZipFile( target_local_zip_file )
+		
+		medula_zip.extractall( medula( 'versions/downloads' )['$PATH'] )
+		
+		taskbar.setMessage( 'Unzipped' )
+		
+		import shutil
+		
+		version_folder = Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
+		
+		if version_folder in medula.versions.downloads['$FOLDER_NAMES']:
+			
+			new_medula_shell = medula.versions.downloads( version_folder )
+
+			backup_folder = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
+
+			_switch_versions( new_medula_shell , backup_folder  )
+
+
+	
+	
+	if 'medula.source' in medula( '..')['$FILE_NAMES']:
+
+		nuke.executeInMainThread( nuke.message , ( 'Source Distro cannot be updated' ) )
+		
+	else:
+	
+		Core.thread( update_thread , this ).start()
+		
 
 
 def restore( this ):
@@ -28,42 +104,15 @@ def restore( this ):
 		
 		return
 	
+	restored_backup_folder = medula.versions( 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
 	
-	if nuke.ask( 'Are you sure to restore %s backup? This will no backup current version' % value  ):
-		
-		
-		restored_backup_folder = medula.versions( 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
-		
-		_move( medula.versions( value ) , restored_backup_folder )
+	if nuke.ask( 'Are you sure to restore %s backup? Current version will be backup into %s' % ( value , restored_backup_folder['$NAME']  ) ):
+
+		_switch_versions( medula.versions( value ) , restored_backup_folder )
 
 	
 
-def update( this ):
-	
-	version_folder = _download_and_unzip()
-	
-	if version_folder:
-		
-		_backup_and_move(  version_folder )
-		
-	else:
-		
-		nuke.message( 'medula Update Cancelled' )
-
-
-def _backup_and_move( version_folder ):
-
-	import shutil
-
-	new_medula_shell = medula.versions.downloads( version_folder )
-	
-	backup_folder = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
-	
-	_move( new_medula_shell , backup_folder  )
-
-
-
-def _move( src_shell , backup_shell ):
+def _switch_versions( src_shell , backup_shell ):
 	
 	import shutil
 	
@@ -83,35 +132,5 @@ def _move( src_shell , backup_shell ):
 	nuke.message( 'Restart nuke to complete update process' )
 	
 
-	
-def _download_and_unzip( ):
-	
-	medula_url = 'https://github.com/javi2d/medula/zipball/master'
-
-	medula_zip = urllib2.urlopen( medula_url )
-
-	target_local_zip_file = Normalize.join( medula( 'versions/downloads' )['$PATH'] , 'medula_current.zip' )
-
-	with open( target_local_zip_file , 'wb' ) as mzip:
-
-		mzip.write( medula_zip.read() )
-
-
-	import zipfile
-	
-	medula_zip = zipfile.ZipFile( target_local_zip_file )
-	
-	version_folder = Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
-	
-	if version_folder in medula( 'versions/downloads' )['$FOLDER_NAMES']:
-		
-		if not nuke.ask( 'Seems that you have already installed this version, update again?' ):
-	
-			return 
-	
-	medula_zip.extractall( medula( 'versions/downloads' )['$PATH'] )
-	
-	return version_folder
-	
 
 	

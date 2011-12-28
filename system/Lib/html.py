@@ -1,5 +1,5 @@
 
-def html( txt , size = 3 , color = 'Silver' , bold = False , center = True ):
+def txt( txt , size = 3 , color = 'Silver' , bold = False , center = True ):
 	
 	txt = txt.replace( '\n' , '<br>')
 	
