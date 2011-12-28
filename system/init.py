@@ -55,7 +55,7 @@ if this.HOSTLABEL not in brain.Sources['names']:
 	brain.Sources >> local.home.Brain( 'Sources.memory' )
 
 # By default local.home is included, this just put the toolset in a queue, this dont load anything yet.
-brain.Lib.include.TOOLSET( local.home )
+brain.Lib.include.TOOLSET( local.home , recreate = True )
 
 
 # Executes the file medula/local/_init.py
