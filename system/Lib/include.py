@@ -3,8 +3,6 @@
 
 FULL_STRUCTURE = 'Brain Lib Node Panel Toolbar Template ViewerProcess'.split()
 
-MIN_STRUCTURE = 'Brain Lib Node Panel Toolbar'.split()
-
 TOOLBAR_STRUCTURE = [ 'Animation' , 'Axis' , 'Node Graph' , 'Nodes' , 'Nuke' , 'Pane' , 'Properties' , 'Viewer' ]
 
 
@@ -109,12 +107,6 @@ def TEMPLATE( shell_or_path  ):
 	SHELL2MENU(  shell , 'Nuke' )
 
 
-
-
-
-
-
-
 	
 def RECREATE( shell_or_path ):
 	
@@ -127,6 +119,8 @@ def RECREATE( shell_or_path ):
 	for name in TOOLBAR_STRUCTURE:
 
 		shell.Toolbar( name )
+
+
 	
 
 def TOOLSET( shell_or_path , recreate = False , avoid = [] ):
@@ -159,66 +153,36 @@ def ADD_FAV( fav , path ):
 
 
 
-def ADD_FAV_ALIVE_RESOURCES( alive_only = False ):
+def ADD_FAV_ALIVE_RESOURCES():
 	
+
 	def alive_resource_search():
 		
 		brain.Lib.sources.normalize()
 		
-		brain.alive_resources_search = []
+		alive_resources = []
 		
 		for H , R , path in brain.Lib.sources.alive_resources():	
 		
-			#print '\n    Alive resource found %s = %s' % ( R , path )
+			#
 		
 			resource_label = '%s/%s' % ( H.lower() , R.upper() )
 			
 			resource_path = path + '/'
 			
-			brain.alive_resources_search.append( ( resource_label , resource_path ) )
+			alive_resources.append( ( resource_label , resource_path ) )
+			
 		
+		for resource_label , resource_path in alive_resources_search:
+			
+			nuke.executeInMainThread( nuke.removeFavoriteDir , ( resource_label, ) )
+			nuke.executeInMainThread( nuke.addFavoriteDir , ( resource_label , resource_path ) )
+			
+			print '\n    @@@ Alive resource found %s = %s' % ( resource_label , resource_path )
+			
 		
-			
-			
-	
-	def watcher():
+	Core.thread( alive_resource_search ).start()
 		
-		while 1:
-		
-			thread = brain( 'alive_resource_search_thread' , None )
-		
-			if thread and not thread.is_alive():
-				
-				#print '\nAlive Resources found:\n'
-				
-				for resource_label , resource_path in brain.alive_resources_search:
-					
-					#print '      >> %s' % resource_label
-					
-					nuke.removeFavoriteDir( resource_label )
-					nuke.addFavoriteDir( resource_label , resource_path )
-			
-				del brain.alive_resources_search
-				del brain.alive_resource_search_thread
-				
-				return
-				
-				
-			#time.sleep( 2 )
-			
-			
-			
-	
-	import threading
-
-	brain.alive_resource_search_thread = threading.Thread( None , alive_resource_search )
-	
-	brain.alive_resource_search_thread.start()
-	
-	threading.Thread( None , watcher ).start()
-
-
-
 
 
 # CHAIN LOADERS
