@@ -173,7 +173,7 @@ def ADD_FAV_ALIVE_RESOURCES():
 			alive_resources.append( ( resource_label , resource_path ) )
 			
 		
-		for resource_label , resource_path in alive_resources_search:
+		for resource_label , resource_path in alive_resources:
 			
 			nuke.executeInMainThread( nuke.removeFavoriteDir , ( resource_label, ) )
 			nuke.executeInMainThread( nuke.addFavoriteDir , ( resource_label , resource_path ) )
