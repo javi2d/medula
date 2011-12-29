@@ -47,7 +47,7 @@ local( 'home' )
 # Load the Sources.memory file
 brain.Sources << local.home( 'Brain/Sources.memory' )
 
-brain.Lib.add_current_host_to_sources()
+brain.Lib.sources.add_current_host_to_sources()
 
 brain.Lib.sources.normalize()
 
