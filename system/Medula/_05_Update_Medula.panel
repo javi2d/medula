@@ -1,7 +1,4 @@
 
-import urllib2
-
-
 
 
 class User:
@@ -30,6 +27,8 @@ def onCreate( this ):
 def update( this ):
 	
 	def update_thread( this ):
+		
+		import urllib2
 		
 		taskbar = nuke.ProgressTask( 'Updating medula ...' )
 		
@@ -90,9 +89,15 @@ def update( this ):
 		
 	else:
 	
-		Core.thread( update_thread , this ).start()
+		update_thread = Core.thread( update_thread , this )
 		
-
+		update_thread.start()
+		
+		update_thread.join()
+		
+		nuke.message( 'Restart nuke to complete update process' )
+	
+	
 
 def restore( this ):
 	
@@ -110,7 +115,7 @@ def restore( this ):
 
 		_switch_versions( medula.versions( value ) , restored_backup_folder )
 
-	
+	nuke.message( 'Restart nuke to complete update process' )
 
 def _switch_versions( src_shell , backup_shell ):
 	
@@ -129,8 +134,7 @@ def _switch_versions( src_shell , backup_shell ):
 		shutil.move( src_path , medula['$PATH'] )
 	
 	
-	nuke.message( 'Restart nuke to complete update process' )
+	
 	
 
 
-	
