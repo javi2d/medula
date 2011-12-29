@@ -347,11 +347,11 @@ def _output_folder( this , file_value ):
 		
 			if this.VALUES.tmpl_per_version:
 			
-				output_folder += '/%s' %  with_version
+				output_folder += '/%s' %  brain.Lib.sequence.folder_with_version( file_value )#with_version
 		
 			else:
 			
-				output_folder += '/%s' %  no_version
+				output_folder += '/%s' %  brain.Lib.sequence.folder_without_version( file_value )#no_version
 			
 	return output_folder
 				

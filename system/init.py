@@ -54,6 +54,9 @@ if this.HOSTLABEL not in brain.Sources['names']:
 	brain.Lib.sources.normalize()
 	brain.Sources >> local.home.Brain( 'Sources.memory' )
 
+brain.Lib.sources.normalize()
+
+
 # By default local.home is included, this just put the toolset in a queue, this dont load anything yet.
 brain.Lib.include.TOOLSET( local.home , recreate = True )
 

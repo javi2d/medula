@@ -250,7 +250,7 @@ def autolabel( this ):
 
 	if _isEnabled( this ):
 		
-		print 'DEBUG AUTOLABEL'
+		#print 'DEBUG AUTOLABEL'
 		
 		proxy_mode = this.ROOT.VALUES.proxy #nuke.tcl( 'value root.proxy' )
 		

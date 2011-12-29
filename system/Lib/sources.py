@@ -60,7 +60,7 @@ def host_resource( path ):
 
 	for H , HN , R , LR , RR  in  walk():
 		
-		#print 'DEBG' , HN , this.HOSTNAME
+		#print 'DEBG HOST_RESOURCE' , HN , this.HOSTNAME , path , R , LR , RR
 		
 		to_review = ( LR + RR if HN.lower() == this.HOSTNAME.lower() else RR )
 		
@@ -247,7 +247,6 @@ def __relink( this , knob ,  source_host = None ):
 	
 	# get the file value and check folder
 	
-
 	knob_value = this.VALUES( knob )
 
 	dirname , basename = os.path.split( knob_value )
@@ -257,6 +256,15 @@ def __relink( this , knob ,  source_host = None ):
 		host = ( source_host or this.HOSTNAME )
 	
 		compatible, match = compatible_match_cache( knob_value , host )
+		
+		if not host == this.HOSTNAME:
+		
+			local_compatible , local_match = compatible_match_cache( knob_value , this.HOSTNAME )
+			
+			if local_match:
+				
+				compatible = local_compatible + [ c for c in compatible if c not in local_compatible ]
+
 	
 		for comp in [ c for c in compatible if not c == match ]:
 		
@@ -276,7 +284,6 @@ def __relink( this , knob ,  source_host = None ):
 				
 				return
 		
-			
 		msg = 'Cannot be relinked %s : %s %s' % ( this.NODE.name() , host , match )
 		
 		sys.__stdout__.write( '\n%s\n' % msg )				

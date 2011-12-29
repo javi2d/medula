@@ -20,13 +20,74 @@ class User:
 	switch = bttnKnob( 'switch' , flags = 'STARTLINE') 
 	
 	replace = bttnKnob( 'replace'  )
-	
-	which_nodes = enumKnob( '' , 'all selected in_error'.split() ,  clearflags = 'STARTLINE' )
-	
+
+	which_nodes = enumKnob( '' , 'reads all selected'.split() ,  clearflags = 'STARTLINE' ) #'all selected in_error'
 	
 	info = txtKnob( '' , '---' , clearflags = 'STARTLINE')
 	
 	replace_with = fileKnob('replace with', '')
+
+
+
+
+def replace( this ):
+	
+	if not this.VALUES.search_for:
+		return
+	
+	which_nodes = this.VALUES.which_nodes
+	
+	if which_nodes == 'reads':
+		
+		nodes = [ n for n in nuke.allNodes() if 
+					'file' in n.knobs() 
+					and not n.Class().startswith( 'Write' ) 
+					and not n.Class().startswith( 'GenerateLUT' )  ]
+			
+	elif which_nodes == 'all':
+		
+		nodes = [ n for n in nuke.allNodes() if 'file' in n.knobs() ]
+	
+	elif which_nodes == 'selected':
+
+		nodes = [ n for n in nuke.selectedNodes() if 'file' in n.knobs() ] 
+
+
+	replacements = 0
+	
+	for n in nodes:
+		
+		print 'DEBUG testing node %s' % n.name()
+		
+		fknob = n.knobs()['file']
+		
+		knobs = [ fknob ]
+		
+		if 'proxy' in n.knobs():
+			
+			knobs.append( n.knobs()['proxy'] )
+		
+		replaced = False
+		
+		for k in knobs:
+			
+			if this.VALUES.search_for in k.value():
+				
+				print '    DEBUG updating value %s' % k.name()
+				
+				k.setValue( k.value().replace( this.VALUES.search_for ,  this.VALUES.replace_with )  )
+				
+				replaced = True
+		
+		if replaced:
+			
+			replacements += 1
+	
+	
+	this.KNOBS.info.setValue( '%s nodes modified' % replacements )
+		 
+		
+
 
 def knobChanged( this ):
 	
@@ -126,66 +187,6 @@ def bookmarks( this ):
 	this.KNOBS.replace_with.setValue( rw )
 	
 	this.KNOBS.info.setValue( '---' )
-
-
-def replace( this ):
-	
-	if not this.VALUES.search_for:
-		return
-	
-	which_nodes = this.VALUES.which_nodes
-	
-	if which_nodes == 'all':
-		
-		nodes = [ n for n in nuke.allNodes() if 'file' in n.knobs() ]
-	
-	elif which_nodes == 'selected':
-
-		nodes = [ n for n in nuke.selectedNodes() if 'file' in n.knobs() ] 
-	
-	elif which_nodes == 'in_error':
-		
-		nodes = [ n for n in nuke.allNodes() if 'file' in n.knobs()  and n.hasError() ]
-	
-	
-	
-	
-	replacements = 0
-	
-	for n in nodes:
-		
-		print 'DEBUG testing node %s' % n.name()
-		
-		fknob = n.knobs()['file']
-		
-		knobs = [ fknob ]
-		
-		if 'proxy' in n.knobs():
-			
-			knobs.append( n.knobs()['proxy'] )
-		
-		replaced = False
-		
-		for k in knobs:
-			
-			if this.VALUES.search_for in k.value():
-				
-				print '    DEBUG updating value %s' % k.name()
-				
-				k.setValue( k.value().replace( this.VALUES.search_for ,  this.VALUES.replace_with )  )
-				
-				replaced = True
-		
-		if replaced:
-			
-			replacements += 1
-	
-	
-	this.KNOBS.info.setValue( '%s nodes modified' % replacements )
-		 
-		
-		
-		
 		
 		
 		

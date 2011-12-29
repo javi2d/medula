@@ -6,6 +6,14 @@ class User:
 	auto_refresh_node = boolKnob( 'auto refresh nodes' , brain( 'AUTO_REFRESH_NODE' , False ) )
 	auto_knobChanged  = boolKnob( 'auto knobChanged callback' , brain( 'GLOBAL_KNOB_CHANGE' , False ) )
 	
+	normalize_sources = bttnKnob( 'normalize sources' )
+	
+	
+def normalize_sources( this ):
+	
+	brain.Lib.sources.normalize()
+	brain.Sources >> local.home.Brain( 'Sources.memory' )
+	
 
 def auto_refresh_node( this ):
 	

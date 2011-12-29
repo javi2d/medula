@@ -71,10 +71,19 @@ def beforeRender( this ):
 				src_name , src_ext = os.path.splitext( src_basename )
 				
 				
-				target_folder = this.VALUES.conv_target_folder or src_folder
+				print 'DEBUG 1111' , src_ext , ext
 				
-				target_basename = src_name + '.CONVERSION.' + ext
+				if src_ext == '.mov' and ext != 'mov':
+					
+					src_name += '.%04d'
+					
 				
+				
+				target_folder = src_folder   #this.VALUES.conv_target_folder or 
+				
+				target_basename = src_name + '.CONVERSION.' + ext 
+				
+
 				#if target_basename == src_basename  and  target_folder == src_folder: 
 				
 				target_path = Normalize.path( os.path.join(  target_folder  , target_basename ) )

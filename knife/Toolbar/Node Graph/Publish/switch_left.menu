@@ -1,7 +1,0 @@
-
-
-label = 'Switch Left'
-
-icon = ''
-
-hotkey = 'alt+left' # overwrited by Hotkeys.memory.memory???? alt+left

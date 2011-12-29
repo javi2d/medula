@@ -1,7 +1,7 @@
 
-hotkey = ''
+hotkey = 'alt+right'
 
 icon = None
 
-label = 'switch_right'
+label = 'Switch Right'
 

@@ -112,46 +112,62 @@ def LIB_read_creator_thread( read_nodes_params ):
 	
 
 def LIB_recursive_read_creator( folder , pattern = None , recursive = True ):
-	
+		
 	read_nodes_params = []
 	
 	for P,D,F in os.walk( folder ):
 
 		D[:] = [ d for d in D if not d.startswith( '.' ) and not d.startswith( '__' ) ]
-
+		
 		seq = brain.Lib.sequence.sequences( P )
-
+		
 		for name , stats in sorted( seq.items() ) :
 			
+	
 			if '.PROXY' in name:
 				
 				continue
 				
-				
-			if pattern:
-				
-				no_match = [ x for x in pattern.split('*') if x and x not in name ] 
-				
-				if no_match:
-					
-					continue
-			
 			ff, lf, cont = stats
 			
 			seq_path = Normalize.join( P , name )
 			
 			fname, ext = os.path.splitext( name )
 			
-			read_nodes_params.append( [ seq_path , ff, lf ] )
+			#Quicktime fixes
+			
+			if seq_path.lower().endswith( '.mov' ) and ff and lf:
+				
+				for i in range( ff, lf ):
+					
+					potential_qt_path =  seq_path % i
+					
+					if os.path.exists( potential_qt_path ):
+					
+						read_nodes_params.append( [ potential_qt_path , None , None ] )
+			
+			else:
+			
+			
+				params = [ seq_path , ff, lf ]
+
+				read_nodes_params.append( params )
 			
 			
 		if not recursive:
 			
 			break
-			
+		
 	
-	nuke.executeInMainThreadWithResult( LIB_read_creator_thread , ( read_nodes_params ) )
+	if pattern:
+		
+		import fnmatch
+		
+		read_nodes_params = [ param for param in read_nodes_params if fnmatch.fnmatch( os.path.basename( param[0] ).lower() , pattern.lower() ) ]
 
+		
+	nuke.executeInMainThreadWithResult( LIB_read_creator_thread , ( read_nodes_params , ) )
+	
 
 
 def getClipname( default = None ): #, this = space.this  

@@ -61,7 +61,11 @@ def make_green( this ):
 
 def colorize_node( this ):
 	
+	#print 'COLORIZING NODE'
+	
 	seq_color = brain.Lib.sequence.color( this.VALUES.file )
+	
+	#print 'COLORIZING NODE' , seq_color
 	
 	this.KNOBS.tile_color.setValue( seq_color )
 	
@@ -189,8 +193,14 @@ def autolabel( this ):
 
 	label += '<b><font color="Black" size=5 >%s</font></b>\n' % ( 1 + this.NODE.lastFrame() - this.NODE.firstFrame() )
 	
+	#brain.Lib.sources = sh.Lib.sources()
+	
+	#print 'DEBUG RELOADED SOURCES'
+	
 	H,R = brain.Lib.sources.host_resource(  this.VALUES.file ) 
-
+	
+	#print 'DEBUG AUTOLABEL' , H,R
+	
 	if H and R:
 		
 		#host_resource = [ x.upper() for x in host_resource ]

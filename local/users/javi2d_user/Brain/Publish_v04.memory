@@ -1,0 +1,3 @@
+
+ProjectX_Publish_Folder = 'tmpl_preset_name ProjectX_Publish_Folder\ntmpl_target_folder /Users/user/Desktop/Medula_Tutorial/FOOTAGE/ProjectX_Published\ntmpl_date false\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
+
