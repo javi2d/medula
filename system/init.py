@@ -19,6 +19,14 @@ sop.Expose.object( sh( os.getcwd() ) , 'cwd' )
 
 sop.Expose.object( sh( '..' ) , 'medula' )
 
+
+## This is a trigger to show the welcome message to medula
+if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
+
+## Local config
+sop.Expose.object(  medula( 'local' )  , 'local' )
+
+
 	
 sop.Expose.modules( 'nuke nukescripts shutil math threading' )
 ## modules are exposed in main and sop
@@ -30,14 +38,6 @@ brain.Lib << medula.system.Lib
 
 # Initialize the icons folder
 brain.Lib.include.ADD_RECURSIVE( medula.system.Icons )
-
-
-## This is a trigger to show the welcome message to medula
-if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
-
-
-## Local config
-sop.Expose.object(  medula( 'local' )  , 'local' )
 
 
 # This line create a default 
