@@ -33,7 +33,17 @@ def update( this ):
 			
 		medula_url = 'https://github.com/javi2d/medula/zipball/master'
 		
-		medula_zip = urllib2.urlopen( medula_url )
+		try:
+		
+			medula_zip = urllib2.urlopen( medula_url )
+		
+		except:
+			
+			nuke.executeInMainThreadWithResult( nuke.message , 'Connection to github failed, sorry' )
+			
+			return
+			
+			
 		
 		taskbar = nuke.ProgressTask( 'Updating medula ...' )
 
@@ -90,7 +100,7 @@ def update( this ):
 
 			_switch_versions( new_medula_shell , backup_folder  )
 			
-			medula( 'version_info.txt' )['rewrite']( version_folder )
+			medula( 'version_info.txt' )['rewrite']( version_folder , backup = False )
 
 			
 			nuke.executeInMainThreadWithResult( nuke.message , ( 'Restart nuke to complete update process' ,  ) )
