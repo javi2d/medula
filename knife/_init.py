@@ -50,39 +50,29 @@ def initialize_in_regular_mode():
 	
 	brain.Lib.include.TOOLSET( medula.knife )
 	
-	if not use_per_user_toolset and not use_per_project_toolset:
-					
-		brain.Lib.include.TOOLSET( local.home , recreate = True )
-		
-	else:
-		
+	brain.Lib.include.TOOLSET( local.home )
 	
-		brain.Lib.include.TOOLSET( local.home )
+	brain.Lib.include.TOOLSET( local._user )	
+	
+	if this.HOSTNAME in [ ]: 
 		
-		brain.Lib.include.TOOLSET( local._user )	
-		
-		if this.HOSTNAME in [ ]: 
-			
-			# Include the Development toolset to test stuff, only for TDs
-		
-			local._dev = local( 'development/dev' )
-		
-			brain.Lib.include.TOOLSET( local._dev )
+		# Include the Development toolset to test stuff, only for TDs
+	
+		local._dev = local( 'development/dev' )
+	
+		brain.Lib.include.TOOLSET( local._dev )
 
-			# Recreate toolset structures if needed
-        
-			dev_structure = [
-			'Node',
-			'Toolbar/Nodes/Development',
-			'Toolbar/Nuke/Experimental',	
-			]
-		
-			[ local._dev( struct ) for struct in  dev_structure ]
-		
+		# Recreate toolset structures if needed
+       
+		dev_structure = [
+		'Node',
+		'Toolbar/Nodes/Development',
+		'Toolbar/Nuke/Experimental',	
+		]
+	
+		[ local._dev( struct ) for struct in  dev_structure ]
 
-		
-		
-		
+	
 		#brain.AUTO_REFRESH_NODE = True
 	
 	
