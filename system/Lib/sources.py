@@ -67,6 +67,8 @@ def add_current_host_to_sources():
 		
 		brain.Sources( this.HOSTLABEL , Brain() )._hostname = this.HOSTNAME
 		
+		space.normalize()
+		
 		brain.Sources >> local.home.Brain( 'Sources.memory' )
 		
 		
