@@ -79,6 +79,8 @@ def update( this ):
 			backup_folder = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
 
 			_switch_versions( new_medula_shell , backup_folder  )
+			
+			medula( 'version_info.txt' )['rewrite']( medula_zip.info )
 
 
 	
