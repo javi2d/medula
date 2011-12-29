@@ -47,12 +47,7 @@ local( 'home' )
 # Load the Sources.memory file
 brain.Sources << local.home( 'Brain/Sources.memory' )
 
-if this.HOSTLABEL not in brain.Sources['names']:
-	
-	# If current host is not present in Sources.memory the file is dumped with the host added.
-	
-	brain.Lib.sources.normalize()
-	brain.Sources >> local.home.Brain( 'Sources.memory' )
+brain.Lib.add_current_host_to_sources()
 
 brain.Lib.sources.normalize()
 

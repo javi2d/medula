@@ -1,5 +1,32 @@
 
-#
+'''
+This file is about manipulation of data contained in Brain/Sources.memory
+
+Sources.memory define structures like this
+
+class <HOSTLABEL>:
+	
+	_hostname = <HOSTNAME>
+	
+	<RESOURCE> = [ < aka path to local resource > , ...  ] , [ < aka path to remote resource > ... ]
+
+Where <HOSTLABEL> is equal to normalized <HOSTNAME>
+
+<RESOURCE> refer to a folder where projects are housed, <RESOURCE> is a label
+
+First list contains the local paths from where the <RESOURCE> is reached 
+
+Second list contains the remote paths from where the <RESOURCE> is reached 
+
+
+class My_Host:
+	
+	_hostname = 'My Host'
+	
+	PROJECTS1 = [ '/Volumes/disk1/Projects' ] , [ '//My Host/disk1/Projects' , '/Volumes/My Host/disk1/Projects' ]
+
+
+'''
 
 
 def walk( ):
@@ -32,17 +59,23 @@ def walk( ):
 			yield ( host , hostname , resource , local_resources , remote_resources )
 
 
-def normalize():
-	
-	#print '\n\n>> Normalizing Sources'
+def add_current_host_to_sources():
 	
 	if this.HOSTLABEL not in brain.Sources['names']:
 		
 		# Add current host to Sources
 		
-		brain.Sources( this.HOSTLABEL , Brain() )._hostname = this.HOSTNAME	
+		brain.Sources( this.HOSTLABEL , Brain() )._hostname = this.HOSTNAME
 		
+		brain.Sources >> local.home.Brain( 'Sources.memory' )
+		
+		
+		
+
+def normalize():
 	
+	#print '\n\n>> Normalizing Sources'
+
 	for H , HN , R , LR , RR in walk():
 
 
@@ -52,8 +85,7 @@ def normalize():
 		#print brain.Sources( H )( R )
 	
 	#print 'debug end Normalize Sources'
-
-		
+	
 
 
 def host_resource( path ):
