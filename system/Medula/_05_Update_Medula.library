@@ -71,7 +71,7 @@ def lib_download_and_unzip_master_branch():
 	return sh( downloads_path )( medula_unzipped_folder )
 	
 	
-def lib_switch_versions( new_medula_version_shell , backup_shell_or_path ):
+def lib_switch_versions( new_medula_version_shell , backup_shell ):
 	
 	if 'medula.source' in medula( '..' )['$FILE_NAMES']:
 
@@ -87,8 +87,6 @@ def lib_switch_versions( new_medula_version_shell , backup_shell_or_path ):
 
 
 	import shutil
-	
-	backup_shell = Normalize.shell( backup_shell_or_path )
 	
 	for folder in [ d for d in new_medula_version_shell['$FOLDER_NAMES'] if not d == 'local' ]:	
 	
