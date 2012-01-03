@@ -30,7 +30,7 @@ Selected Backup : %s
 
 Folder Content : %s
 
-Version Info ; %s''' % ( value , selected_shell['$FOLDER_NAMES'] + selected_shell['$FILE_NAMES'] , selected_shell('version.memory' , write( 'NO VERSION INFO' ) )  )
+Version Info ; %s''' % ( value , selected_shell['$FOLDER_NAMES'] + selected_shell['$FILE_NAMES'] , selected_shell('version.memory' , write = 'NO VERSION INFO' )  )
 	
 		backup_info.setValue( msg )
 	
