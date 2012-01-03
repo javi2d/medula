@@ -96,7 +96,6 @@ def lib_switch_versions( new_medula_version_shell , backup_shell ):
 			shutil.move( medula( filename )['file'] , backup_shell['$PATH'] )
 	
 		shutil.move( new_medula_version_shell( filename )['file'] , medula['$PATH'] )
-		
 
 
 

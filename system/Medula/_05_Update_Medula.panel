@@ -91,31 +91,11 @@ def update( this ):
 			unzipped_shell = lib_download_and_unzip_master_branch()
 			
 			backup_shell = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
-			
-			try:
-				
-				lib_switch_versions( unzipped_shell , backup_shell )
-				
-				nuke.executeInMainThreadWithResult( nuke.message , ( update_done_ok_msg % ( backup_shell['$NAME'] , backup_shell['$FOLDER_NAMES'] , backup_shell['$FILE_NAMES'] ) ,  ) )
-				
-			except:
-				
-				raise
-				
-			finally:
-				
-				nuke.executeInMainThreadWithResult( nuke.message , ( 'Problem during update process, please review your system output' ,  ) )
-			
-
-				
-			
-				
-			
-				
-			
-			
-			
 	
+			lib_switch_versions( unzipped_shell , backup_shell )
+				
+			nuke.executeInMainThreadWithResult( nuke.message , ( update_done_ok_msg % ( backup_shell['$NAME'] , backup_shell['$FOLDER_NAMES'] , backup_shell['$FILE_NAMES'] ) ,  ) )
+
 	
 	return 
 	
