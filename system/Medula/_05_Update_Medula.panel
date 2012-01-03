@@ -15,19 +15,6 @@ class User:
 space << '_05_Update_Medula.library'
 
 
-
-def onCreate( this ):
-	
-
-	in_backup = ['...'] 
-
-	if 'versions' in medula['$FOLDER_NAMES']:
-
-		in_backup.extend(  [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if d.startswith( 'Medula_' ) ]    )
-		
-	this.KNOBS.in_backup_versions.setValues( in_backup )
-	
-
 new_version_ask_msg = '''
 
 A new version is available:
@@ -57,6 +44,19 @@ Changed files = %s
 Restart nuke to apply changes.
 
 '''
+
+
+def onCreate( this ):
+	
+
+	in_backup = ['...'] 
+
+	if 'versions' in medula['$FOLDER_NAMES']:
+
+		in_backup.extend(  [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if d.startswith( 'Medula_' ) ]    )
+		
+	this.KNOBS.in_backup_versions.setValues( in_backup )
+
 
 
 
@@ -95,7 +95,9 @@ def update( this ):
 			lib_switch_versions( unzipped_shell , backup_shell )
 				
 			nuke.executeInMainThreadWithResult( nuke.message , ( update_done_ok_msg % ( backup_shell['$NAME'] , backup_shell['$FOLDER_NAMES'] , backup_shell['$FILE_NAMES'] ) ,  ) )
-
+			
+			onCreate( this )
+			
 	
 	return 
 	
