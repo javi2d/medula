@@ -200,7 +200,7 @@ def add_nodeScript_knobs( this ):
 			
 			knob.fromScript( single )
 			
-			sys.__stdout__.write( '\nDEBUG >> Restored Single Value in %s to %s' % ( knob.name() , single ) )
+			#sys.__stdout__.write( '\nDEBUG >> Restored Single Value in %s to %s' % ( knob.name() , single ) )
 			
 	
 	

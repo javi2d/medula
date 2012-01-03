@@ -27,9 +27,10 @@ if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
 sop.Expose.object(  medula( 'local' )  , 'local' )
 
 
-	
 sop.Expose.modules( 'nuke nukescripts shutil math threading' )
 ## modules are exposed in main and sop
+
+
 
 
 brain.Lib << medula.system.Lib
@@ -40,9 +41,9 @@ brain.Lib << medula.system.Lib
 brain.Lib.include.ADD_RECURSIVE( medula.system.Icons )
 
 
+
 # This line create a default 
 local( 'home' )
-
 
 # Load the Sources.memory file
 brain.Sources << local.home( 'Brain/Sources.memory' )

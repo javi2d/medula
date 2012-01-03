@@ -1477,13 +1477,6 @@ Error description on operation brain.__code__
 		
 		if False:
 			pass
-			
-		elif query == 'clear':
-			
-			for name in self['names']:
-				
-				delattr( self , name )	
-	
 		
 		elif query == 'code':
 			

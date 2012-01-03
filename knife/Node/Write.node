@@ -1,6 +1,6 @@
 
 
-TABS = [ 'Write.node', 'Write_Management_v08.tab'   ] #,  , 'Write_Task_Params_v02.tab' 
+TABS = [ 'Write.node', 'Write_Management_v08.tab', 'Write_Tasking_v01.tab'   ] #,  , 'Write_Task_Params_v02.tab' 
 
 DEFAULTS = {
 
@@ -17,7 +17,9 @@ def onUserCreate( this ):
 
 	# To use a write node the user is forced to save the script
 	# This can be replaced with the Script
-
+	
+	this.KNOBS.autolabel.setValue( None )
+	
 	if not this.SCRIPT_PATH : #nuke.tcl('value root.name'):
 
 		brain.Lib.script.saveScript()
@@ -130,7 +132,7 @@ def beforeRender( this ):
 
 
 	brain.Lib.mRender.append_render_output( this.NODE )
-
+	
 	brain.Lib.script.saveScript() # this will upgrade subversion, in fact render any node will update subversion
 
 	if basename:
@@ -140,7 +142,7 @@ def beforeRender( this ):
 		render_name = basename.split('.')[0]
 		brain.Lib.script.copyScript( '_renderScripts'  , script_name = render_name + '.nk' )
 
-	print '>> [ ABOUT TO RENDER ] : %s node on %s script' % ( this.NODE.name() , os.path.basename( this.ROOT.VALUES.name) )
+	print '\n\n>> [ ABOUT TO RENDER ] : %s node on %s script\n' % ( this.NODE.name() , os.path.basename( this.ROOT.VALUES.name) )
 
 
 
@@ -166,14 +168,15 @@ def afterRender( this ):
 
 
 def inputChange( this ):
-
+	
+	# This CALLBACK ONLY WORKS WHEN PROPERTIES ARE OPEN
+		
 	this.KNOBS.autolabel.setValue( None )   # force autolabel callback
 
 
 def autolabel( this ):
-
-
-	input_node = this( NODE = this.NODE.input(0) )
+	
+	input_node = space.this( NODE = this.NODE.input(0) )
 
 	# Auto Proxy Write
 

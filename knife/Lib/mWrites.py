@@ -158,6 +158,6 @@ def build_path( this ):
 		this.KNOBS.proxy.fromScript( PROXY_PATH  )
 		
 		
-	print '**DEBUG ' , OUTPUT_PATH
+	#print '**DEBUG ' , OUTPUT_PATH
 
 

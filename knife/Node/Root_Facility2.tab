@@ -49,7 +49,8 @@ def onScriptSave( this ):
 			
 		nuke.addFavoriteDir( '[ current_unit ]' , this.UNIT_PATH + '/' )
 		
-
+	
+	# NOTE : the source_host value is injected ( inject_src_host ) when script is saved
 
 		
 	
@@ -73,27 +74,180 @@ def onScriptLoad( this ):
 
 
 
+def _HARVEST_READ_NODES():
+		
+	nodes_to_test = [ n for n in nuke.allNodes() if 'file' in n.knobs() or n.Class() == 'Group' ]	
+	read_nodes = []
+	
+	while nodes_to_test:
+
+		n = nodes_to_test.pop()
+		
+		if n.Class() == 'Group':
+		
+			nodes_in_group = [ N for N in n.nodes() if 'file' in N.knobs() or N.Class() == 'Group' ]			
+			nodes_to_test.extend( nodes_in_group )
+		
+		elif n.Class() not in [ 'Write' , 'GenerateLUT' ]:
+			
+			read_nodes.append( n )	
+						
+	
+	return read_nodes
+
+
+
+
+
 def relink( this ):
 	
-	source_host = this.ROOT.VALUES.source_host
-	
-	brain.Lib.sources.relink_read_nodes( knob = 'file' , source_host = source_host )
-	brain.Lib.sources.relink_read_nodes( knob = 'proxy' , source_host = source_host )
+	''' This will relink read knobs based on data provided by home/Brain/Sources.memory '''
+
+	print '\n\nRELINK NODES STARTUP ::  saver_host = %s , current_host = %s ' %  ( this.ROOT.VALUES.source_host , this.HOSTNAME )
 	
 	changes = brain( '_relink_changes' , [] )
 	
+	for node in _HARVEST_READ_NODES():
+	
+		_RELINK2( node )
+
+
 	if changes:
 
-		print '\n    >> %s knobs relinked' % len(changes)
+		print '\n>> %s knobs relinked' % len(changes)
 
 		this.KNOBS.restore.clearFlag( nuke.DISABLED )
 
 	else:
 
-		print '\n    >> Nothing Relinked'
+		print '\n>> Nothing Relinked'
+	
+	
+	
+
+def _RELINK2( node ):
+	
+	brain.Lib.sources.normalize()
+	
+	file_value = this( node ).VALUES.file
+	
+	if not os.path.exists( os.path.dirname( file_value )  ):
+		
+		print '\n\nRELINKING NODE [ %s ] >> ' % node.name() , 
+		
+		matched_resources_paths = [ ]
+			
+		for H , HN , R , LR , RR  in  brain.Lib.sources.walk():
+	
+			#print '\n      TESTING PATHS OF HOST : ' , H
+			
+			match_current_host = HN.lower() in [ h.lower() for h in ( this.ROOT.VALUES.source_host , this.HOSTNAME )  ]
+			
+			paths_to_test = ( LR + RR if match_current_host else RR )
+			
+			for resource in paths_to_test:
+				
+				if file_value.startswith( resource ):
+
+					matched_resources_paths.append( ( resource , paths_to_test ) )
+
+		
+		if len( matched_resources_paths ) == 1:
+			
+			match , compatibles = matched_resources_paths[0]
+
+			for path in reversed( compatibles ):
+			
+				if os.path.isdir( path ) and os.listdir( path ):
+					
+					relinked_file_value = file_value.replace( match , path , 1 )
+					
+					this( node ).KNOBS.file.setValue( relinked_file_value )
+					
+					brain( '_relink_changes' , [] ).append( ( this( node ).KNOBS.file , relinked_file_value , file_value ) )		
+					
+					print 'NODE [ %s ] AUTOMATICALLY RELINKED' % node.name()
+					
+					return
+					
+			print "NODE [ %s ] CANNOT BE RELINKED, MATCH FOUND BUT CANNOT BE REACHED LOCALLY" % node.name()
+			
+			
+		elif len( matched_resources_paths ) > 1:
+			
+			print 'NODE [ %s ] CANNOT BE RELINKED DUE TO DUPLICATED REFERENCES IN SOURCES: %s' % ( node.name() , matched_resources_paths )
+			
+		else:
+			
+			print 'NODE [ %s ] CANNOT BE RELINKED DUE TO NOT MATCHES IN SOURCES' % node.name()
+			
+			
+			
+			
+			
+		
+		
 		
 
 	
+def _RELINK( node ):
+	
+	brain.Lib.sources.normalize()
+	
+	file_value = this( node ).VALUES.file
+	
+	if not os.path.exists( os.path.dirname( file_value )  ):
+		
+		print '\n\nRELINKING NODE : ' , node.name()
+	
+		for H , HN , R , LR , RR  in  brain.Lib.sources.walk():
+	
+			print '\n      TESTING PATHS OF HOST : ' , H
+	
+			if HN.lower() in [ h.lower() for h in ( this.ROOT.VALUES.source_host , this.HOSTNAME )  ]:
+	
+				paths_to_test = LR + RR
+	
+			else:
+	
+				paths_to_test = RR
+	
+	
+			match = False
+	
+			for resource in paths_to_test:
+
+				if file_value.startswith( resource ):
+
+					match = resource
+			
+					break
+	
+			if match:
+			
+				relinked = False
+			
+				for path in reversed( paths_to_test ):
+				
+					if os.path.isdir( path ) and os.listdir( path ):
+					
+						relinked_file_value = file_value.replace( match , path )
+					
+						this( node ).KNOBS.file.setValue( relinked_file_value )
+					
+						print '\nNODE [ %s ] AUTOMATICALLY RELINKED' % node.name() 
+					
+						relinked = True
+					
+						break
+			
+				if relinked:
+				
+					break # Continue testing host
+		
+			else:
+			
+				print '\nNODE [ %s ] CANNOT BE RELINKED' % node.name()
 	
 
 	

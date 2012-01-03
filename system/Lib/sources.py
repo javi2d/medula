@@ -30,7 +30,7 @@ class My_Host:
 
 
 def walk( ):
-		
+	
 	hosts = brain.Sources['names']
 	
 	for host in hosts:
@@ -66,8 +66,6 @@ def add_current_host_to_sources():
 		# Add current host to Sources
 		
 		brain.Sources( this.HOSTLABEL , Brain() )._hostname = this.HOSTNAME
-		
-		space.normalize()
 		
 		brain.Sources >> local.home.Brain( 'Sources.memory' )
 		
@@ -280,51 +278,77 @@ def __relink( this , knob ,  source_host = None ):
 	# find file and proxy knobs in Node
 	
 	# get the file value and check folder
+
+	print '\n\nDEBUG __RELINK 01 (WORKING)' , this.NODE.name() , this.NODE.hasError()
 	
-	knob_value = this.VALUES( knob )
+	knob_path = this.VALUES( knob )
 
-	dirname , basename = os.path.split( knob_value )
-
+	dirname , basename = os.path.split( knob_path )
+	
 	if not os.path.isdir( dirname ):
-	
-		host = ( source_host or this.HOSTNAME )
-	
-		compatible, match = compatible_match_cache( knob_value , host )
 		
-		if not host == this.HOSTNAME:
+		compatible_paths = []
 		
-			local_compatible , local_match = compatible_match_cache( knob_value , this.HOSTNAME )
+		print '\nDEBUG TESTING     ' , dirname.lower()
+	
+		for H , HN , R , LR , RR  in  walk():
+		
+			to_review = ( LR + RR if HN.lower() == this.HOSTNAME.lower() else RR )
+		
+			for resource in to_review:
 			
-			if local_match:
+				print '      COMPARING WITH' , resource.lower()
+
+				if dirname.lower().startswith( resource.lower() ):
+
+					compatible_paths.append( resource )
+	
+		print 'DEBUG FOUND COMPATIBLE PATHS' , this.NODE.name() , compatible_paths
 				
-				compatible = local_compatible + [ c for c in compatible if c not in local_compatible ]
 
 	
-		for comp in [ c for c in compatible if not c == match ]:
-		
-			test_dirname = dirname.replace( match , comp )
-		
-			print 'Testing : '  
-		
-			if os.path.isdir( comp ):
-			
-				print 'Relinking %s : %s >> %s' % ( this.NODE.name() , match , comp )
-				
-				new_knob_value = Normalize.join( test_dirname , basename)
-				
-				this.KNOBS( knob ).setValue( new_knob_value )
-				
-				brain( '_relink_changes' , [] ).append( ( this.KNOBS( knob ) , new_knob_value , knob_value ) )
-				
-				return
-		
-		msg = 'Cannot be relinked %s : %s %s' % ( this.NODE.name() , host , match )
-		
-		sys.__stdout__.write( '\n%s\n' % msg )				
-
-		
+	#compatible, match = compatible_match_cache( knob_value , host )
 
 
+	#if not os.path.isdir( dirname ):
+	#
+	#	host = ( source_host or this.HOSTNAME )
+	#
+	#	compatible, match = compatible_match_cache( knob_value , host )
+	#	
+	#	if not host == this.HOSTNAME:
+	#	
+	#		local_compatible , local_match = compatible_match_cache( knob_value , this.HOSTNAME )
+	#		
+	#		if local_match:
+	#			
+	#			compatible = local_compatible + [ c for c in compatible if c not in local_compatible ]
+    #
+	#
+	#	for comp in [ c for c in compatible if not c == match ]:
+	#	
+	#		test_dirname = dirname.replace( match , comp )
+	#	
+	#		print 'Testing : '  
+	#	
+	#		if os.path.isdir( comp ):
+	#		
+	#			print 'Relinking %s : %s >> %s' % ( this.NODE.name() , match , comp )
+	#			
+	#			new_knob_value = Normalize.join( test_dirname , basename)
+	#			
+	#			this.KNOBS( knob ).setValue( new_knob_value )
+	#			
+	#			brain( '_relink_changes' , [] ).append( ( this.KNOBS( knob ) , new_knob_value , knob_value ) )
+	#			
+	#			return
+	#	
+	#	msg = 'Cannot be relinked %s : %s %s' % ( this.NODE.name() , host , match )
+	#	
+	#	sys.__stdout__.write( '\n%s\n' % msg )				
+
+		
+# USED ONLY in Root_Facility tab , the procedure is moved to the callback 
 
 def relink_read_nodes( knob = 'file' , source_host = None ):
 	
@@ -337,6 +361,9 @@ def relink_read_nodes( knob = 'file' , source_host = None ):
 			__relink( this(n) , knob , source_host )
 						
 
+
+# NOT USED 
+
 def relink_write_nodes( knob = 'file' , source_host = None ):
 	
 	brain.relink_changes = []
@@ -347,7 +374,7 @@ def relink_write_nodes( knob = 'file' , source_host = None ):
 
 			__relink( this(n) , knob , source_host )
 
-
+# NOT USED 
 
 def relink_all_nodes( knob = 'file' , source_host = None ):
 	

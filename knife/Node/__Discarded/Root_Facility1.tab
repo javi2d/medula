@@ -121,25 +121,6 @@ def relink( this ):
 
 
 							#print '\n>> %s message : Folder cannot be found in sources, %s ' % ( n.name() , old_dirname )
-					
-				
-				
-				#for H , HN , R , LR , RR  in  brain.Lib.sources.walk():
-				#	
-				#	if H not in hosts:
-						
-						
-					
-					
-					
-				
-				
-				
-				
-				
-				
-			
-
 
 
 

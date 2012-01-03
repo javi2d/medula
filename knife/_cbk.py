@@ -2,27 +2,43 @@
 
 def __root_name_changed__():
 	
-	print '\nA NEW SCRIPT IS ABOUT TO OPEN [...]%s' %  this.VALUE[-30:]
+	print '\nOPENING A NEW SCRIPT [...]%s' %  this.VALUE[-100:]  #  This function is trigger when 'this' is bound to Root.name
 	
-	sop.Core.lap( 'script.load' )
+	sop.Core.lap( 'script.load' ) # Lapse closed in Root.onCreate
 	
-	project = brain.Lib.project.project_name( this.VALUE )
+	script_path = Normalize.path( this.VALUE )
 	
-	if project and not project == brain.Project.SCRIPTS:
+	brain.Lib.sources.normalize()
+	
+	match = None
+	
+	for H , HN , R , LR , RR  in  brain.Lib.sources.walk():
+		
+		if HN.lower() == this.HOSTNAME.lower():
 			
-		print '\nLOADING SCRIPTS PROJECT TOOLSET'
+			paths_to_test = LR + RR
+			
+		else:
+			
+			paths_to_test = RR
+						
+		for resource in paths_to_test:
+			
+			if script_path.startswith( resource ):
+
+				match = resource
+				
+				break
+	
+	if match:
 		
-		local._project = local( 'projects/%s' % project ) 
-		
-		brain.Lib.include.LOAD_TOOLSET( local._project )
-		
-		print '\nLOADED PROJECT TOOLSET' , local._project['$PATH']
-		
+		project_name = script_path.replace( match + '/' , '' ).split('/')[0] # first 
+	
+		print '\nPROJECT FOUND = ' , project_name
+	
 	else:
 		
-		print 'TODO UNBOUND PROJECT, A PROJECT CANNOT BE UNBOUND'
-	
-	
+		print '\n\n!!!!!!!! PROJECT NOT FOUND, CHECK Sources.memory or knife/_cbk.py/__root_name_changed__() to review the problem'
 	
 
 

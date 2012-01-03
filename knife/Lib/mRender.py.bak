@@ -16,11 +16,11 @@ def _execute( node , proxy_mode ):
 	ff = node.firstFrame() 
 	lf = node.lastFrame()
 	
-	print '\n>> Executing in %s RESOLUTION : %s , [ %s to %s ]' % ( mode , node.name() ,  ff ,lf )
+	print '\n>> Executing IN %s RESOLUTION : %s , [ %s , %s ]' % ( node.name() , mode , ff ,lf )
 	
-	nuke.execute( node , ff, lf , continueOnError = True )
+	nuke.execute( node , ff, lf )
 	
-	print '\n<< Executing in %s RESOLUTION : %s , [ %s to %s ]\n' % ( mode , node.name() , ff ,lf )
+	print '\n<< Executing IN %s RESOLUTION : %s , [ %s , %s ]\n' % ( node.name() , mode , ff ,lf )
 	
 	root.KNOBS.proxy.setValue( current_proxy_mode )
 	
@@ -35,10 +35,34 @@ def selection_in_full():
 		return
 	
 	for n in nuke.selectedNodes():
-		
+	
 		_execute( n , False )
 	
 	
+	
+	#root = this.ROOT
+	#
+	#current_proxy_mode = root.VALUES.proxy
+	#
+	#root.KNOBS.proxy.setValue( False )
+    #
+	#nodes = nuke.selectedNodes()
+    #
+	#while nodes:
+    #
+	#	n = nodes.pop()
+    #
+	#	ff =  n.firstFrame() 
+	#	lf = n.lastFrame()
+    #
+	#	print '\n>> Executing IN FULL RESOLUTION : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+	#	nuke.execute( n , ff, lf )
+	#	print '<< Executing IN FULL RESOLUTION : %s , [ %s , %s ]\n' % ( n.name() , ff ,lf )
+    #
+	#		
+	#root.KNOBS.proxy.setValue( current_proxy_mode )
+		
+
 
 def selection_in_proxy():
 	
@@ -54,6 +78,24 @@ def selection_in_proxy():
 	
 		_execute( n , True )
 	
+	
+	
+	#root = this.ROOT
+    #
+	#root.KNOBS.proxy.setValue( True )
+	#
+	#current_proxy_mode = root.VALUES.proxy
+	#
+	#for n in nuke.selectedNodes():
+    #
+	#	ff = n.firstFrame() 
+	#	lf = n.lastFrame()
+    #
+	#	print '\n>> Executing with PROXY MODE ON : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+	#	nuke.execute( n , ff, lf )
+	#	print '<< Executing with PROXY MODE ON : %s , [ %s , %s ]\n' % ( n.name() , ff ,lf )
+	#	
+	#root.KNOBS.proxy.setValue( current_proxy_mode )
 
 	
 def selection_full_and_proxy():
@@ -79,7 +121,38 @@ def selection_full_and_proxy():
 		this_node.KNOBS.wm_auto_rise_version.setValue( True )
 		this_node.KNOBS.wm_refresh.execute()
 		
-
+	
+	
+		
+		#ff =  n.firstFrame() 
+		#lf = n.lastFrame()
+		#
+		#try:
+		#
+		#	print '\n>> Executing IN FULL RESOLUTION : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+        #
+		#	root.KNOBS.proxy.setValue( False )
+		#	nuke.execute( n , ff, lf )
+		#
+		#	print '<< Executing IN FULL RESOLUTION : %s , [ %s , %s ]\n' % ( n.name() , ff ,lf )
+		#
+		#	print '\n>> Executing with PROXY MODE ON : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+		#		
+		#	root.KNOBS.proxy.setValue( True )
+		#	nuke.execute( n , ff, lf )
+		#
+		#	print '<< Executing with PROXY MODE ON : %s , [ %s , %s ]\n' % ( n.name() , ff ,lf )
+		#
+		#except:
+		#	
+		#	raise
+		#	
+		#finally:
+		#	
+		#	this_node.KNOBS.wm_auto_rise_version.setValue( True )
+		#	this_node.KNOBS.wm_refresh.execute()
+			
+	#root.KNOBS.proxy.setValue( current_proxy_mode )
 		
 
 def task_node( this ):

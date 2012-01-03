@@ -49,21 +49,25 @@ def is_project( shell_or_path ):
 		return False
 	
 	
-def project_name( path ):
-	
-	match = brain.Lib.sources.match_cache( path )
-	
-	if match:
+#def project_name( path ):
+#	
+#	print 'DEBUG in project_name 1' , path 
+#	
+#	match = brain.Lib.sources.match_cache( path )
+#	
+#	print 'DEBUG in project_name :: matches' , match 
+#	
+#	if match:
+#		
+#		return path.replace( match + '/' , '' ).split('/')[0]
 		
-		return path.replace( match + '/' , '' ).split('/')[0]
-		
 
 
 
-def load_toolset( this , avoid = [] ):
-	
-
-	pass
+#def load_toolset( this , avoid = [] ):
+#	
+#
+#	pass
 	
 
 	

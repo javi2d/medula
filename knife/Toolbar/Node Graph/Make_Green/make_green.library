@@ -1,6 +1,12 @@
 
 
+def start():
 
+	print '>> Make Green LOG'	
+
+	import threading
+
+	threading.Thread( None , make_green_thread  ).start()
 
 
 
@@ -10,35 +16,14 @@ def make_green_thread():
 	
 	taskbar = nuke.ProgressTask( 'Making Green :)' )
 	
-	import shutil
-	
-	
-	def compare_files( a , b ):
-
-		#import filecmp
-
-		#return filecmp.cmp( a , b  ) #, shallow = True 
-
-		#sta = os.stat( a )
-		#stb = os.stat( b )
-        #
-		#return sta[6] == stb[6]
-		
-		#print 'A :' ,  os.stat( a )
-		#print 'B :' ,  os.stat( b )
-		
-		
-		return os.stat( a )[2:-1] == os.stat( b )[2:-1]
-		
-		
-		
+	import shutil	
 	
 	for node , auto_folder_name , file_value , proxy_value , firstFrame , lastFrame in brain.Lib.selection.Reads():
 		
 		
-		this = space.this( node )
+		this = space.this( node ) # if we do this = this( node ) a traceback is raised
 
-		# 1 Averiguar si la secuencia esta en la unidad
+		# 1 Check if sequence is into current UNIT
 
 		src_folder = os.path.dirname( this.VALUES.file )
 
@@ -54,17 +39,22 @@ def make_green_thread():
 				
 				isgreen = True
 				
-				print '>> Node already green'
-				
-		# 2.1 Si esta, no es necesario procesar el nodo
+							
+		# 2.1 If sequence is already green  
 				
 		if isgreen:
 			
+			print '>> Node already green'
+			
 			continue
+			
+			
 				
-		# 2.1 Si no esta, se resuelve el directorio de destino
+		# 2.1 If sequence is not green 
 		
 		host = brain.Lib.sources.host( src_folder )
+		
+		# Compute target folder
 		
 		if host:
 		
@@ -74,18 +64,54 @@ def make_green_thread():
 			
 			trg_folder = Normalize.join( this.UNIT_PATH , brain.Project.INPUT , 'other_sources' )
 		
-		
-		file_name = os.path.basename( file_value )
-		
 		trg_folder = Normalize.join( trg_folder , auto_folder_name )
 		
+		# Autocreate trg_folder if not exists 
+		
 		sh( trg_folder )
+		
+		
+		def compare_files( a , b ):
+
+			#import filecmp
+			#return filecmp.cmp( a , b  ) #, shallow = True 
+			
+			stats_file_a  =  ( os.stat( a )[-4] , os.stat( a )[-2] )
+			stats_file_b  = ( os.stat( b )[-4] , os.stat( b )[-2] )
+			
+			#print 'DEBUG STATS FILE A :', a
+			#print 'DEBUG STATS FILE B :', b
+			#print 'DEBUG STATS A :' , stats_file_a
+			#print 'DEBUG STATS B :' , stats_file_b
+	
+			return stats_file_a == stats_file_b
+		
+			
+		def isstill( path ):
+
+			return ( False if '%' in brain.Lib.path.normalize_padding( path ) else True )
+		
+		
+		file_name = os.path.basename( file_value )
+			
+		# Change the node 'source_reference' knob
 
 		node['source_reference'].fromUserText( Normalize.join( trg_folder , file_name ) )
 		
 		
+		if isstill( file_value ):
+			
+			frame_range = range( 1 )
+		
+		else:
+			
+			frame_range = range( firstFrame , lastFrame + 1 )	
+			
+		
+		node_name_msg = '[ %s ] ' % node.name()
+		
 
-		for frame in range( firstFrame , lastFrame + 1 ):
+		for frame in frame_range :
 
 			t = time.time()
 
@@ -107,7 +133,8 @@ def make_green_thread():
 					if os.path.isfile( trg_file ) and compare_files( src_file , trg_file ): #, 
 
 						msg = '== %s' % os.path.basename( src_file )
-						print  msg
+						
+						print node_name_msg + msg
 						taskbar.setMessage( msg )
 
 
@@ -121,9 +148,9 @@ def make_green_thread():
 							
 						else:
 							
-							msg = 'Skipped <> %s' % os.path.basename( src_file )
+							msg = 'Skipped <> %s ( Files seems different, use make green overwrite )' % os.path.basename( src_file )
 
-						print  msg
+						print node_name_msg + msg
 						taskbar.setMessage( msg )
 
 
@@ -131,7 +158,7 @@ def make_green_thread():
 
 						msg = '>> %s' % os.path.basename( src_file )
 
-						print  msg
+						print node_name_msg + msg
 						taskbar.setMessage( msg )
 
 						shutil.copy2( src_file , trg_file )
@@ -144,11 +171,5 @@ def make_green_thread():
 		
 
 
-def start():
 
-	print '>> Make Green LOG'	
-
-	import threading
-
-	threading.Thread( None , make_green_thread  ).start()
 

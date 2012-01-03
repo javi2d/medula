@@ -1,0 +1,14 @@
+
+class javi2d:
+
+	PROJECTS1 = (['/Users/user/Desktop/Medula_Tutorial/JAVI2D_PROJECTS1'], [r'\\Javi2d\javi2d_projects1'])
+	_hostname = 'javi2d'
+
+class WIN7:
+
+	_hostname = 'WIN7'
+
+
+class NAS2D:
+
+	ARRAY = [] , ['/Users/user/Desktop/Medula_Tutorial/NAS2D/ARRAY' , r'\\Javi2d\nas2d\ARRAY' ]

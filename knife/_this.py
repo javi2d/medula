@@ -26,9 +26,6 @@ def FARM( self ):
 	
 def DEFAULT_UNIT_PATH( self ):
 	
-	
-	
-	
 	return Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT , brain.Project.DEFAULT_UNIT , brain.Project.SCRIPTS )
 	
 

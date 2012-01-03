@@ -164,7 +164,7 @@ def ADD_FAV_ALIVE_RESOURCES():
 		
 		for H , R , path in brain.Lib.sources.alive_resources():	
 		
-			#
+			print '\nDEBUG ADD_FAV_ALIVE_RESOURCES' , H , R , path
 		
 			resource_label = '%s/%s' % ( H.lower() , R.upper() )
 			
@@ -175,10 +175,9 @@ def ADD_FAV_ALIVE_RESOURCES():
 		
 		for resource_label , resource_path in alive_resources:
 			
-			nuke.executeInMainThread( nuke.removeFavoriteDir , ( resource_label, ) )
-			nuke.executeInMainThread( nuke.addFavoriteDir , ( resource_label , resource_path ) )
-			
-			print '\n    @@@ Alive resource found %s = %s' % ( resource_label , resource_path )
+			nuke.executeInMainThreadWithResult( ADD_FAV , ( resource_label , resource_path ) )
+				
+			print '\n    @@@ Alive resource found %s = %s\n' % ( resource_label , resource_path )
 			
 		
 	Core.thread( alive_resource_search ).start()
@@ -326,9 +325,18 @@ def GUI_LOAD_TOOLSET( shell , avoid = [] ):
 
 		menu_brain = Brain() 
     	
-		menu_brain( 'toolbar' , 'Nuke' )
-		
 		menu_brain << shell( fn )
+		
+		#print 'DEBUG .menu CONTENT', menu_brain['names']
+		
+		if 'toolbar' not in menu_brain['names']:
+		
+			menu_brain( 'toolbar' , 'Nuke' )
+			
+			shell( fn )['write']( menu_brain['code'] , backup = False )
+			
+			print '\n [ %s.menu ] autofilled with default content' % name
+
 		
 		shell( fn )['write']( menu_brain['code'] , backup = False )
 		
