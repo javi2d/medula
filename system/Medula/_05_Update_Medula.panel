@@ -3,14 +3,18 @@
 
 class User:
 	
+	sep1 = sepKnob( 'Update medula\n' )
+	
 	update = bttnKnob( 'update medula' )
 	
-	in_backup_versions = enumKnob( 'or restore a backup if any >> ' , [] , clearflags = 'STARTLINE' )
+	sep2 = sepKnob( '\nor restore a backup ( if any )\n' )
+	
+	in_backup_versions = enumKnob( '' , []  )
+	
+	backup_info = txtKnob( '' , '---' )
 	
 	restore = bttnKnob( 'restore backup' )
 	
-	backup_info = txtKnob( '' , '---' )
-
 
 def in_backup_versions( this ):
 	
@@ -18,21 +22,24 @@ def in_backup_versions( this ):
 	
 	if value == '...':
 		
-		backup_info.setValue( '---' )
+		this.KNOBS.backup_info.setValue( '---' )
 		
 	else:
 		
 		selected_shell = medula.versions( value )
 		
+		version_info_brain = Brain() << selected_shell( 'version.memory' )
+		
+		version_info = '%s.%s' % ( version_info_brain( 'major_version' , 0 ), version_info_brain( 'minor_version' , 0 ) )
+		
 		msg = '''
-
-Selected Backup : %s
-
 Folder Content : %s
 
-Version Info ; %s''' % ( value , selected_shell['$FOLDER_NAMES'] + selected_shell['$FILE_NAMES'] , selected_shell('version.memory' , write = 'NO VERSION INFO' )  )
+Version Info : %s 
+
+''' % (  selected_shell['$FOLDER_NAMES'] + selected_shell['$FILE_NAMES'] , version_info  )
 	
-		backup_info.setValue( msg )
+		this.KNOBS.backup_info.setValue( msg )
 	
 
 	
@@ -142,11 +149,11 @@ def restore( this ):
 		
 		return
 	
-	restored_backup_shell = medula.versions( 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
-	
-	if nuke.ask( 'Are you sure to restore %s backup? Current version will be backup into %s' % ( value , restored_backup_shell['$NAME']  ) ):
+	backup_folder_name = 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' )
+
+	if nuke.ask( 'Are you sure to restore %s backup? Current version will be backup into %s' % ( value , backup_folder_name  ) ):
 		
-		lib_switch_versions( medula.versions( value ) , restored_backup_shell )
+		lib_switch_versions( medula.versions( value ) , Normalize.join( medula.versions['$PATH'] , backup_folder_name  )  )
 
 	nuke.message( 'Restart nuke to complete the restore process' )
 
