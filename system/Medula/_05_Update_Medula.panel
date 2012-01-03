@@ -148,6 +148,12 @@ def restore( this ):
 		nuke.message( 'Please select a backup to restore, if any' )
 		
 		return
+		
+	if not medula.versions( value )['$FOLDER_NAMES']:
+
+		nuke.executeInMainThread( nuke.message , ( 'No folders in %s folder, nothing to do. ' % value ) )
+
+		return
 	
 	backup_folder_name = 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' )
 

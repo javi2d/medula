@@ -78,13 +78,6 @@ def lib_switch_versions( new_medula_version_shell , backup_shell ):
 		nuke.executeInMainThread( nuke.message , ( 'Source Distro cannot be updated' ) )
 		
 		return
-	
-	if not new_medula_version_shell['$FOLDER_NAMES']:
-		
-		nuke.executeInMainThread( nuke.message , ( 'No folders in %s folder, nothing to do. ' ) )
-		
-		return
-
 
 	import shutil
 	
