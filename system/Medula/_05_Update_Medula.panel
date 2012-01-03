@@ -115,7 +115,7 @@ def restore( this ):
 	
 	restored_backup_shell = medula.versions( 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
 	
-	if nuke.ask( 'Are you sure to restore %s backup? Current version will be backup into %s' % ( value , restored_backup_folder['$NAME']  ) ):
+	if nuke.ask( 'Are you sure to restore %s backup? Current version will be backup into %s' % ( value , restored_backup_shell['$NAME']  ) ):
 		
 		lib_switch_versions( medula.versions( value ) , restored_backup_shell )
 
