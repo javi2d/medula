@@ -9,6 +9,33 @@ class User:
 	
 	restore = bttnKnob( 'restore backup' )
 	
+	backup_info = txtKnob( '' , '---' )
+
+
+def in_backup_versions( this ):
+	
+	value = this.VALUES.in_backup_versions
+	
+	if value == '...':
+		
+		backup_info.setValue( '---' )
+		
+	else:
+		
+		selected_shell = medula.versions( value )
+		
+		msg = '''
+
+Selected Backup : %s
+
+Folder Content : %s
+
+Version Info ; %s''' % ( value , selected_shell['$FOLDER_NAMES'] + selected_shell['$FILE_NAMES'] , selected_shell('version.memory' , write( 'NO VERSION INFO' ) )  )
+	
+		backup_info.setValue( msg )
+	
+
+	
 
 # extend space code with code defined in .library file, .library is ['exec'] 'uted 
 
@@ -56,6 +83,8 @@ def onCreate( this ):
 		in_backup.extend(  [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if d.startswith( 'Medula_' ) ]    )
 		
 	this.KNOBS.in_backup_versions.setValues( in_backup )
+
+
 
 
 
