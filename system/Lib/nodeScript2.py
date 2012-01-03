@@ -324,15 +324,15 @@ def __knobs( nbrain ):
 
 def knobs_by_tokenize( path , nspace ):
 	
+
 	#isPath = os.path.basename( path ).startswith( 'Convertor_v02' )
-	
-	
+		
 	knobs = []
 
 	route = []
 
 	active = False
-
+	
 	level = 0
 
 	bspace =  Brain() << nspace
@@ -345,19 +345,14 @@ def knobs_by_tokenize( path , nspace ):
 	
 	for line in brain.Lib.tokenize.tokenize_classes( sh( path )['read'] ):
 		
-		#if isPath:
-		#	
-		#print route, active, level
-		
-		
-		#print route
 
+		
 		if active and level == 0 :
-
+			
 			active = False
 			
 			route = []
-
+		
 
 		if line == '[':
 
@@ -376,10 +371,13 @@ def knobs_by_tokenize( path , nspace ):
 				route.pop()
 
 		else:
-
+			
+			
+			
 			isClass = line[0][1] == 'class'
-
+			
 			isVar = line[1][1] == '='
+			
 
 			if isClass:
 
@@ -397,7 +395,7 @@ def knobs_by_tokenize( path , nspace ):
 
 				opened_tabs += 1
 
-
+			
 			elif active and isVar:
 
 				name = line[0][1]
@@ -428,12 +426,15 @@ def knobs_by_tokenize( path , nspace ):
 
 
 				route.pop()
+			
+
+			
 
 
 	for i in range( opened_tabs ):
 		
 		knobs.append(']')
-
+	
 	return knobs
 
 

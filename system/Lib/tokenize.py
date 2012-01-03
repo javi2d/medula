@@ -84,6 +84,6 @@ def tokenize_classes( source ):
 		tokens = [ (ID,TK) for ID,TK in tokens if ID not in 'INDENT DEDENT'.split()  ]
 		
 		result.append( tokens )
-
+	
 	return result
 		

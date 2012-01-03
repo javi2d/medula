@@ -9,7 +9,12 @@ class User:
 	
 	restore = bttnKnob( 'restore backup' )
 	
-	
+
+# extend space code with code defined in .library file, .library is ['exec'] 'uted 
+
+space << '_05_Update_Medula.library'
+
+
 
 def onCreate( this ):
 	
@@ -23,154 +28,236 @@ def onCreate( this ):
 	this.KNOBS.in_backup_versions.setValues( in_backup )
 	
 
+new_version_ask_msg = '''
+
+A new version is available:
+
+current medula version : %s
+
+github medula version  : %s
+
+changeLog : 
+
+%s
+
+Do you want to update medula?
+
+'''
+
+update_done_ok_msg = '''
+
+Update sucessfully done
+
+Structural changes are stored in %s folder:
+
+Changed folders = %s
+
+Changed files = %s
+
+Restart nuke to apply changes.
+
+'''
+
+
 
 def update( this ):
 	
+	comparative = lib_compare_versions()
 	
-	def update_thread( this ):
+	if comparative:
 		
-		import urllib2
+		local_ver , github_ver , changelog = comparative
+		
+		if local_ver == github_ver:
 			
-		medula_url = 'https://github.com/javi2d/medula/zipball/master'
-		
-		try:
-		
-			medula_zip = urllib2.urlopen( medula_url )
-		
-		except:
-			
-			nuke.executeInMainThreadWithResult( nuke.message , 'Connection to github failed, sorry' )
-			
-			return
-			
-			
-		
-		taskbar = nuke.ProgressTask( 'Updating medula ...' )
-
-		taskbar.setMessage( 'Connecting to github'	 )
-		
-		taskbar.setProgress( 10	)
-		
-		target_local_zip_file = Normalize.join( medula( 'versions/downloads' )['$PATH'] , 'medula_current.zip' )
-		
-		taskbar.setMessage( 'Connection done, downloading last medula version.'	 )
-		
-		taskbar.setProgress( 20	)
-		
-		with open( target_local_zip_file , 'wb' ) as mzip:
-			
-			mzip.write( medula_zip.read() )
-		
-		
-		taskbar.setMessage( 'Downloaded , unzipping now.' )
-		
-		taskbar.setProgress( 50	)
-		
-		import zipfile
-
-		medula_zip = zipfile.ZipFile( target_local_zip_file )
-
-		medula_zip.extractall( medula( 'versions/downloads' )['$PATH'] )
-
-		taskbar.setMessage( 'Unzipped' )
-		
-		taskbar.setProgress( 80	)
-		
-		class defaultVersion:
-			
-			major_version = 0
-			minor_version = 0
-
-			changeLog = ''
-		
-		current_version = ( Brain() << defaultVersion ) << medula( 'version.memory' )
-		
-		
-		
-		
-		
-		version_folder = Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
-		
-		if medula( 'version_info.txt' )['read'] == version_folder:
-
 			def ask():
 
-				brain.tmp.updater.ask = nuke.ask( 'Medula is up to date, update again?' ) 
+				brain.tmp.updater.do_update = nuke.ask( 'Medula is up to date, update again?' ) 
 
 			nuke.executeInMainThreadWithResult( ask )
-
-			if not brain.tmp.updater.ask:
-
-				return
-
-		import shutil
 		
-		if version_folder in medula.versions.downloads['$FOLDER_NAMES']:
+		else:
 			
-			new_medula_shell = medula.versions.downloads( version_folder )
+			def ask():
 
-			backup_folder = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
+				brain.tmp.updater.do_update = nuke.ask( new_version_ask_msg % ( local_ver , github_ver , changelog ) ) 
 
-			_switch_versions( new_medula_shell , backup_folder  )
+			nuke.executeInMainThreadWithResult( ask )
+		
+		
+		
+		if brain.tmp.updater.do_update:
 			
-			medula( 'version_info.txt' )['rewrite']( version_folder , backup = False )
-
+			unzipped_shell = lib_download_and_unzip_master_branch()
 			
-			nuke.executeInMainThreadWithResult( nuke.message , ( 'Restart nuke to complete update process' ,  ) )
+			backup_shell = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
+			
+			try:
+				
+				lib_switch_versions( unzipped_shell , backup_shell )
+				
+				nuke.executeInMainThreadWithResult( nuke.message , ( update_done_ok_msg % ( backup_shell['$NAME'] , backup_shell['$FOLDER_NAMES'] , backup_shell['$FILE_NAMES'] ) ,  ) )
+				
+			except:
+				
+				raise
+				
+			finally:
+				
+				nuke.executeInMainThreadWithResult( nuke.message , ( 'Problem during update process, please review your system output' ,  ) )
+			
+
+				
+			
+				
+			
+				
+			
+			
 			
 	
 	
-	if 'medula.source' in medula( '..')['$FILE_NAMES']:
-
-		nuke.executeInMainThread( nuke.message , ( 'Source Distro cannot be updated' ) )
-		
-	else:
+	return 
 	
-		update_thread = Core.thread( update_thread , this )
-		
-		nuke.executeInMainThreadWithResult( update_thread.start )
-
-		
-	
-	
-
-def restore( this ):
-	
-	value = this.VALUES.in_backup_versions
-	
-	if value == '...':
-		
-		nuke.message( 'Please select a backup to restore, if any' )
-		
-		return
-	
-	restored_backup_folder = medula.versions( 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
-	
-	if nuke.ask( 'Are you sure to restore %s backup? Current version will be backup into %s' % ( value , restored_backup_folder['$NAME']  ) ):
-
-		_switch_versions( medula.versions( value ) , restored_backup_folder )
-
-	nuke.message( 'Restart nuke to complete update process' )
-
-
-def _switch_versions( src_shell , backup_shell ):
-	
-	import shutil
-	
-	for relpath in [ d for d in src_shell['$FOLDER_NAMES'] if not d == 'local' ]:
-		
-		src_path = src_shell( relpath )['$PATH']
-		
-		trg_path = medula( relpath )['$PATH']
-		
-		if backup_shell:
-		
-			shutil.move( trg_path , backup_shell['$PATH'] )
-		
-		shutil.move( src_path , medula['$PATH'] )
-	
-	
-	
-	
-
+#	
+#	
+#	def update_thread( this ):
+#		
+#		import urllib2
+#			
+#		medula_url = 'https://github.com/javi2d/medula/zipball/master'
+#		
+#		try:
+#		
+#			medula_zip = urllib2.urlopen( medula_url )
+#		
+#		except:
+#			
+#			nuke.executeInMainThreadWithResult( nuke.message , 'Connection to github failed, sorry' )
+#			
+#			return
+#			
+#			
+#		
+#		taskbar = nuke.ProgressTask( 'Updating medula ...' )
+#
+#		taskbar.setMessage( 'Connecting to github'	 )
+#		
+#		taskbar.setProgress( 10	)
+#		
+#		target_local_zip_file = Normalize.join( medula( 'versions/downloads' )['$PATH'] , 'medula_current.zip' )
+#		
+#		taskbar.setMessage( 'Connection done, downloading last medula version.'	 )
+#		
+#		taskbar.setProgress( 20	)
+#		
+#		with open( target_local_zip_file , 'wb' ) as mzip:
+#			
+#			mzip.write( medula_zip.read() )
+#		
+#		
+#		taskbar.setMessage( 'Downloaded , unzipping now.' )
+#		
+#		taskbar.setProgress( 50	)
+#		
+#		import zipfile
+#
+#		medula_zip = zipfile.ZipFile( target_local_zip_file )
+#
+#		medula_zip.extractall( medula( 'versions/downloads' )['$PATH'] )
+#
+#		taskbar.setMessage( 'Unzipped' )
+#		
+#		taskbar.setProgress( 80	)
+#		
+#
+#		
+#		
+#		
+#		
+#		
+#		version_folder = Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
+#		
+#		if medula( 'version_info.txt' )['read'] == version_folder:
+#
+#			def ask():
+#
+#				brain.tmp.updater.ask = nuke.ask( 'Medula is up to date, update again?' ) 
+#
+#			nuke.executeInMainThreadWithResult( ask )
+#
+#			if not brain.tmp.updater.ask:
+#
+#				return
+#
+#		import shutil
+#		
+#		if version_folder in medula.versions.downloads['$FOLDER_NAMES']:
+#			
+#			new_medula_shell = medula.versions.downloads( version_folder )
+#
+#			backup_folder = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
+#
+#			_switch_versions( new_medula_shell , backup_folder  )
+#			
+#			medula( 'version_info.txt' )['rewrite']( version_folder , backup = False )
+#
+#			
+#			nuke.executeInMainThreadWithResult( nuke.message , ( 'Restart nuke to complete update process' ,  ) )
+#			
+#	
+#	
+#	if 'medula.source' in medula( '..')['$FILE_NAMES']:
+#
+#		nuke.executeInMainThread( nuke.message , ( 'Source Distro cannot be updated' ) )
+#		
+#	else:
+#	
+#		update_thread = Core.thread( update_thread , this )
+#		
+#		nuke.executeInMainThreadWithResult( update_thread.start )
+#
+#		
+#	
+#	
+#
+#def restore( this ):
+#	
+#	value = this.VALUES.in_backup_versions
+#	
+#	if value == '...':
+#		
+#		nuke.message( 'Please select a backup to restore, if any' )
+#		
+#		return
+#	
+#	restored_backup_folder = medula.versions( 'Medula_Restored_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
+#	
+#	if nuke.ask( 'Are you sure to restore %s backup? Current version will be backup into %s' % ( value , restored_backup_folder['$NAME']  ) ):
+#
+#		_switch_versions( medula.versions( value ) , restored_backup_folder )
+#
+#	nuke.message( 'Restart nuke to complete update process' )
+#
+#
+#def _switch_versions( src_shell , backup_shell ):
+#	
+#	import shutil
+#	
+#	for relpath in [ d for d in src_shell['$FOLDER_NAMES'] if not d == 'local' ]:
+#		
+#		src_path = src_shell( relpath )['$PATH']
+#		
+#		trg_path = medula( relpath )['$PATH']
+#		
+#		if backup_shell:
+#		
+#			shutil.move( trg_path , backup_shell['$PATH'] )
+#		
+#		shutil.move( src_path , medula['$PATH'] )
+#	
+#	
+#	
+#	
+#
 
