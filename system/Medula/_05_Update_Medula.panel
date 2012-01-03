@@ -154,7 +154,10 @@ def restore( this ):
 	if nuke.ask( 'Are you sure to restore %s backup? Current version will be backup into %s' % ( value , backup_folder_name  ) ):
 		
 		lib_switch_versions( medula.versions( value ) , medula.versions( backup_folder_name  ) ) 
-
+	
+	onCreate( this )
+	
 	nuke.message( 'Restart nuke to complete the restore process' )
-
-
+	
+	
+	
