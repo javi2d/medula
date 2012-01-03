@@ -2,12 +2,10 @@
 
 
 class User:
-	
-	sep1 = sepKnob( 'Update medula\n' )
-	
+
 	update = bttnKnob( 'update medula' )
 	
-	sep2 = sepKnob( '\nor restore a backup ( if any )\n' )
+	sep2 = sepKnob( '  or restore a backup ( if any )', clearflags = 'STARTLINE')
 	
 	in_backup_versions = enumKnob( '' , []  )
 	
