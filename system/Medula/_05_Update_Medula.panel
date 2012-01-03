@@ -76,6 +76,19 @@ def update( this ):
 		
 		taskbar.setProgress( 80	)
 		
+		class defaultVersion:
+			
+			major_version = 0
+			minor_version = 0
+
+			changeLog = ''
+		
+		current_version = ( Brain() << defaultVersion ) << medula( 'version.memory' )
+		
+		
+		
+		
+		
 		version_folder = Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
 		
 		if medula( 'version_info.txt' )['read'] == version_folder:
@@ -91,7 +104,7 @@ def update( this ):
 				return
 
 		import shutil
-
+		
 		if version_folder in medula.versions.downloads['$FOLDER_NAMES']:
 			
 			new_medula_shell = medula.versions.downloads( version_folder )
