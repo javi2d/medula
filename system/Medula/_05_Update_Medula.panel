@@ -7,6 +7,8 @@ class User:
 	
 	sep2 = sepKnob( '  or restore a backup ( if any )', clearflags = 'STARTLINE')
 	
+	sep3 = sepKnob( ' ' )
+	
 	in_backup_versions = enumKnob( '' , []  )
 	
 	backup_info = txtKnob( '' , '---' )
