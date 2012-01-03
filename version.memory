@@ -1,0 +1,19 @@
+
+
+
+major_version = 1
+minor_version = 3
+
+changeLog = '''
+
+- Now Update Medula uses this file to control the version
+
+- Fixes in render_full , render_full_and_proxy and render_proxy
+ 
+- Added a new hidden knob to Write Management tab, wm_auto_rise_version; 
+if false it will not auto rise the render version between full and proxy render.   
+
+- Added ['clear'] query to sop.Brain, to delete all attributes into a brain with 
+a single command. It´s used to delete all Categories predefined by knife in home/Brain/Categories.memory.
+
+'''
