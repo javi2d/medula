@@ -33,11 +33,11 @@ def in_backup_versions( this ):
 		version_info = '%s.%s' % ( version_info_brain( 'major_version' , 0 ), version_info_brain( 'minor_version' , 0 ) )
 		
 		msg = '''
+Version Info   : %s 
+
 Folder Content : %s
 
-Version Info : %s 
-
-''' % (  selected_shell['$FOLDER_NAMES'] + selected_shell['$FILE_NAMES'] , version_info  )
+''' % (  version_info , selected_shell['$FOLDER_NAMES'] + selected_shell['$FILE_NAMES']   )
 	
 		this.KNOBS.backup_info.setValue( msg )
 	
