@@ -9,10 +9,18 @@ Copyright (c) 2011 nukeSopbox. All rights reserved.
 """
 
 
+
+
+
+
 sop.Core.lap( 'startup.medula.menu' )
 
 #sop.Core.output_redirect( logs( '%s.init.log' % this.HOSTLABEL )['file']  )
 ## Redirect output to a log file
+
+
+# Initialize the icons folder
+brain.Lib.include.ADD_RECURSIVE( sh.Icons )
 
 
 brain.Lib.include.SHELL2MENU( sh.Medula , 'Nuke' )
@@ -30,7 +38,6 @@ brain.Lib.include.GUI_LOAD_QUEUED_TOOLSETS()
 #sop.Core.output_restore( )
 
 
-
 sop.Core.lap( '/startup.medula.menu' )
 sop.Core.lap( '.startup' )
 
@@ -45,8 +52,6 @@ if brain( 'FIRST_RUN' , False  ):
 		nuke.executeInMainThread( nuke.message , ( 'nuke medula successfully installed' , ) )
 
 	sop.Core.thread( delayed_msg ).start()
-
-
 
 	
 #sop.sys.exit()

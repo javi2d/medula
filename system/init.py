@@ -31,19 +31,14 @@ sop.Expose.modules( 'nuke nukescripts shutil math threading' )
 ## modules are exposed in main and sop
 
 
-
-
 brain.Lib << medula.system.Lib
 ## Load medula system Lib folder into brain
 
 
-# Initialize the icons folder
-brain.Lib.include.ADD_RECURSIVE( medula.system.Icons )
-
-
-
 # This line create a default 
 local( 'home' )
+
+
 
 # Load the Sources.memory file
 brain.Sources << local.home( 'Brain/Sources.memory' )
@@ -75,7 +70,10 @@ sop.Core.lap( 'startup.medula.init' )
 
 
 brain.Lib.include.LOAD_QUEUED_TOOLSETS()
+
 ## Load all queued toolsets
+
+
 
 
 #sop.Core.output_restore( )
@@ -83,6 +81,8 @@ brain.Lib.include.LOAD_QUEUED_TOOLSETS()
 
 sop.Core.lap( '/startup.medula.init' )
 ## Stop tag lapse 
+
+
 
 #sop.sys.exit()
 

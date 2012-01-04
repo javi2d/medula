@@ -2,12 +2,15 @@
 
 
 major_version = 1
-minor_version = 41
+minor_version = 42
 
 changeLog = '''
 
 @January 4 2012
 
+- recursive pluginAddPath only if files in folder
+- mWrites file_type changed behaviour
+- startup Speed Up
 - rewrited Inspector2.userNode 
 
 

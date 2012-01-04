@@ -37,15 +37,16 @@ def initialize_in_regular_mode():
 
 	# This is the regular startup
 	
+	
 	# Add Fav paths
-	
+
 	brain.Lib.include.ADD_FAV( '[ local ]' , local['$PATH'] )
-	
+
 	brain.Lib.include.ADD_FAV( '[ current_unit ]' , this.UNIT_PATH + '/' )
-	
+
 	brain.Lib.include.ADD_FAV_ALIVE_RESOURCES()
-
-
+	
+	
 	# Include Toolsets
 	
 	brain.Lib.include.TOOLSET( medula.knife )

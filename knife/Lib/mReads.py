@@ -260,9 +260,9 @@ def read_from_read( read_node ):
 
 	dirname , basename = os.path.split( file_value )
 	
-	if os.path.exists( dirname ):
-		
-		os.listdir( dirname )
+	#if os.path.exists( dirname ):
+	#	
+	#	os.listdir( dirname )
 	
 	
 	getClipname( default = dirname + '/' )

@@ -1,6 +1,6 @@
 
 
-TABS = [ 'Write.node', 'Write_Management_v08.tab'  ] #, 'Write_Tasking_v01.tab'
+TABS = [ 'Write.node' , 'Write_Management_v08.tab' ] #, 'Write_Tasking_v01.tab'  
 
 DEFAULTS = {
 

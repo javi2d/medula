@@ -8,7 +8,7 @@ class Management:
 
 	wm_label      = strKnob( '' , 'Untitled_%s' % this.HOSTLABEL , clearflags = 'STARTLINE' )
 	
-	wm_ext = linkKnob( '' , 'file_type' , clearflags = 'STARTLINE')
+	wm_ext   = linkKnob( '' , 'file_type' , clearflags = 'STARTLINE')
 	
 	wm_colorspace  = linkKnob( '' , 'colorspace' , clearflags = 'STARTLINE')
 	
@@ -156,9 +156,28 @@ def wm_category( this ):
 	
 def file_type( this ):
 	
+
+	if this.VALUES.file_type == ' ' :
+		
+		Category = brain.Lib.mWrites.process_category( this )
+
+		params = Category( 'params' , 'channels all colorspace linear file_type exr' , create_att = False  )
+		
+		try :
+		
+			this.NODE.readKnobs( params )
+		
+		except:
+			
+			print '\n\nFail while reading these knobs params : %s\n\n' % params
+	
+	
+	
 	if this.VALUES.file_type == 'jpeg' and this.VALUES._jpeg_quality == .75 :
 		
 		this.KNOBS._jpeg_quality.setValue( 1. )
+	
+	
 			
 	brain.Lib.mWrites.build_path( this )
 	

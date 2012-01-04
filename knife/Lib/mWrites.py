@@ -1,43 +1,29 @@
 
 
-
-
-DEFAULT_PARAMS = 'channels all colorspace linear file_type exr'
-
 DEFAULT_PATTERN = '$CATEGORY_$UNITID_$LABEL'
 
 
-def build_path( this ):
-
+def process_category( this ):
+	
 	category = this.VALUES.wm_category
 	
 	if category == 'disabled':
 		
 		this.KNOBS.wm_tree.setValue( '----' )
+		
 		return
-	
 	
 	Category = brain.Categories( category , Brain() , create_att = False )
 	
-
-	# READ PARAMS FROM CATEGORY BRAIN
-
-	params = ( Category( 'params' , None ) or DEFAULT_PARAMS )
-
-	if this.VALUES.file_type == ' '  :#and not this.KNOB == this.KNOBS.file_type
-		
-		try :
-		
-			this.NODE.readKnobs( params )
-		
-		except:
-			
-			print '\n\nFail while reading these knobs : %s\n\n' % params
-		
+	return Category
 	
-	# READ PATTERN FROM CATEGORY BRAIN
+
+
+def build_path( this ):
+
+	Category = process_category( this )
 	
-	
+
 	pattern = (  Category( 'pattern' , DEFAULT_PATTERN ) or DEFAULT_PATTERN ) # if pattern == None
 	
 	

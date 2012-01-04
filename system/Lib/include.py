@@ -65,17 +65,12 @@ def CALLBACKS( cb_space ):
 def ADD_RECURSIVE( shell_or_path ):
 	
 	''' Given a shell or path to folder, add recursively all child folders to the nuke plugin path '''
-	
-	shell = Normalize.shell( shell_or_path )
-	
-	#print 'Recursive pluginAddPath to root folder : %s' % shell['$PATH'] 
-	
-	for folder in shell._['$FOLDERS']:
-		
-		#print folder
-		
-		nuke.pluginAddPath( folder )
 
+	shell = Normalize.shell( shell_or_path )
+
+	for folder in [ f for f in shell._['$FOLDERS'] if  sh( f )['$FILE_NAMES' ] ]:
+   		
+			nuke.pluginAddPath( folder )
 
 
 def SHELL2MENU( shell_or_path , toolbar = 'Nuke' , memory = True ):
@@ -83,6 +78,7 @@ def SHELL2MENU( shell_or_path , toolbar = 'Nuke' , memory = True ):
 	# Shell to menu , Generate Menus
 	
 	shell = Normalize.shell( shell_or_path )
+
 	
 	ADD_RECURSIVE( shell )
 
@@ -244,7 +240,9 @@ def LOAD_TOOLSET( shell_or_path , recreate = False , avoid = [] ):
 
 	if 'Toolbar' in FOLDERS:
 		
-		ADD_RECURSIVE( shell( 'Toolbar' ) )
+		if not nuke.GUI:
+		
+			ADD_RECURSIVE( shell( 'Toolbar' ) )
 
 
 	if 'Lib' in FOLDERS:
