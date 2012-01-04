@@ -3,5 +3,5 @@ hotkey = ''
 
 icon = None
 
-label = 'render_proxy'
+label = 'Render Selection in proxy resolution'
 

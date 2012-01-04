@@ -25,30 +25,49 @@ def _execute( node , proxy_mode ):
 	root.KNOBS.proxy.setValue( current_proxy_mode )
 	
 
-def selection_in_full():
+def process_autowrites():
 	
-	will_fail_nodes = [ n for n in nuke.selectedNodes() if not n['file'].value()  ]
-
-	if will_fail_nodes:
+	for n in nuke.selectedNodes():
 		
-		nuke.message( 'Please review "file" knob on these nodes\n<center>%s</center>\nCommand cannot be processed' % [ n.name() for n in will_fail_nodes ] )
-		return
+		this_node = this( n )
+		
+		if this_node.VALUES.file_type == ' ':
+			
+			_execute( n , True )
+			
+		else:
+			
+			_execute( n , False )
+	
+
+
+
+def selection_in_full( check_knobs = True ):
+	
+	if check_knobs:
+	
+		will_fail_nodes = [ n for n in nuke.selectedNodes() if not n['file'].value()  ]
+
+		if will_fail_nodes:
+		
+			nuke.message( 'Please review "file" knob on these nodes\n<center>%s</center>\nCommand cannot be processed' % [ n.name() for n in will_fail_nodes ] )
+			return
 	
 	for n in nuke.selectedNodes():
 		
 		_execute( n , False )
-	
-	
 
-def selection_in_proxy():
-	
-	
-	will_fail_nodes = [ n for n in nuke.selectedNodes() if not n['proxy'].value()  ]
 
-	if will_fail_nodes:
+def selection_in_proxy( check_knobs = True ):
+	
+	if check_knobs:
+	
+		will_fail_nodes = [ n for n in nuke.selectedNodes() if not n['proxy'].value()  ]
+
+		if will_fail_nodes:
 		
-		nuke.message( 'Please review "proxy" knob on these nodes\n<center>%s</center>\nCommand cannot be processed' % [ n.name() for n in will_fail_nodes ] )
-		return
+			nuke.message( 'Please review "proxy" knob on these nodes\n<center>%s</center>\nCommand cannot be processed' % [ n.name() for n in will_fail_nodes ] )
+			return
 	
 	for n in nuke.selectedNodes():
 	
@@ -56,29 +75,6 @@ def selection_in_proxy():
 	
 
 	
-def selection_full_and_proxy():
-	
-	will_fail_nodes = [ n for n in nuke.selectedNodes() if not n['file'].value() or not n['proxy'].value()  ]
-
-	if will_fail_nodes:
-		
-		nuke.message( 'Please review "file & proxy" knobs on these nodes\n<center>%s</center>\nCommand cannot be processed' % [ n.name() for n in will_fail_nodes ] )
-		return
-	
-	root = this.ROOT
-	current_proxy_mode = root.VALUES.proxy
-	
-	for n in nuke.selectedNodes():
-
-		this_node = this( n )
-		this_node.KNOBS.wm_auto_rise_version.setValue( False )
-		
-		_execute( n , False )
-		_execute( n , True  )
-	
-		this_node.KNOBS.wm_auto_rise_version.setValue( True )
-		this_node.KNOBS.wm_refresh.execute()
-		
 
 		
 

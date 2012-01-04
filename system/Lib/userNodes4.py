@@ -12,12 +12,65 @@ def knobChanged( this ):
 			user_node_id = this.VALUES.userNode_id
 		
 			nbrain = brain.nodeScript( 'byNode' , { } )[ user_node_id ]
-		
+
+			if brain( 'AUTO_REFRESH_NODE' , False ) and this.KNOB.name() not in 'xpos ypos selected'.split():
+
+				print '\n&& Refreshed userNode : %s\n' % nbrain.name
+				
+				refresh_unode( nbrain.name )
+			
 			callbacks = nbrain.knob_callbacks.get( this.KNOB.name() , [] )
-	
+			
 			for cb in callbacks:
 
 				cb( this() )	
+
+
+brain.Lib.include.CALLBACKS( sh._cbk.py )
+
+
+
+
+
+def refresh_unode( nbrain_name ):
+	
+	nbrain = brain.nodeScript.byNode[ nbrain_name ]
+	
+	nbrain = brain.Lib.nodeScript2.nodeBrain( nbrain.path )	
+	
+	brain.nodeScript.byNode[ nbrain.name ] = nbrain
+	
+	
+	
+	
+# Deprecated by knobChanged callback
+	
+def button_callback( nbrain_name , knob_name ):
+	
+	print '\n\nunode userCallback' , brain.nodeScript.byNode
+	
+	#if brain( 'AUTO_REFRESH_NODE' , False ):
+    #
+	#	print '\n&& Refreshed userNode : %s' % nbrain_name
+		
+	refresh_unode( nbrain_name )
+	
+	this = space.this( nuke.thisNode() )
+	
+	knob_callbacks = brain.nodeScript.byNode[ nbrain_name ].knob_callbacks
+	
+	if knob_name in knob_callbacks:
+		
+		for callback in knob_callbacks[ knob_name ]:
+			
+			callback( this )
+		
+				
+
+
+
+
+
 
 
 
@@ -29,10 +82,10 @@ def solve( path ):
 	
 	'''
 	
+	
+	
 	this , nbrain = create_node( path )
-	
 
-	
 	remove_knobs( this )
 	
 	apply_onUserCreate( this , nbrain )
@@ -45,7 +98,7 @@ def solve( path ):
 
 	add_Node_knobs( this , nbrain )
 	
-
+	print 'DEBUG solved userNode' , this.NODE.name() 
 
 	
 	
@@ -104,6 +157,8 @@ def rebuild( this , nbrain ):
 
 def create_node( path ):
 	
+	print '>> DEBUG in userNode4.create_node'
+	
 	nbrain = brain.Lib.nodeScript2.nodeBrain( path )
 	# get the nbrain of the user node by path
 	
@@ -139,6 +194,8 @@ def create_node( path ):
 		
 		UNODE['bdwidth'].setValue( width + 150 ) 
 		UNODE['bdheight'].setValue( height + 120 )
+
+	print '<< DEBUG in userNode4.create_node'
 	
 	return this , nbrain
 
@@ -177,14 +234,16 @@ def add_userNode_knobs( this , nbrain ):
 		try:
 		
 			this.NODE.addKnob( knob )
-		
+			
+			#if nbrain.knob_callbacks.get( knob.name() , None ) and hasattr( knob , 'setCommand' ):
+            #
+			#	knob.setCommand( 'brain.Lib.userNodes4.button_callback( "%s" , "%s" )' % ( nbrain.name , knob.name() )  )
+			
 		except RuntimeError:
 			
 			print '\n>> UserNode Duplicated Knob %s\n' % knob.name() 
 		
-		#if nbrain.knob_callbacks.get( knob.name() , None ) and hasattr( knob , 'setCommand' ):
-        #
-		#	knob.setCommand( 'brain.Lib.userNodes4.button_callback( "%s" , "%s" )' % ( nbrain.name , knob.name() )  )
+
 	
 
 def add_userNode_system_knobs( this , nbrain  ):
@@ -217,39 +276,4 @@ def add_Node_knobs( this, nbrain ):
 
 
 
-
-def refresh_unode( nbrain_name ):
-	
-	nbrain = brain.nodeScript.byNode[ nbrain_name ]
-	
-	nbrain = brain.Lib.nodeScript2.nodeBrain( nbrain.path )	
-	
-	brain.nodeScript.byNode[ nbrain.name ] = nbrain
-	
-	
-	
-	
-	
-def button_callback( nbrain_name , knob_name ):
-	
-	#print '\n\nunode userCallback' , brain.nodeScript.byNode
-	
-	#if brain( 'AUTO_REFRESH_NODE' , False ):
-
-		#print '\n&& Refreshed userNode : %s' % nbrain_name
-		
-	refresh_unode( nbrain_name )
-	
-	this = space.this( nuke.thisNode() )
-	
-	knob_callbacks = brain.nodeScript.byNode[ nbrain_name ].knob_callbacks
-	
-	if knob_name in knob_callbacks:
-		
-		for callback in knob_callbacks[ knob_name ]:
-			
-			callback( this )
-		
-				
-				
 				

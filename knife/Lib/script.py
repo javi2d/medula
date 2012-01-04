@@ -252,7 +252,7 @@ def copyScript( folder , script_name = None , folderize = True ):
 	if matches:
 		
 		last_item = sorted( matches )[-1]
-		
+			
 		basename = os.path.basename( last_item )
 		
 		prefix = basename.split('_')[0]

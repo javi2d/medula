@@ -3,5 +3,5 @@ hotkey = ''
 
 icon = None
 
-label = 'Export_As_Universal_Gizmo'
+label = 'knife Export as universal gizmo...'
 

@@ -633,8 +633,8 @@ class Core:
 		
 		# start lapse 
 		
-		lapse_tag = 'sop.Core.execution.%s' % basename
-		Core.lap( lapse_tag )
+		#lapse_tag = 'sop.Core.execution.%s' % basename
+		#Core.lap( lapse_tag )
 				
 		
 		
@@ -728,7 +728,7 @@ class Core:
 		
 		
 		# close the lapse 
-		Core.lap( '/%s' % lapse_tag  )
+		#Core.lap( '/%s' % lapse_tag  )
 		
 		
 		if type(space).__name__ == 'Space' and space['file']:

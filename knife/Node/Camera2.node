@@ -1,5 +1,5 @@
 
 
-TABS = [  '../NodeTabs/Constraint_4.tab' ]
+TABS = [  'Tabs/Constraint_4.tab' ]
 
 

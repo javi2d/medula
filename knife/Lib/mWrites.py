@@ -16,9 +16,9 @@ def build_path( this ):
 		this.KNOBS.wm_tree.setValue( '----' )
 		return
 	
-
-	Category = brain.Categories( category , Brain() )
-
+	
+	Category = brain.Categories( category , Brain() , create_att = False )
+	
 
 	# READ PARAMS FROM CATEGORY BRAIN
 

@@ -3,5 +3,5 @@ hotkey = ''
 
 icon = None
 
-label = 'render_full'
+label = 'Render Selection in full resolution'
 

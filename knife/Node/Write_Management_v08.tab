@@ -50,8 +50,7 @@ class Management:
 	
 	wm_user_path = strKnob( 'user' , '' , flags = 'INVISIBLE' )
 	
-	wm_auto_rise_version = boolKnob( '' , True , flags = 'INVISIBLE')
-	
+
 	#sep7 = sepKnob( ' ' )
 
 
@@ -65,22 +64,14 @@ def _refresh( this ):
 	return
 
 
+		
+
 
 def knobChanged( this ):
 	
 	if this.KNOB.name() in 'showPanel wm_category wm_label wm_folderize wm_perversion wm_overwrite wm_refresh wm_path_target'.split():
 
-		if not this.VALUES.wm_auto_rise_version:
-			
-			print 'WARNING !!!! PATH NOT REBUILDED IN WRITE [ %s ] , wm_auto_rise_version is set to False' % this.NODE.name() 
-		
-		else:
-
-			brain.Lib.mWrites.build_path( this )
-
-
-		
-
+		brain.Lib.mWrites.build_path( this )
 
 
 def onUserCreate( this ):
@@ -94,9 +85,9 @@ def onCreate( this ):
 	current_value = this.VALUES.wm_category
 		
 	categories = list(  [ 'disabled' ] + brain.Categories['names']  )
-	
-	msg = 'In Write.onCreate ( current_value =  %s , categories = %s )' % ( current_value , categories )	
-	sys.__stdout__.write( '\n%s\n' % msg )
+		
+	#msg = 'In Write.onCreate ( current_value =  %s , categories = %s )' % ( current_value , categories )	
+	#sys.__stdout__.write( '\n%s\n' % msg )
 	
 	value_is_digit = str(current_value).isdigit()
 	
@@ -105,41 +96,15 @@ def onCreate( this ):
 		this.KNOBS.wm_category.setValues( categories )	
 		this.KNOBS.wm_category.setValue( 'disabled' )
 	
+	elif current_value not in categories:
+		
+		print '\nWARNING!! Lost Category [ %s ] in node %s, disabling managed write for that node ' % ( current_value , this.NODE.name()  )
+		
+		this.KNOBS.wm_category.setValue( 'disabled' )
+		this.KNOBS.wm_category.setValues( categories )
+
 	
 	wm_category( this )
-		
-	#elif current_value not in categories:
-	#	
-	#	categories.append( current_value )
-	#	
-	#	this.KNOBS.wm_category.setValues( categories )
-	#	this.KNOBS.wm_category.setValue( current_value )
-	#	
-    #
-	#wm_category( this )
-	#
-	#if not current_value == 'disabled':
-	#
-	#	brain.Lib.mWrites.build_path( this )
-	
-		
-	
-
-	#if not str(current_value).isdigit() and current_value not in new_categories:
-	#	
-	#	new_categories.append( current_value )
-	#
-	#
-	#if not this.KNOBS.wm_category.values() == new_categories:
-	#	
-	#	this.KNOBS.wm_category.setValues( new_categories )
-	#	
-	#	wm_category( this )
-		
-		
-	
-		
-
 
 #*************************************************************************************************
 # Last edited
@@ -149,6 +114,20 @@ def onCreate( this ):
 def _isEnabled( this ):
 	
 	return ( False if this.VALUES.wm_category == 'disabled' else True )
+
+
+
+def wm_folderize( this ):
+	
+	if _isEnabled( this ):
+	
+		if not this.VALUES.wm_folderize: 
+		
+			this.KNOBS.wm_perversion.setEnabled( False )
+		
+		else:
+		
+			this.KNOBS.wm_perversion.setEnabled( True )
 
 
 
@@ -168,7 +147,10 @@ def wm_category( this ):
     
 		knob = this.KNOBS( name )	
 		knob.setEnabled( _isEnabled( this ) )
-		
+	
+	wm_folderize( this )
+	
+	
 	#print 'DEBUG ::: wm_category'
 	
 	
@@ -184,7 +166,7 @@ def file_type( this ):
 
 def afterRender( this ):
 
-	if not this.VALUES.wm_category == 'disabled' and this.VALUES.wm_auto_rise_version:
+	if not this.VALUES.wm_category == 'disabled':
 		
 		print '\nRender Finished , updating file_knobs'
 		

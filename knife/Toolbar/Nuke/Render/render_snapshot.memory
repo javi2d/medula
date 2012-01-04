@@ -3,5 +3,5 @@ hotkey = ''
 
 icon = None
 
-label = 'render_snapshot'
+label = 'Render Selection in Snapshot mode'
 

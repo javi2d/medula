@@ -1,0 +1,175 @@
+
+
+def start():
+
+	print '>> Make Green LOG'	
+
+	import threading
+
+	threading.Thread( None , make_green_thread  ).start()
+
+
+
+
+def make_green_thread():
+
+	
+	taskbar = nuke.ProgressTask( 'Making Green :)' )
+	
+	import shutil	
+	
+	for node , auto_folder_name , file_value , proxy_value , firstFrame , lastFrame in brain.Lib.selection.Reads():
+		
+		
+		this = space.this( node ) # if we do this = this( node ) a traceback is raised
+
+		# 1 Check if sequence is into current UNIT
+
+		src_folder = os.path.dirname( this.VALUES.file )
+
+		compatibles , match = brain.Lib.sources.compatible_match( src_folder )
+		
+		isgreen = False
+		
+		for compatible in compatibles:
+			
+			tmp_src_folder = src_folder.replace( match , compatible )
+			
+			if tmp_src_folder.startswith( this.UNIT_PATH ):
+				
+				isgreen = True
+				
+							
+		# 2.1 If sequence is already green  
+				
+		if isgreen:
+			
+			print '>> Node already green'
+			
+			continue
+			
+			
+				
+		# 2.1 If sequence is not green 
+		
+		host = brain.Lib.sources.host( src_folder )
+		
+		# Compute target folder
+		
+		if host:
+		
+			trg_folder = Normalize.join( this.UNIT_PATH , brain.Project.INPUT , host )
+		
+		else:
+			
+			trg_folder = Normalize.join( this.UNIT_PATH , brain.Project.INPUT , 'other_sources' )
+		
+		trg_folder = Normalize.join( trg_folder , auto_folder_name )
+		
+		# Autocreate trg_folder if not exists 
+		
+		sh( trg_folder )
+		
+		
+		def compare_files( a , b ):
+
+			#import filecmp
+			#return filecmp.cmp( a , b  ) #, shallow = True 
+			
+			stats_file_a  =  ( os.stat( a )[-4] , os.stat( a )[-2] )
+			stats_file_b  = ( os.stat( b )[-4] , os.stat( b )[-2] )
+			
+			#print 'DEBUG STATS FILE A :', a
+			#print 'DEBUG STATS FILE B :', b
+			#print 'DEBUG STATS A :' , stats_file_a
+			#print 'DEBUG STATS B :' , stats_file_b
+	
+			return stats_file_a == stats_file_b
+		
+			
+		def isstill( path ):
+
+			return ( False if '%' in brain.Lib.path.normalize_padding( path ) else True )
+		
+		
+		file_name = os.path.basename( file_value )
+			
+		# Change the node 'source_reference' knob
+
+		node['source_reference'].fromUserText( Normalize.join( trg_folder , file_name ) )
+		
+		
+		if isstill( file_value ):
+			
+			frame_range = range( 1 )
+		
+		else:
+			
+			frame_range = range( firstFrame , lastFrame + 1 )	
+			
+		
+		node_name_msg = '[ %s ] ' % node.name()
+		
+
+		for frame in frame_range :
+
+			t = time.time()
+
+			if taskbar.isCancelled():	
+				return
+
+			for path in [ file_value , proxy_value ]:
+				
+				file_name = os.path.basename( path )
+
+				trg_path = Normalize.join( trg_folder , file_name )
+				
+				trg_file = brain.Lib.sequence.frame_path( trg_path , frame )
+				src_file = brain.Lib.sequence.frame_path( path , frame )
+				
+
+				if os.path.isfile( src_file ):
+						
+					if os.path.isfile( trg_file ) and compare_files( src_file , trg_file ): #, 
+
+						msg = '== %s' % os.path.basename( src_file )
+						
+						print node_name_msg + msg
+						taskbar.setMessage( msg )
+
+
+					elif os.path.isfile( trg_file ) and  not compare_files( src_file , trg_file ):
+						
+						if brain.make_green_overwrite:
+							
+							msg = 'Overwriting <> %s' % os.path.basename( src_file )
+							
+							shutil.copy2( src_file , trg_file )
+							
+						else:
+							
+							msg = 'Skipped <> %s ( Files seems different, use make green overwrite )' % os.path.basename( src_file )
+
+						print node_name_msg + msg
+						taskbar.setMessage( msg )
+
+
+					else:
+
+						msg = '>> %s' % os.path.basename( src_file )
+
+						print node_name_msg + msg
+						taskbar.setMessage( msg )
+
+						shutil.copy2( src_file , trg_file )
+
+				current_frame = frame-firstFrame + 1
+				total_frames  = lastFrame-firstFrame + 1
+
+				taskbar.setProgress( current_frame*100/total_frames )
+			
+		
+
+
+
+

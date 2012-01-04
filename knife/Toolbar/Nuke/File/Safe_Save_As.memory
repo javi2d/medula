@@ -3,5 +3,5 @@ hotkey = ''
 
 icon = None
 
-label = 'Safe_Save_As'
+label = 'knife Save As ...'
 

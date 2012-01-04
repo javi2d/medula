@@ -164,7 +164,10 @@ def inspect_render( this ):
 
 
 def scan( this ):
-
+	
+	
+	print 'DEBUG scanw button'
+	
 	import glob
 	
 
@@ -184,11 +187,15 @@ def scan( this ):
 		pattern = pattern[1:]
 		this.KNOBS.pattern.setValue( pattern )
 	
-
-
+	
+	import fnmatch
+	
 	all_matches = []
 
 	for P,D,F in os.walk( base_path ):	
+		
+		
+		
 		
 		glob_pattern = '%s/%s' % ( brain.Lib.path.normalize( P ) , pattern  )
 		
