@@ -14,3 +14,7 @@ DEFAULT_UNIT     = '' #'sessions_from_%s' % Core.date()
 SCRIPTS = 'nuke' 
 INPUT   = 'Input'
 OUTPUT  = 'Output'
+
+
+CONVERSION_TARGET = None
+

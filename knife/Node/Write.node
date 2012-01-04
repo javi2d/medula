@@ -1,6 +1,6 @@
 
 
-TABS = [ 'Write.node', 'Write_Management_v08.tab', 'Write_Tasking_v01.tab'   ] #,  , 'Write_Task_Params_v02.tab' 
+TABS = [ 'Write.node', 'Write_Management_v08.tab'  ] #, 'Write_Tasking_v01.tab'
 
 DEFAULTS = {
 
@@ -73,17 +73,30 @@ def beforeRender( this ):
 				src_name , src_ext = os.path.splitext( src_basename )
 				
 				
-				print 'DEBUG 1111' , src_ext , ext
+				#print 'DEBUG 1111' , src_ext , ext
 				
 				if src_ext == '.mov' and ext != 'mov':
 					
 					src_name += '.%04d'
+				
+				
+				if not brain.Project.CONVERSION_TARGET:
+				
+
+					target_folder = src_folder   #this.VALUES.conv_target_folder or 
+				
+					target_basename = src_name + '.CONVERSION.' + ext 
+				
+				
+				else:
 					
+					src_subfolder = src_folder.split( brain.Project.INPUT )[1][1:]
+	
+					target_folder = Normalize.join( this.UNIT_PATH , brain.Project.CONVERSION_TARGET , src_subfolder ) 
+				
+					target_basename = src_name + '.' + ext
 				
 				
-				target_folder = src_folder   #this.VALUES.conv_target_folder or 
-				
-				target_basename = src_name + '.CONVERSION.' + ext 
 				
 
 				#if target_basename == src_basename  and  target_folder == src_folder: 
@@ -202,7 +215,6 @@ def autolabel( this ):
 		elif '.PROXY.' in this.VALUES.proxy:
 			
 			return  output + '%s\n\n(AUTO GENERATED PROXY)\n' % os.path.basename( this.VALUES.proxy )
-			
 	
 	else:
 

@@ -2,11 +2,16 @@
 
 
 major_version = 1
-minor_version = 4
+minor_version = 41
 
 changeLog = '''
 
 @January 4 2012
+
+- rewrited Inspector2.userNode 
+
+
+@January 3 2012
 
 - Now Update Medula medula/version.memory to version control
 

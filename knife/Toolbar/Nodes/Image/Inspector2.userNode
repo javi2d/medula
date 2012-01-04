@@ -9,11 +9,9 @@ Class = 'Group'
 
 class Script_Inspector:
 	
-	inspect_all             = bttnKnob( '<b>all</b>'  )
-	inspect_all_history     = bttnKnob( '<b>all history</b>'  )
 	inspect_script_history  = bttnKnob( '<b>script history</b>'  )
-	inspect_render          = bttnKnob( '<b>render</b>'  )
-	
+	inspect_render_history  = bttnKnob( '<b>render history</b>'  )
+
 	
 	sep1     = sepKnob()
 	
@@ -38,6 +36,8 @@ class Script_Inspector:
 	prev    = bttnKnob( '<b>&#60;</b>' )
 	next    = bttnKnob( '<b>&#62;</b>' )
 	
+	step    = intKnob( '' , 1 , clearflags = 'STARTLINE' )
+	
 	sep3     = sepKnob()
 	
 	last    = txtKnob( '' , ' ' )
@@ -51,76 +51,52 @@ def onCreate( this ):
 	this.KNOBS.path.setValue( this.UNIT_PATH )
 	
 
-
-
-def inspect_all( this ):
-
-	this.KNOBS.path.setValue( this.UNIT_PATH )
-	this.KNOBS.pattern.setValue( '*.nk' )
+def pattern( this ):
 	
 	scan( this )
-	
-	if this.KNOBS.files.values():
 
+	if this.KNOBS.files.values():
+    
 		this.KNOBS.files.setValue( this.KNOBS.files.values()[-1] )
 
 
-def inspect_all_history( this ):
-
-	this.KNOBS.path.setValue( this.UNIT_PATH + '/nuke/_historyScripts/' )
-	
-	this.KNOBS.pattern.setValue( '*.nk' )
-	
-	this.KNOBS.recursive.setValue( True )
-	
-	if this.KNOBS.files.values():
-
-		this.KNOBS.files.setValue( this.KNOBS.files.values()[-1] )
-	
-	
 
 def inspect_script_history( this ):
 	
-	this.KNOBS.path.setValue( this.UNIT_PATH + '/nuke/_historyScripts/' )
-	
-	pattern = '*.nk'
 	
 	if this.SCRIPT_NAME:
 		
-		broken = this.SCRIPT_NAME.split('_')
+		this.KNOBS.path.setValue( this.UNIT_PATH + '/nuke/_historyScripts/' )
 		
-		reconstructed = []
+		import re 
 		
-		for item in broken:
+		matches = re.findall( "_v\d+" , this.SCRIPT_NAME , re.IGNORECASE)
+		
+		if matches:
+
+			script_basename = this.SCRIPT_NAME.split( matches[0] )[0]
+		
+		else:
 			
-			if not item[0].isdigit() and item[1:].isdigit():
-				
-				reconstructed.append( '%s*' % item[0] )
+			script_basename = this.SCRIPT_NAME
+		
+		this.KNOBS.pattern.setValue( '*%s*.nk' % script_basename )
+		
+		this.KNOBS.recursive.setValue( True )
+		
+		scan( this )
+		
+		if this.KNOBS.files.values():
+	    
+			this.KNOBS.files.setValue( this.KNOBS.files.values()[-1] )
 			
-			else:
-				
-				reconstructed.append( item )
-				
-				
-		pattern = '*%s' % '_'.join( reconstructed )
-				
-				
-	this.KNOBS.pattern.setValue( pattern )
-	
-	this.KNOBS.recursive.setValue( True )
-	
-	scan( this )
-	
-	if this.KNOBS.files.values():
-
-		this.KNOBS.files.setValue( this.KNOBS.files.values()[-1] )
+	else:
+		
+		nuke.message( 'The script must be saved to inspect script history' )
 	
 
 
-
-
-
-def inspect_render( this ):
+def inspect_render_history( this ):
 	
 	inspector_node = this.NODE
 
@@ -149,13 +125,9 @@ def inspect_render( this ):
 			this.KNOBS.files.setValue( this.KNOBS.files.values()[-1] )
 
 	else:
-
-		this.KNOBS.files.setValues([])
-
-		this.KNOBS.last.setValue( '<font size=3 color="red">WARNING: Select a Read Node to inspect source script</font></p>' )
-
-
-
+		
+		nuke.message( 'Select a Read node and push "render history" button again to inspect the Read´s render history.' )
+		
 
 
 
@@ -165,14 +137,9 @@ def inspect_render( this ):
 
 def scan( this ):
 	
-	
-	print 'DEBUG scanw button'
-	
-	import glob
-	
 
-	base_path = brain.Lib.path.normalize( this.VALUES.path )
-	pattern   = brain.Lib.path.normalize( this.VALUES.pattern )
+	base_path = Normalize.path( this.VALUES.path )
+	pattern   = Normalize.path( this.VALUES.pattern )
 	
 	this.KNOBS.pattern.setValue( pattern )
 	
@@ -187,31 +154,23 @@ def scan( this ):
 		pattern = pattern[1:]
 		this.KNOBS.pattern.setValue( pattern )
 	
-	
-	import fnmatch
-	
+
 	all_matches = []
+
+	import fnmatch
 
 	for P,D,F in os.walk( base_path ):	
 		
+		matches = fnmatch.filter( F , pattern )
 		
+		rel_path = P.replace( base_path  , '' )
 		
-		
-		glob_pattern = '%s/%s' % ( brain.Lib.path.normalize( P ) , pattern  )
-		
-		matches = glob.glob( glob_pattern )
-		
-		matches = [ brain.Lib.path.normalize( m )  for  m  in matches ]
-		
-		matches = [ '...' + m[ len( base_path ): ] for m in matches if os.path.isfile( m )]
-		
-		
-		all_matches.extend( matches )
-
+		all_matches.extend (  [ '...' + Normalize.join( rel_path , m )  for m in matches ] )
+			
 		if not this.VALUES.recursive:
 
-			break
-
+			break	
+		
 	
 	if all_matches:
 	
@@ -227,17 +186,18 @@ def scan( this ):
 			
 			index = len( all_matches )
 		
-
+		# prev and next implementation
+		
 		if this.KNOB == this.KNOBS.next:
 
-			index += 1
+			index += this.VALUES.step
 
 			this.KNOBS.files.setValue( 0 if  index == len( all_matches )  else index  )
 
 
 		elif this.KNOB == this.KNOBS.prev:
 
-			index -= 1
+			index -= this.VALUES.step
 
 			this.KNOBS.files.setValue( len( all_matches ) - 1  if index == -1  else index   )
 
@@ -266,21 +226,7 @@ def load_file( this ):
 		for node in this.NODE.nodes():
 			
 			nuke.delete( node )
-		
-		#print 'DEBUG LOAD FILE' , path
-		
-		#return
-		
-		#import shutil
-		
-		#target_temp_file = sh( brain.Project.DEFAULT_RESOURCE )( '__tmp' )['$PATH'] + '/inspector.nk'
-		
-		#print 'DEBUG LOAD FILE' , target_temp_file
-		
-		#shutil.copy( path ,  target_temp_file )
-		
-		#nuke.scriptReadFile( target_temp_file )
-		
+	
 		nuke.scriptReadFile( path )
 
 		for node in this.NODE.nodes():
@@ -304,7 +250,7 @@ def load_file( this ):
 		
 		import random
 		
-		color_range = range( 100 , 255 )
+		color_range = range( 100 , 110 )
 		
 		hex_color = '%02x%02x%02x' % ( random.choice( color_range ) , random.choice( color_range ) , random.choice( color_range ) )
 		
@@ -330,7 +276,6 @@ def load( this ):
 	load_file( this )
 	
 	
-	
 
 def prev( this ):
 	
@@ -346,35 +291,7 @@ def next( this ):
 
 
 
-			
 
-def _script_general_pattern( script_path ):
-	
-	basename = os.path.splitext( os.path.basename( script_path ) )[0].split('_')
-	
-	if basename[-1].startswith( 's' ):
-		
-		basename.pop()
-		
-	return '*%s*' % '_'.join( basename )
-	
-
-def _find_nuke_folder():
-	
-	unit_path = this.UNIT_PATH
-	
-	return unit_path + '/nuke' 
-	
-	
-
-	
-	
-	
-	
-
-
-		
-	
 	
 
 

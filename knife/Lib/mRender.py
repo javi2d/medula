@@ -124,11 +124,15 @@ def append_render_output( node ):
 	xpos = node.xpos() + 100
 	ypos = node.ypos()
 	
-	render_output_node = nuke.toNode( 'RENDER_OUTPUT' )
+	output_render_nodes = [ n for n in nuke.allNodes() if n.name().replace( 'RENDER_OUTPUT' , '0' ).isdigit() and n.Class() == 'Output' ]
 	
-	if render_output_node:
-		
-		nuke.delete( render_output_node )
+	[ nuke.delete( n ) for n in output_render_nodes ]
+	
+	#render_output_node = nuke.toNode( 'RENDER_OUTPUT' )
+	#
+	#if render_output_node:
+	#	
+	#	nuke.delete( render_output_node )
 
 	output = nuke.nodes.Output( name = 'RENDER_OUTPUT' , xpos = xpos , ypos = ypos  )
 	
