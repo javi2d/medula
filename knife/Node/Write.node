@@ -6,10 +6,7 @@ DEFAULTS = {
 
 'channels' : 'all' ,
 
-
 }
-
-
 
 
 
@@ -23,10 +20,6 @@ def onUserCreate( this ):
 	if not this.SCRIPT_PATH : #nuke.tcl('value root.name'):
 
 		brain.Lib.script.saveScript()
-
-
-
-
 
 
 def beforeRender( this ):
@@ -174,10 +167,13 @@ def afterRender( this ):
 	read_node = this( NODE = this.NODE.input(0) )
 
 	if read_node.NODE.Class() == 'Read' and not this.VALUES.file and not read_node.VALUES.proxy:
-
+    
 		print '>> PROXY AUTO WRITE pushing proxy path for node [ %s ]' % read_node.NODE.name()
-
+    
 		read_node.KNOBS.proxy.fromUserText( this.VALUES.proxy )
+
+
+
 
 
 def inputChange( this ):

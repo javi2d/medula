@@ -54,30 +54,11 @@ class Management:
 	#sep7 = sepKnob( ' ' )
 
 
-
-
-def _refresh( this ):
-	
-	nuke.executeInMainThreadWithResult( this.NODE.hideControlPanel )
-	nuke.executeInMainThreadWithResult( this.NODE.showControlPanel )
-	
-	return
-
-
-		
-
-
-def knobChanged( this ):
-	
-	if this.KNOB.name() in 'showPanel wm_category wm_label wm_folderize wm_perversion wm_overwrite wm_refresh wm_path_target'.split():
-
-		brain.Lib.mWrites.build_path( this )
-
-
 def onUserCreate( this ):
 	
 	#print 'Newly created Node'
 	pass
+
 
 def onCreate( this ):
 
@@ -85,9 +66,6 @@ def onCreate( this ):
 	current_value = this.VALUES.wm_category
 		
 	categories = list(  [ 'disabled' ] + brain.Categories['names']  )
-		
-	#msg = 'In Write.onCreate ( current_value =  %s , categories = %s )' % ( current_value , categories )	
-	#sys.__stdout__.write( '\n%s\n' % msg )
 	
 	value_is_digit = str(current_value).isdigit()
 	
@@ -95,43 +73,33 @@ def onCreate( this ):
 		
 		this.KNOBS.wm_category.setValues( categories )	
 		this.KNOBS.wm_category.setValue( 'disabled' )
-	
+		wm_category( this )
+		
+		
 	elif current_value not in categories:
 		
 		print '\nWARNING!! Lost Category [ %s ] in node %s, disabling managed write for that node ' % ( current_value , this.NODE.name()  )
 		
 		this.KNOBS.wm_category.setValue( 'disabled' )
 		this.KNOBS.wm_category.setValues( categories )
-
+		wm_category( this )
 	
-	wm_category( this )
-
-#*************************************************************************************************
-# Last edited
-
+	_safe_build_path( this )
 
 
 def _isEnabled( this ):
 	
 	return ( False if this.VALUES.wm_category == 'disabled' else True )
-
-
-
-def wm_folderize( this ):
 	
-	if _isEnabled( this ):
-	
-		if not this.VALUES.wm_folderize: 
-		
-			this.KNOBS.wm_perversion.setEnabled( False )
-		
-		else:
-		
-			this.KNOBS.wm_perversion.setEnabled( True )
-
-
 
 def wm_category( this ):
+	
+	# Enable or Disable 
+	
+	for name in [ n for n in this.KNOBS['names'] if n.startswith('wm_') and not n == 'wm_category' ]:
+    
+		knob = this.KNOBS( name )	
+		knob.setEnabled( _isEnabled( this ) )
 	
 	
 	if not _isEnabled( this ):
@@ -141,56 +109,55 @@ def wm_category( this ):
 			this.KNOBS.file.fromScript( this.VALUES.wm_user_path )
 			this.KNOBS.wm_user_path.setValue('')
 	
-	# Enable or Disable 
-	
-	for name in [ n for n in this.KNOBS['names'] if n.startswith('wm_') and not n == 'wm_category' ]:
-    
-		knob = this.KNOBS( name )	
-		knob.setEnabled( _isEnabled( this ) )
-	
-	wm_folderize( this )
-	
-	
-	#print 'DEBUG ::: wm_category'
-	
-	
+	else:
+		
+		wm_folderize( this )
+
+
 def file_type( this ):
-	
 
-	if this.VALUES.file_type == ' ' :
-		
-		Category = brain.Lib.mWrites.process_category( this )
-
-		params = Category( 'params' , 'channels all colorspace linear file_type exr' , create_att = False  )
-		
-		try :
-		
-			this.NODE.readKnobs( params )
-		
-		except:
-			
-			print '\n\nFail while reading these knobs params : %s\n\n' % params
-	
-	
-	
 	if this.VALUES.file_type == 'jpeg' and this.VALUES._jpeg_quality == .75 :
-		
+	
 		this.KNOBS._jpeg_quality.setValue( 1. )
+
+	_safe_build_path( this )
+
 	
+
+#def _refresh( this ):
+#	
+#	print 'Refreshing Node'
+#	
+#	nuke.executeInMainThreadWithResult( this.NODE.hideControlPanel )
+#	nuke.executeInMainThreadWithResult( this.NODE.showControlPanel )
+#	
+#	return
+
 	
-			
-	brain.Lib.mWrites.build_path( this )
+
+def knobChanged( this ):
 	
-		
+	#print 'DEBUG knobChanged' , this.KNOB.name()
+
+	if this.KNOB.name() in 'showPanel wm_category wm_label wm_folderize wm_perversion wm_overwrite wm_refresh wm_path_target'.split():
+
+		_safe_build_path( this )
+
+
+def beforeRender( this ):
+	
+	print '\nRender Started, updating file_knobs for node [ %s ]' %  this.NODE.name()
+	
+	_safe_build_path( this )
+
+# Este es el que da error	
 
 def afterRender( this ):
-
-	if not this.VALUES.wm_category == 'disabled':
-		
-		print '\nRender Finished , updating file_knobs'
-		
-		brain.Lib.mWrites.build_path( this )
-
+	
+	print '\nRender Finished, updating file_knobs for node [ %s ]' %  this.NODE.name()
+	
+	Core.thread( nuke.executeInMainThreadWithResult , ( this.KNOBS.wm_refresh.execute ) ).start()
+	
 
 
 def autolabel( this ):
@@ -198,8 +165,7 @@ def autolabel( this ):
 
 	if _isEnabled( this ):
 		
-		label = this.VALUES.wm_category
-		color = brain.Categories( '%s.color' % label , 'Aquamarine' )
+		Category = brain.Lib.mWrites.process_category( this )
 		
 		proxy_mode = this.ROOT.VALUES.proxy #nuke.tcl( 'value root.proxy' )
 
@@ -221,10 +187,60 @@ def autolabel( this ):
 		
 		asterisk = (  '*' if this.VALUES.wm_overwrite else '' )
 
-		return '<center><font size=3>%s\n<b><font size=6 color= %s>%s%s</font>\n%s</b></font>\n(%s)</center>' % ( this.NODE.name() , color , label , asterisk , basename , this.VALUES.colorspace ) # 
+		return '<center><font size=3>%s\n<b><font size=6 color= %s>%s%s</font>\n%s</b></font>\n(%s)</center>' % ( this.NODE.name() , Category.color , Category.category , asterisk , basename , this.VALUES.colorspace ) # 
 
 	else:
 
 		return None
+
+
+
+
+#*************************************************************************************************
+# New
+
+
+	
+
+def _safe_build_path( this , msg = None ):
+	
+	if _isEnabled( this ):
+		
+		if msg:
+		
+			print '\n%s, updating file_knobs for node [ %s ]' % ( msg , this.NODE.name() )
+		
+		brain.Lib.mWrites.build_path( this  )
+	
+
+
+def wm_folderize( this ):
+	
+	if _isEnabled( this ):
+	
+		if not this.VALUES.wm_folderize: 
+		
+			this.KNOBS.wm_perversion.setEnabled( False )
+		
+		else:
+		
+			this.KNOBS.wm_perversion.setEnabled( True )
+
+
+
+
+
+
+
+
+	
+
+
+
+
+		
+
+
+
 
 

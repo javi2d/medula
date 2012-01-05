@@ -56,11 +56,9 @@ def proxy_res_path( path ):
 		return path
 	
 	else:
-	
-		dirname , basename = os.path.split( path )
-
-		name , ext = os.path.splitext( basename )
-
+		
+		dirname , basename , name , ext = Normalize.split(  path )
+		
 		proxy_value = Normalize.join(  dirname  , ( name + '.PROXY' + ext ) )
 
 		return proxy_value

@@ -16,12 +16,12 @@ class Daily:
 	
 	pattern = None
 	params = 'channels rgb colorspace default file_type exr'
-	color = 'Red'
+	color = ''
 	
 class Cache:
 	
 	params = 'channels all colorspace default file_type exr'
-	color = 'Red'
+	color = None
 
 # Snapshot renders only current frame
 class Snapshot:
