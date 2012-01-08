@@ -15,7 +15,7 @@ def lib_compare_versions():
 	
 	try:
 	
-		github_medula_version = urllib2.urlopen( 'https://github.com/javi2d/medula/raw/master/version.memory' ).read()
+		github_medula_version = urllib2.urlopen( 'https://github.com/javi2d/medula/raw/master/system/version.memory' ).read()
 	
 	except:
 		
