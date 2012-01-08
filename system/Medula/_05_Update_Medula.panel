@@ -1,19 +1,44 @@
 
-
+html = brain.Lib.html
 
 class User:
-
+	
+	current_version = txtKnob( '' , ' ' )
+	
+	sep2 = sepKnob( ' ' )
+	
 	update = bttnKnob( 'update medula' )
-	
-	sep2 = sepKnob( '  or restore a backup ( if any )', clearflags = 'STARTLINE')
-	
+
 	sep3 = sepKnob( ' ' )
 	
-	in_backup_versions = enumKnob( '' , []  )
-	
-	backup_info = txtKnob( '' , '---' )
+	in_backup_versions = enumKnob( 'backups' , []  )
 	
 	restore = bttnKnob( 'restore backup' )
+	
+	backup_info = txtKnob( '' , '---' )
+
+
+
+def onCreate( this ):
+	
+
+	in_backup = ['...'] 
+
+	if 'versions' in medula['$FOLDER_NAMES']:
+
+		in_backup.extend(  [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if d.startswith( 'Medula_' ) ]    )
+		
+	this.KNOBS.in_backup_versions.setValues( in_backup )
+	
+	current_version = Brain() << medula.system.version.memory
+	
+	majorver = current_version( 'major_version' , '0' )
+	minorver = current_version( 'minor_version' , '0' )
+	
+	version = html.txt( 'Current version is %s.%s' % ( majorver , minorver ) , color = 'LightGreen' , size = 4 )
+		
+	this.KNOBS.current_version.setValue( version )
+	
 	
 
 def in_backup_versions( this ):
@@ -28,7 +53,7 @@ def in_backup_versions( this ):
 		
 		selected_shell = medula.versions( value )
 		
-		version_info_brain = Brain() << selected_shell( 'version.memory' )
+		version_info_brain = Brain() << selected_shell.system( 'version.memory' )
 		
 		version_info = '%s.%s' % ( version_info_brain( 'major_version' , 0 ), version_info_brain( 'minor_version' , 0 ) )
 		
@@ -80,21 +105,21 @@ Restart nuke to apply changes.
 '''
 
 
-def onCreate( this ):
+
+
+
+def _update_thread():
+
+	unzipped_shell = nuke.executeInMainThreadWithResult( lib_download_and_unzip_master_branch )
 	
+	backup_shell = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
 
-	in_backup = ['...'] 
-
-	if 'versions' in medula['$FOLDER_NAMES']:
-
-		in_backup.extend(  [ d for d in medula( 'versions' )['$FOLDER_NAMES'] if d.startswith( 'Medula_' ) ]    )
-		
-	this.KNOBS.in_backup_versions.setValues( in_backup )
-
-
-
-
-
+	lib_switch_versions( unzipped_shell , backup_shell )
+	
+	msg = update_done_ok_msg % ( backup_shell['$NAME'] , backup_shell['$FOLDER_NAMES'] , backup_shell['$FILE_NAMES'] )
+	
+	nuke.executeInMainThreadWithResult( nuke.message , ( msg ,  ) )
+	
 
 def update( this ):
 	
@@ -123,18 +148,12 @@ def update( this ):
 		
 		
 		if brain.tmp.updater.do_update:
-			
-			unzipped_shell = lib_download_and_unzip_master_branch()
-			
-			backup_shell = medula.versions( 'Medula_Update_Backup_at_' + time.asctime().replace( ':' , '_' ).replace( ' ' , '_' ) )
-	
-			lib_switch_versions( unzipped_shell , backup_shell )
+
+			Core.thread( _update_thread ).start()
 				
-			nuke.executeInMainThreadWithResult( nuke.message , ( update_done_ok_msg % ( backup_shell['$NAME'] , backup_shell['$FOLDER_NAMES'] , backup_shell['$FILE_NAMES'] ) ,  ) )
-			
 			onCreate( this )
-			
 	
+			
 	return 
 
 

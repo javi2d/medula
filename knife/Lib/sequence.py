@@ -1,4 +1,7 @@
 
+
+
+
 def folder_with_version( sequence_path ):	
 
 	dirname, basename = os.path.split( sequence_path )
@@ -191,18 +194,18 @@ def is_bound( path ):
 def color( path ):
 	
 	colors = { 'green' : 1744785407 ,  'violet' : -881131521 , 'blue' : 1114505215 ,  'darkGrey' : 2054847231 , 'grey' : -960051457 , 'pale_green' : 2864482559 }
-
 	
-	if this.SCRIPT_PATH:	
+	
+	if path.startswith( brain.Project.DEFAULT_RESOURCE ):
+
+		node_color = colors['pale_green']
+	
+	
+	elif this.SCRIPT_PATH:	
 		
 		#print 'Color path : ' , brain.Lib.sources.host_resource( this.SCRIPT_PATH ) , is_under_current_unit( this.VALUES.file )
-		
-		if path.startswith( brain.Project.DEFAULT_RESOURCE ):
-
-			node_color = colors['pale_green']
-		
-			
-		elif is_under_current_unit( path ): 
+	
+		if is_under_current_unit( path ): 
 		
 			node_color = colors['green'] 
 
@@ -220,13 +223,7 @@ def color( path ):
 
 	else:
 		
-		if path.startswith( brain.Project.DEFAULT_RESOURCE ):
-
-			node_color = colors['pale_green']
-			
-		else:
-			
-			node_color = colors['grey']
+		node_color = colors['grey']
 	
 
 	return node_color	

@@ -5,13 +5,13 @@ DEFAULT_PATTERN = '$CATEGORY_$UNITID_$LABEL'
 
 	
 def process_category( this ):
+
+	Category = Brain()
 	
-	category = this.VALUES.wm_category
+	Category.category = this.VALUES.wm_category
 	
-	Category =  brain.Categories( category , None , create_att = False ) or Brain()
-	
-	Category.category = category
-	
+	Category << ( brain.Categories( Category.category , None , create_att = False ) or Brain() )
+
 	Category.params = Category( 'params' , None  ) or 'channels all colorspace linear file_type exr'
 	
 	if this.VALUES.file_type == ' ' :
@@ -30,7 +30,7 @@ def process_category( this ):
 	
 	TOKENS = {
 
-	'$CATEGORY' : this.VALUES.wm_category.lower() , 
+	'$CATEGORY' : Category.category.lower() , 
 	'$LABEL'    : this.VALUES.wm_label , 
 	'$UNITID'   : this.UNIT_ID ,
 	'$UNITNAME' : this.UNIT_NAME,
@@ -56,20 +56,19 @@ def process_category( this ):
 	return Category
 	
 
-
-
-
-
-
 def build_path( this , return_params = False ):
 	
-	Category = process_category( this )
-
-	if Category.category == 'disabled':
+	if this.VALUES.wm_category == 'disabled':
 		
 		this.KNOBS.wm_tree.setValue( '----' )
 		
 		return
+	
+	
+	
+	Category = process_category( this )
+
+
 	
 	prefix = NO_VERSION_FOLDER = Category.pattern.split( '_$VERSION' )[0]
 	

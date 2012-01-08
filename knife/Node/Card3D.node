@@ -3,18 +3,28 @@
 
 class Utils:
 	
-	link = bttnKnob( 'copy from selected' )
+	link = bttnKnob( 'Link to selected Card ( 3D ) node' )
 	
-	create_3D_ref = bttnKnob( 'Create 3D Reference') # crea una camara y un card que controlan este card 3D
+	unlink = bttnKnob( 'Unlink' )
 	
+
+def unlink( this ):
+	
+	for knob in this.SORTED_KNOBS:
+		
+		if knob.hasExpression():
+			
+			knob.clearAnimated()
+	
+
 
 def link( this ):
 	
-	nodes = nuke.selectedNodes()
-	
-	for src_node in nodes:
-
-		if src_node.Class() == 'Card2':
+	try:
+		
+		card_node = nuke.selectedNode()
+		
+		if card_node.Class().startswith( 'Card' ) and not card_node.Class().startswith( 'Card3D' ):
 
 			for trg_knob in this.SORTED_KNOBS:
 				
@@ -24,8 +34,16 @@ def link( this ):
 					
 					break
 	
-				if NAME in this( src_node ).SORTED_NAMES:
+				if NAME in this( card_node ).SORTED_NAMES:
 
-					trg_knob.setExpression( '%s.%s' % ( src_node.name() , trg_knob.name() ) )
+					trg_knob.setExpression( '%s.%s' % ( card_node.name() , trg_knob.name() ) )
 		
-		break
+		else:
+			
+			nuke.message( 'Node selection not valid.\nSelect a Card ( 3D object )' )
+		
+		
+	except:
+		
+		nuke.message( 'Select a Card ( 3D object ) node to link values into this Card3D' )
+		

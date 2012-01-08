@@ -9,28 +9,30 @@
 
 
 
+# Deprecated , use nuke.knobDefault directly
 
-
-def knobDefault_processing( nbrain ):
-	
-
-	if hasattr( nbrain.space , 'DEFAULTS' ):
-
-		for knobname , value in nbrain.space.DEFAULTS.items():
-
-			if type( value ).__name__ in [ 'tuple' , 'list' ]:  # (1,2,3) >> '1 2 3'  
-
-				value = ' '.join( [ str(v) for v in value ] )
-
-			else:
-
-				value = str( value )
-
-
-			route = '.'.join( [ nbrain.name , knobname ] ) # node_class comes from function args
-
-			nuke.knobDefault( route , value )
-
+#def knobDefault_processing( nbrain ):
+#	
+#
+#	if hasattr( nbrain.space , 'DEFAULTS' ):
+#
+#		for knobname , value in nbrain.space.DEFAULTS.items():
+#
+#			if type( value ).__name__ in [ 'tuple' , 'list' ]:  # (1,2,3) >> '1 2 3'  
+#
+#				value = ' '.join( [ str(v) for v in value ] )
+#
+#			else:
+#
+#				value = str( value )
+#
+#
+#			route = '.'.join( [ nbrain.name , knobname ] ) # node_class comes from function args
+#			
+#			print 'Setting knobDefault for %s = %s' % ( route , value )
+#			
+#			nuke.knobDefault( route , value )
+#
 
 
 
@@ -226,7 +228,7 @@ def nodeBrain( path , inTab = False ):
 	
 	#print '\n\t.... %s computed knobs and callbacks.' % nbrain.basename
 		
-	knobDefault_processing( nbrain )	
+	#knobDefault_processing( nbrain )	
 	
 	#print '\n\t.... %s computed knobDefault values.' % nbrain.basename
 	

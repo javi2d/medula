@@ -193,7 +193,7 @@ class Dynamic_Panel(object):
 			old_widget.destroy()
 		
 
-		print '\n&& Panel Recreated :: %s' % self.nbrain.name
+		print '\n&& Panel Recreated >> %s\n' % self.nbrain.name
 
 		return panel
 		

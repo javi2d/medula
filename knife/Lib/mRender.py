@@ -17,7 +17,7 @@ def _execute( node , proxy_mode ):
 	lf = node.lastFrame()
 	
 	print '\n>> Executing in %s RESOLUTION : %s , [ %s to %s ]' % ( mode , node.name() ,  ff ,lf )
-	
+
 	nuke.execute( node , ff, lf , continueOnError = True )
 	
 	print '\n<< Executing in %s RESOLUTION : %s , [ %s to %s ]\n' % ( mode , node.name() , ff ,lf )
@@ -40,6 +40,40 @@ def process_autowrites():
 			_execute( n , False )
 	
 
+def render_selection():
+	
+	root = space.this.ROOT
+	
+	current_proxy_mode = root.VALUES.proxy
+	
+	for n in nuke.selectedNodes():
+		
+		ff = n.firstFrame() 
+		lf = n.lastFrame()
+		
+		this = space.this( n )
+		
+		if this.VALUES.file:
+		
+			print '\n>> Executing IN FULL RESOLUTION : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+
+			root.KNOBS.proxy.setValue( False )
+			
+			nuke.execute( n , ff, lf , continueOnError = True )
+		
+		if this.VALUES.proxy:
+			
+			print '\n>> Executing IN PROXY RESOLUTION : %s , [ %s , %s ]' % ( n.name() , ff ,lf )
+			
+			root.KNOBS.proxy.setValue( True )
+			
+			nuke.execute( n , ff, lf , continueOnError = True )
+
+	
+	root.KNOBS.proxy.setValue( current_proxy_mode )
+	
+	
+	
 
 
 def selection_in_full( check_knobs = True ):
@@ -58,11 +92,11 @@ def selection_in_full( check_knobs = True ):
 		_execute( n , False )
 
 
-def selection_in_proxy( check_knobs = True ):
+def selection_in_full_and_proxy( check_knobs = True ):
 	
 	if check_knobs:
 	
-		will_fail_nodes = [ n for n in nuke.selectedNodes() if not n['proxy'].value()  ]
+		will_fail_nodes = [ n for n in nuke.selectedNodes() if not n['proxy'].value() or not n['file'].value()  ]
 
 		if will_fail_nodes:
 		
@@ -70,10 +104,33 @@ def selection_in_proxy( check_knobs = True ):
 			return
 	
 	for n in nuke.selectedNodes():
+		
+		this = space.this( n )
+		
+		if not this.VALUES.wm_category == 'disabled':
+			
+			overwrite_value = this.VALUES.wm_overwrite
+		
+			try:	 
+			
+				_execute( n , False )
+			
+				this.KNOBS.wm_overwrite.setValue( True )
+			
+				_execute( n , True )
 	
-		_execute( n , True )
-	
-
+			except:
+			
+				print 'WARNING! Render full & proxy failed for node [ %s ]' % this.NODE.name()
+				
+			finally:
+				
+				this.KNOBS.wm_overwrite.setValue( overwrite_value )
+		
+		else:
+			
+			_execute( n , False )
+			_execute( n , True )
 	
 
 		

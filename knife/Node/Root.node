@@ -1,10 +1,6 @@
 
-DEFAULTS = {
 
-'last_frame' : 10	
-
-}
-
+nuke.knobDefault( "Root.last_frame", "10" ) 
 
 
 TABS = [ 'Root_Facility2.tab', 'Root.node' ] #

@@ -9,4 +9,4 @@ sh.init() # reload init file
 sh.menu() # reload menu file
 
 
-print '\n\nSUCESSFUL LIBRARY SOFT RELOAD ON' , time.asctime()
+print '\nSUCESSFUL LIBRARY SOFT RELOAD AT' , time.asctime()

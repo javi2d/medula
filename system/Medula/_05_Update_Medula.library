@@ -11,7 +11,7 @@ def lib_compare_versions():
 
 		changeLog = ''
 	
-	local_medula_version = ( Brain() << defaultVersion ) << medula( 'version.memory' )
+	local_medula_version = ( Brain() << defaultVersion ) << medula.system( 'version.memory' )
 	
 	try:
 	
@@ -41,8 +41,11 @@ def lib_compare_versions():
 
 def lib_download_and_unzip_master_branch():
 	
+	taskbar = nuke.ProgressTask( 'Downloading new version ...' )
 	
 	downloads_path = medula( 'versions/downloads' )['$PATH']
+	
+	taskbar.setMessage( 'urlopen' )
 	
 	try:
 	
@@ -55,15 +58,43 @@ def lib_download_and_unzip_master_branch():
 		return False
 	
 	target_local_zip_file = Normalize.join(  downloads_path , 'medula_current.zip' )
-		
+			
 	with open( target_local_zip_file , 'wb' ) as mzip:
 		
-		mzip.write( distro.read() )
-
+		
+		
+		taskbar.setMessage( 'writing zip' )
+		
+		distro_len = int( distro.info()['content-length'] )
+		
+		readed = 0
+		
+		while 1:
+			
+			if taskbar.isCancelled():	
+				
+				return False
+			
+			chunk_size = 100
+			
+			data = distro.read( chunk_size )
+			
+			readed += chunk_size
+			
+			if not data:
+				
+				break
+			
+			taskbar.setProgress( int( readed*100/distro_len ) )
+			
+			mzip.write( data )			
+			
 	import zipfile
 
 	medula_zip = zipfile.ZipFile( target_local_zip_file )
-
+	
+	taskbar.setMessage( 'extracting zip' )
+	
 	medula_zip.extractall( downloads_path )
 
 	medula_unzipped_folder = Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
@@ -89,13 +120,7 @@ def lib_switch_versions( new_medula_version_shell , backup_shell ):
 	
 		shutil.move( new_medula_version_shell( folder )['$PATH'] , medula['$PATH'] )
 	
-	for filename in new_medula_version_shell['$FILE_NAMES']:
-	
-		if filename in medula['$FILE_NAMES']:
-		
-			shutil.move( medula( filename )['file'] , backup_shell['$PATH'] )
-	
-		shutil.move( new_medula_version_shell( filename )['file'] , medula['$PATH'] )
+
 
 
 

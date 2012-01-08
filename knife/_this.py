@@ -24,9 +24,9 @@ def FARM( self ):
 
 
 	
-def DEFAULT_UNIT_PATH( self ):
-	
-	return Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT , brain.Project.DEFAULT_UNIT , brain.Project.SCRIPTS )
+#def DEFAULT_UNIT_PATH( self ):
+#	
+#	return Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT , brain.Project.DEFAULT_UNIT , brain.Project.SCRIPTS )
 	
 
 
@@ -35,7 +35,7 @@ def UNIT_PATH( self ):
 	
 	''' unit (shot) path is resolved by script name:
 	
-	1. Script is not saved yet: unit defaults to DEFAULT_UNIT_PATH
+	1. Script is not saved yet: unit defaults to brain.Project.DEFAULT_RESOURCE
 	2. Script is saved but not under a /nuke folder : the unit is where script is saved
 	3. Script is under /nuke folder: unit is the parent folder of /nuke folder
 	
@@ -49,7 +49,7 @@ def UNIT_PATH( self ):
 	
 	else:
 		
-		unit_path = self.DEFAULT_UNIT_PATH
+		unit_path = brain.Project.DEFAULT_RESOURCE 
 	
 
 		
@@ -101,7 +101,7 @@ def UNIT_PROJECT_PATH( self ):
 		
 	else:
 		
-		return Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT )
+		return brain.Project.DEFAULT_RESOURCE    #Normalize.join( brain.Project.DEFAULT_RESOURCE , brain.Project.DEFAULT_PROJECT )
 
 
 
@@ -117,7 +117,7 @@ def UNIT_PROJECT_NAME( self ):
 
 	else:
 
-		return brain.Project.DEFAULT_PROJECT
+		return os.path.basename( brain.Project.DEFAULT_RESOURCE )   #brain.Project.DEFAULT_PROJECT
 
 
 

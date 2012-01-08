@@ -183,6 +183,10 @@ class Normalize:
 			if type( item ).__name__ == 'Shell':
 
 				item = item['$PATH']
+				
+			elif type( item ).__name__ == 'Brain':
+				
+				raise RuntimeError , 'Brain in Normalize.join args %s\nProbably brain route is incorrect.' % item['routes']
 		
 			#item = os.path.normalize( item )
 		
@@ -332,13 +336,13 @@ class Expose:
 					print '!!WARNING. Error importing [ %s ] Module ' % name
 
 	
-
-	@staticmethod				
-	def folder( shell_or_path , into = '' , recursive = False , marshalize = False ):
+	
 	
 	# Deprecated by Brain << shell
-		
-		
+	
+	@staticmethod				
+	def folder( shell_or_path , into = '' , recursive = False , marshalize = False ):
+
 		shell = Normalize.shell( shell_or_path )
 
 		if recursive:
@@ -968,22 +972,28 @@ class Brain(object):
 			
 				
 			base_index = len( other['$PATH'] ) + 1
-
-			print '\n( brain << shell ) %s\n' % other['$PATH']  #'#Injecting Folder : %s\n' % other['$PATH'] 
 			
-			for relpath in other['$DIR']:
+			if other['$DIR']:
+			
+				print '\n( brain << shell ) %s\n' % other['$PATH']
+			
+				for relpath in other['$DIR']:
 				
-				dirname , name = os.path.split( relpath )
-									
-				space = getattr( other( dirname ) , name )
+					dirname , name = os.path.split( relpath )
+					
+					space = getattr( other( dirname ) , name )
 				
-				route = relpath.replace( '/' , '.' )
+					route = relpath.replace( '/' , '.' )
 												
-				self( route , space() , replace_att = True )
-	
-				print '     >> INFO brain.%s << %s' % ( route , relpath )
-
-			print
+					self( route , space() , replace_att = True )
+					
+					relative_path_to_space = Normalize.join( other['$NAME'] , relpath )
+					
+					for brain_route in self['routes']:
+					
+						print '     %s.%s << %s' % ( brain_route , name , relative_path_to_space )
+						
+				print
 			
 	
 		elif type(other).__name__ == 'Space':

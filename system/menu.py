@@ -39,6 +39,9 @@ brain.Lib.include.GUI_LOAD_QUEUED_TOOLSETS()
 
 
 sop.Core.lap( '/startup.medula.menu' )
+
+print 
+
 sop.Core.lap( '.startup' )
 
 if brain( 'FIRST_RUN' , False  ):

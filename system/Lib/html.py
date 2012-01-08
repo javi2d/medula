@@ -1,5 +1,11 @@
 
-def txt( txt , size = 3 , color = 'Silver' , bold = False , center = True ):
+
+
+
+
+
+
+def txt( txt , size = 3 , color = 'Silver' , bold = False , center = False ):
 	
 	txt = txt.replace( '\n' , '<br>')
 	
@@ -14,7 +20,7 @@ def txt( txt , size = 3 , color = 'Silver' , bold = False , center = True ):
 		base_html = '<center>%s</center>' %  base_html
 	
 	return base_html
-	
+
 	
 
 def icon( icon , size = 12  ):

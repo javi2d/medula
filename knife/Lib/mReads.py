@@ -207,20 +207,27 @@ def getClipname( default = None ): #, this = space.this
 	
 
 
+
+
+
 def read_from_write( this ):
+	
+	# file value of the write node
+	
+	nuke.executeInMainThreadWithResult( this.KNOBS.wm_refresh.execute )
 	
 	path = this.VALUES.file
 	
 	if not this.VALUES.wm_category == 'disabled' and not this.VALUES.wm_overwrite:
-
+			
 		import re 
 	
 		matches = re.findall( "_v\d+" , path, re.IGNORECASE)
 	
 		if matches:
-		
+
 			digits = matches[-1][2:]
-		
+	
 			version_padding = '_v%' + str( len ( digits ) ).zfill( 2 ) + 'd'
 			
 			version = ( ( int(digits) - 1 ) or 1 )
@@ -233,7 +240,12 @@ def read_from_write( this ):
 	
 	node = this( nuke.createNode('Read', inpanel = False )  )
 
-	node.KNOBS.file.fromUserText( path )
+	node.KNOBS.file.fromUserText( path )  #
+	
+	if this.VALUES.proxy:
+		
+		node.KNOBS.proxy.fromUserText( brain.Lib.sequence.proxy_res_path( path ) )
+	
 	
 	if '%' in path:
 

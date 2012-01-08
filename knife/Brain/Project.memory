@@ -6,9 +6,9 @@
 
 DEFAULT_RESOURCE = local( 'sessions' )['$PATH']
 
-DEFAULT_PROJECT  = '' #'sessionsProject'
+#DEFAULT_PROJECT  = '' #'sessionsProject'
 
-DEFAULT_UNIT     = '' #'sessions_from_%s' % Core.date()
+#DEFAULT_UNIT     = '' #'sessions_from_%s' % Core.date()
 
 
 SCRIPTS = 'nuke' 

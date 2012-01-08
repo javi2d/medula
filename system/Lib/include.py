@@ -44,7 +44,7 @@ def CALLBACKS( cb_space ):
 				
 				del brain.Callbacks[ cb_id ]
 				
-				print '\nDEBUG GLOBAL CALLBACK xx %s' % ( k )
+				#print '\nDEBUG GLOBAL CALLBACK xx %s' % ( k )
 				
 				
 			cb_add_function( v )
@@ -53,11 +53,11 @@ def CALLBACKS( cb_space ):
 			
 			brain.Callbacks[ cb_id ] = v
 			
-			print '\nDEBUG GLOBAL CALLBACK ++ %s >> %s' % ( k , cb_space['file'] )
+			#print '\nDEBUG GLOBAL CALLBACK ++ %s >> %s' % ( k , cb_space['file'] )
 			
-		else:
+		#else:
 			
-			print '\nDEBUG GLOBAL CALLBACK , WARNING : %s not match any nuke callback type' % k
+		#	print '\nDEBUG GLOBAL CALLBACK , WARNING : %s not match any nuke callback type' % k
 
 
 
@@ -79,14 +79,19 @@ def SHELL2MENU( shell_or_path , toolbar = 'Nuke' , memory = True ):
 	
 	shell = Normalize.shell( shell_or_path )
 
-	
 	ADD_RECURSIVE( shell )
 
 	bpaths = shell._.__bpaths__()
-
-	for bpath in bpaths:
-
-		_command2menuitem( bpath ,  toolbar = toolbar , memory = True )
+	
+	if bpaths:
+	
+		print '\n    >> Registering Commands [ %s ]\n' % shell['$PATH']
+	
+		for bpath in bpaths:
+		
+			print '            > %s' % Normalize.join( *bpath[1:] )
+		
+			_command2menuitem( bpath ,  toolbar = toolbar , memory = True )
 	
 
 
@@ -160,7 +165,7 @@ def ADD_FAV_ALIVE_RESOURCES():
 		
 		for H , R , path in brain.Lib.sources.alive_resources():	
 		
-			print '\nDEBUG ADD_FAV_ALIVE_RESOURCES' , H , R , path
+			#print '\nDEBUG ADD_FAV_ALIVE_RESOURCES' , H , R , path
 		
 			resource_label = '%s/%s' % ( H.lower() , R.upper() )
 			
@@ -173,7 +178,7 @@ def ADD_FAV_ALIVE_RESOURCES():
 			
 			nuke.executeInMainThreadWithResult( ADD_FAV , ( resource_label , resource_path ) )
 				
-			print '\n    @@@ Alive resource found %s = %s\n' % ( resource_label , resource_path )
+			print '\n@@ Alive resource found %s = %s\n' % ( resource_label , resource_path )
 			
 		
 	Core.thread( alive_resource_search ).start()
@@ -286,8 +291,6 @@ def GUI_LOAD_TOOLSET( shell , avoid = [] ):
 	toolset_name = shell['$NAME']
 			
 	if 'Panel' in FOLDERS:           
-		
-		print '\n    /Panel'
 
 		registerPanels( shell.Panel._ )
 		
@@ -296,16 +299,12 @@ def GUI_LOAD_TOOLSET( shell , avoid = [] ):
 	
 	
 	if 'ViewerProcess' in FOLDERS:   	
-	
-		print '\n    /ViewerProcess'
-		
+
 		registerViewerProcess( shell.ViewerProcess )
 		
 
 	
 	if 'Toolbar' in FOLDERS:
-		
-		print '\n    /Toolbar'
 		
 		SHELL2MENU( shell.Toolbar , None ) # folder based
 		
@@ -327,6 +326,8 @@ def GUI_LOAD_TOOLSET( shell , avoid = [] ):
 		
 		#print 'DEBUG .menu CONTENT', menu_brain['names']
 		
+		print '    >> Registering Folder as Menu [ %s ]' % name
+
 		if 'toolbar' not in menu_brain['names']:
 		
 			menu_brain( 'toolbar' , 'Nuke' )
@@ -364,10 +365,10 @@ def registerPanels(  panels_shell ):
 	
 	panel_files = panels_shell['$FILES *.panel']
 	
-	#print panel_files
-	
 	for path in panel_files:
-			
+		
+		print '\n    >> Registering panel [ %s ]' % os.path.basename( path )
+		
 		brain.Lib.panel3.Static_Panel( path )
 		
 		
@@ -381,10 +382,9 @@ def registerViewerProcess(  viewerProcess_shell ):
 
 	for path in files:
 
-		dirname, basename = os.path.split(path)
-		name, ext = os.path.splitext( basename )
+		dirname, basename , name, ext = Normalize.split( path )
 
-		print '      VP : %s' % basename
+		print '    >> Registering [ %s ] as ViewerProcess' % os.path.basename( basename )
 		
 		nuke.ViewerProcess.register( name , createViewerProcessNode , ( path , ) )
 

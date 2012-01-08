@@ -1,12 +1,12 @@
 
 
-TABS = [ 'Write.node' , 'Write_Management_v08.tab' ] #, 'Write_Tasking_v01.tab'  
 
-DEFAULTS = {
+nuke.knobDefault("Write.channels", "all")
+nuke.knobDefault("Write.jpeg._jpeg_quality", "1.0")
 
-'channels' : 'all' ,
 
-}
+
+TABS = [  'Write.node' , 'Write_Management_v08.tab'   ] #, 'Write_Tasking_v01.tab'  
 
 
 
@@ -126,8 +126,7 @@ def beforeRender( this ):
 	else:
 
 		dirname , basename = os.path.split( this.VALUES.proxy )
-
-
+	
 	# autocreate target render dirname
 
 	if not os.path.exists( dirname ):

@@ -6,9 +6,7 @@ class References:
 	auto_proxy = boolKnob( 'auto find proxy file' , True , flags = 'STARTLINE' )
 	
 	sep = sepKnob()
-	
-	#secondary_ref = fileKnob( 'secondary reference' , '' )
-	
+		
 	switch_source_ref = bttnKnob( 'switch src ref' , flags = 'STARTLINE' )
 	source_reference = fileKnob( '' , '' , clearflags = 'STARTLINE' )
 	
@@ -21,23 +19,6 @@ class References:
 	
 	find_proxy  = bttnKnob( 'find proxy' )
 	
-	sep3 = sepKnob()
-	
-	#show_extra_info = boolKnob( 'show extra info' , True , flags = 'STARTLINE' )
-	
-	#show_sources_extra_info = boolKnob( 'show sources extra info' , False , flags = 'STARTLINE' )
-
-
-
-#def colorize_node( this ):
-#	
-#	node_color = brain.Lib.path.path_color( this )
-#	
-#	this.KNOBS.tile_color.setValue( node_color )
-#	
-#	#print 'Color Change into:' , node_color , this.NODE.name()
-
-
 
 def switch_source_ref( this ):
 
@@ -56,7 +37,7 @@ def switch_source_ref( this ):
 
 def make_green( this ):
 
-	pass
+	nuke.message( 'Not Implemented : Use NodeGraph/knife_makeGreen/make_green ' )
 
 
 def colorize_node( this ):
@@ -71,7 +52,17 @@ def colorize_node( this ):
 	
 	this.NODE.redraw()
 
+
+def target_reference( this ):
 	
+	print 'Target REF Modified'	
+
+
+def onUserCreate( this ):
+	
+	if not this.ROOT.NODE.format().name():
+		
+		this.ROOT.KNOBS.format.setValue( this.NODE.format().name() )
 
 	
 
@@ -80,7 +71,7 @@ def onCreate( this ):
 	#print '> On Create'
 	
 	colorize_node( this )  #colorize_node( this )
-	
+
 	#print '<'
 	
 
@@ -110,36 +101,6 @@ def find_proxy( this ):
 
 
 
-#def proxy( this ):
-#	
-#	value = brain.Lib.path.normalize_padding( this.VALUES.proxy )
-#	
-#	if value:
-#		
-#		file_value = value.replace( '.PROXY' , '' )
-#		
-#		tmp = file_value
-#		
-#		if '%' in file_value:
-#
-#			tmp =  file_value % this.VALUES.first
-#		
-#		
-#		if os.path.exists( tmp ):
-#		
-#			this.KNOBS.file.setValue( file_value )
-#	
-#	
-#	print 'PROXY KNOB CHANGED'
-#	
-#	colorize_node( this )
-	
-	
-	
-	
-
-
-
 # Up version and down version triggers this callbacks
 	
 def autolabel( this ):
@@ -154,42 +115,14 @@ def autolabel( this ):
 	else:
 		
 		label += '\n'
-	
-	
+		
 	#label += '%sx%s\n' % ( this.NODE.width() , this.NODE.height() )
 	
 	file_metadata = this.NODE.metadata('input/filename' , nuke.frame() )
 	
-	
-	
 	basename_font = '<font color="Black" size=4>%s</font>\n'
-
-	#if file_metadata:
-	#	
-	#	basename = os.path.basename( file_metadata  )
-	#	
-	#	splitted =  basename.split( this.UNIT_ID )
-	#	
-	#	if len( splitted ) == 2:
-	#		
-	#		cat , tag = splitted
-	#		
-	#		label += '<b><font color="Black" size=3 >%s</font></b>\n' %  cat[:-1]
-	#		
-	#		label += '<b><font color="Black" size=2 >%s</font></b>\n' %  tag[1:]
-	#		
-	#	else:
-	#	
-	#		label += '<b><font color="White" size=5 >%s</font></b>\n' %  basename
-    #
-	#else:
 		
 	label += basename_font % os.path.basename( this.VALUES.file  )
-	
-	
-
-	
-	
 
 	label += '<b><font color="Black" size=5 >%s</font></b>\n' % ( 1 + this.NODE.lastFrame() - this.NODE.firstFrame() )
 	
@@ -219,9 +152,6 @@ def autolabel( this ):
 
 
 
-def target_reference( this ):
-	
-	print 'Target REF Modified'
 
 
 

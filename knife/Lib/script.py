@@ -12,66 +12,113 @@ def inject_src_host():
 
 
 
-def version_and_pattern( path ):
+#def version_and_pattern( path ):
+#	
+# 	'''Given a filename with version
+#	
+#	filename_id_v00.ext
+#	
+#	returns  int current_version, str pattern
+#	
+#	'''
+#	import re 
+#	
+#	dirname , basename , name , ext = Normalize.split( path )
+#	matches = re.findall( "_v\d+" , name, re.IGNORECASE)
+#
+#	version = None
+#	pattern = path
+#	
+#	if matches:
+#	
+#		digits = matches[-1][2:] # Last match from char 2  _v 0X
+#		
+#		version_padding = '_v%' + str( len ( digits ) ).zfill( 2 ) + 'd' # %0Xd
+#		
+#		name = name.replace( matches[-1] , version_padding )
+#		
+#		pattern = Normalize.join( dirname , name + ext )
+#		
+#		version = int(digits)
+#	
+#	return version , pattern
 	
- 	'''Given a filename with version
-	
-	filename_id_v00.ext
-	
-	returns  int current_version, str pattern
-	
-	'''
-	import re 
-	
-	dirname , basename , name , ext = Normalize.split( path )
-	matches = re.findall( "_v\d+" , name, re.IGNORECASE)
 
-	version = None
-	pattern = path
+
+#def next_version( path ):
+#
+#	version, pattern = version_and_pattern( path )
+#	
+#	dirname , basename , name , ext = Normalize.split( pattern )
+#	
+#	if version == None:
+#	
+#		pattern = Normalize.join( dirname , name + '_v%02d' + ext )
+#		version = 1
+#	
+#	
+#	name_id = name.split('%')[0]
+#	versions = sh( dirname )[ '$FILE_NAMES %s*' % name_id ]
+#	
+#	if not versions:
+#		
+#		return pattern % ( version + 1 )
+#		
+#	else:
+#		
+#		last_version, _ = version_and_pattern( versions[-1] )
+#	
+#		return pattern % ( last_version + 1 )
+
+
+
+def last_version( dirname , reference ): # reference can be 
+	
+	import re
+	
+	matches = re.findall( "_v\d+" , reference , re.IGNORECASE)
+	
+	last_version = 0
 	
 	if matches:
+		
+		reference = reference.split( matches[-1] )[0]
 	
-		digits = matches[-1][2:] # Last match from char 2  _v 0X
+	for P,D,F in Normalize.walk( dirname ):
 		
-		version_padding = '_v%' + str( len ( digits ) ).zfill( 2 ) + 'd' # %0Xd
-		
-		name = name.replace( matches[-1] , version_padding )
-		
-		pattern = Normalize.join( dirname , name + ext )
-		
-		version = int(digits)
+		matches  = [ re.findall( "_v\d+" , f , re.IGNORECASE) for f in F if f.startswith( reference ) ]
+
+		versions = [ int( m[-1][2:] ) for m in matches if m ] 
+
+		if versions:
+			
+			last_version = versions[-1]
+			
+		break
+				
+	return last_version	
 	
-	return version , pattern
 	
 
 
-def next_version( path ):
+def next_session():
 	
-	version, pattern = version_and_pattern( path )
+	sessions_scripts_path = Normalize.join( brain.Project.DEFAULT_RESOURCE , 'nuke' )
 	
-
-	dirname , basename , name , ext = Normalize.split( pattern )
+	session_script_prefix = 'Session'
 	
-	if version == None:
+	session_script_path = Normalize.join( sessions_scripts_path , session_script_prefix + '_v01' ) 
 	
-		pattern = Normalize.join( dirname , name + '_v%02d' + ext )
-		version = 1
-	
-	
-	name_id = name.split('%')[0]
-	versions = sh( dirname )[ '$FILE_NAMES %s*' % name_id ]
-	
-	if not versions:
+	if os.path.exists( sessions_scripts_path ):
 		
-		return pattern % ( version + 1 )
+		last_script_version = last_version( sessions_scripts_path , session_script_prefix )
 		
-	else:
-		
-		last_version, _ = version_and_pattern( versions[-1] )
+		session_script_path = Normalize.join( sessions_scripts_path , session_script_prefix + '_v%02d' % ( last_script_version + 1 ) )
 	
-		return pattern % ( last_version + 1 )
-
-
+	return session_script_path
+	
+	
+	
 
 def saveScript():
 
@@ -89,40 +136,53 @@ def saveScript():
 
 		saveScriptAs()
 
-
+	
+	
 
 def saveScriptAs():
 	
-	Core.lap('saveScriptAs')
-	
+
 	inject_src_host()
 	
-	default_path = ( this.ROOT.VALUES.name or this.DEFAULT_UNIT_PATH + '/session_v01' )
-	
-	Core.lap('/saveScriptAs')
-	
+	default_path = ( this.ROOT.VALUES.name or next_session() )  #
+
 	script_path = nuke.getFilename( 'Save Script As...' , '*.nk' , default = default_path , type = 'save' )
 	
-	if not script_path:
+	if script_path:
 		
-		Core.lap('.saveScriptAs')
+		dirname, basename , name, ext = Normalize.split( script_path )
 		
-		return
+		if os.path.exists( script_path ):
+			
+			last_script_version = last_version( dirname , name )
+			
+			if not last_script_version:
+				
+				next_script_version = name + '_v01'
+			
+			else:
+				
+				import re
+
+				matches = re.findall( "_v\d+" , name , re.IGNORECASE)
+				
+				next_script_version = name.replace( matches[-1] , '_v%02d' ) % ( last_script_version + 1 ) 
+				
 		
-		#raise RuntimeError('\n>> saveScriptAs Dialog Cancelled.\n')
-	
-	
-	
+			choice = nuke.choice( 'saveScriptAs' , 'File already exists' , [ 'raise to %s.nk' % next_script_version , 'overwrite %s' % basename  ] )
+			
+			if choice == 0:
+				
+				name = next_script_version
+						
+						
+		if '/' + brain.Project.SCRIPTS not in dirname:
 		
-	dirname, basename , name, ext = Normalize.split( script_path )
+			dirname = Normalize.join( dirname , brain.Project.SCRIPTS )
 	
-	if '/' + brain.Project.SCRIPTS not in dirname:
-		
-		dirname = Normalize.join( dirname , brain.Project.SCRIPTS )
+		sh( dirname )
 	
-	sh( dirname )
-	
-	nuke.scriptSaveAs( Normalize.join( dirname , name + '.nk' ) )
+		nuke.scriptSaveAs( Normalize.join( dirname , name + '.nk' ) , overwrite = 1 )
 
 	
 

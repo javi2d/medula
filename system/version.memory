@@ -2,9 +2,15 @@
 
 
 major_version = 1
-minor_version = 42
+minor_version = 43
 
 changeLog = '''
+
+@January 8 2012
+
+- The update panel now shows the current version of medula
+- Some Changes in Knife
+
 
 @January 4 2012
 
@@ -16,7 +22,7 @@ changeLog = '''
 
 @January 3 2012
 
-- Now Update Medula medula/version.memory to version control
+- Now Update Medula medula/system/version.memory to version control
 
 - Fixes in render commands, included new render Autowrite nodes
 

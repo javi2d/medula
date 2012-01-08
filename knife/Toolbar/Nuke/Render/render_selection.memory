@@ -3,5 +3,5 @@ hotkey = ''
 
 icon = None
 
-label = 'medula Show brain'
+label = 'Render Selection'
 

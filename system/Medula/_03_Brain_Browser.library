@@ -1,0 +1,83 @@
+
+
+def _walk( b , truncate = True ):
+
+	structure = []	
+
+	for name , value in sorted( b['items'] ):
+
+		if _type( value ) == 'Brain':
+
+			result = _walk( value  )
+
+			structure.append( ( name , value , result ) )
+
+		else:
+			
+			repr_value = repr( value )
+			
+			if truncate:
+				
+				limit = 60
+
+				repr_value = ( '%s...' % repr_value[:limit] if len( repr_value ) > limit else repr_value )
+			
+			structure.append( ( name , value , repr_value ) )
+
+	return structure
+
+
+def _brain_lines( this ):
+	
+	self = _brain_lines
+	
+	LINES = [ ]
+
+	done = [ ]
+
+	global_structure = [  _walk( _active_brain( this ) , truncate = this.VALUES.truncate   ) ]
+
+	self.level = 0
+	
+	def process_structure(  structure  ): #, level = 0
+		
+		prefix = '     ' * self.level
+		
+		for name , value , struct in structure:
+			
+			if _type( struct ) == 'list':
+				
+				if not this.VALUES.only_values:
+
+					if value not in done:
+					
+						LINES.append( '\n\n' + prefix + '[b] %s' % name  ) 
+
+						done.append( value )
+				
+						global_structure.append(  struct  )
+					
+						self.level += 1
+					
+						process_structure(  global_structure.pop(0) )
+					
+						self.level -= 1
+
+					
+					else:
+					
+						LINES.append( '\n\n' + prefix + '[b] %s < %s >' % (  name , value['routes'] ) )
+						
+			else:
+				
+				value_prefix = '\n' + prefix if prefix else '\n\n'
+				
+				LINES.append( value_prefix + '[v] %s = %s' %  (  name , struct ) )
+	
+		
+	while global_structure:
+		
+		process_structure( global_structure.pop(0) )
+		
+		
+	return LINES
