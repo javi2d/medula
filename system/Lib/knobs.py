@@ -317,7 +317,7 @@ def errorKnob( name , error = None ):
 	
 	error = error or 'ERROR!'
 	
-	knob = nuke.Text_Knob( name , '%s' % name ,  '<font size=4 color="red"> %s </font>' % error )#<p></p>
+	knob = nuke.Text_Knob( name , '%s' % name ,  '<font size=3 color="red"> %s </font>' % error )#<p></p>
 	return knob
 	
 		

@@ -6,9 +6,9 @@ def solve( path ):
 	
 	''' This happens when solving a .node file '''
 	
-	brain.Lib.nodeScript2.remove_applied_callbacks( path )
+	brain.Lib.nodeScript3.remove_applied_callbacks( path )
 	
-	nbrain = brain.Lib.nodeScript2.nodeBrain( path ) # this will refresh the nbrain
+	nbrain = brain.Lib.nodeScript3.nodeBrain( path ) # this will refresh the nbrain
 		
 	nbrain.applied_callbacks = []
 	
@@ -33,7 +33,7 @@ def refresh_node( this ):
 
 	if nbrain:
 		
-		nbrain = brain.Lib.nodeScript2.nodeBrain( nbrain.path )
+		nbrain = brain.Lib.nodeScript3.nodeBrain( nbrain.path )
 		
 		#print '\n>> DEBUG Refreshed Node : %s' % nbrain.basename
 		

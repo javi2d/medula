@@ -2944,14 +2944,16 @@ class Shell(object):
 				
 				all_paths.append(path)
 
-
+		
+		
+		
 		#all_paths = set(all_paths)  #sorted( list(set(all_paths)) )
 
 		# Get bpaths
 
 		bpaths = []
 
-		for path in all_paths:
+		for path in sorted(  all_paths , key = lambda item : item.lower()  ):   #all_paths:
 
 			bpath = [self.__path__ ]
 
@@ -2965,12 +2967,12 @@ class Shell(object):
 				bpaths.append( bpath )
 		
 		
-		def sort_filter( item ): 
-			
-			return  str( item )  #str( -1*len(item) ) +
-			
-		
-		bpaths = sorted( bpaths , key = sort_filter  ) #, reverse = True
+		#def sort_filter( item ): 
+		#	
+		#	return  str( item )  #str( -1*len(item) ) +
+		#	
+		#
+		#bpaths = sorted( bpaths , key = sort_filter  ) #, reverse = True
         
 		#print 'DEBUG bpath' + '\n'.join( [ str(x[1:]) for x in bpaths ] )
 

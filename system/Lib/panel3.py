@@ -9,7 +9,7 @@ def get_nbrain( path ):
 	
 	else:
 		
-		return [ brain.Lib.nodeScript2.nodeBrain( path ) , True ]
+		return [ brain.Lib.nodeScript3.nodeBrain( path ) , True ]
 		
 
 
@@ -110,7 +110,7 @@ class Dynamic_Panel(object):
 	def update_nbrain( self ):
 		
 		
-		self.nbrain = brain.Lib.nodeScript2.nodeBrain( self.path ) # always return the same structure, updated
+		self.nbrain = brain.Lib.nodeScript3.nodeBrain( self.path ) # always return the same structure, updated
 		
 		applied_callbacks = self.nbrain( 'applied_callbacks' , [] )
 
@@ -176,7 +176,6 @@ class Dynamic_Panel(object):
 			
 			except RuntimeError:
 				
-
 				print '\n>> WARNING! Error while adding %s knob to %s panel node. Usually knob name is duplicated.' % ( knob.name() , self.nbrain.name )
 		
 		

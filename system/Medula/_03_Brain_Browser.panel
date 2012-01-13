@@ -29,13 +29,17 @@ class User:
 	
 	result_txt = txtKnob( '' , ' '  )
 	
-	result_box = txtboxKnob( '' , ' ' , flags = 'INVISIBLE' )
+	result_box = txtboxKnob( '' , ' '  ) 
 
 
 
 def _dump_preset( this ):
-
-	preset_knobs = 'route only_values truncate editable'.split()
+	
+	return 
+	
+	# DONT APPLY ONLY FOR CODE MAINTENANCE
+	
+	preset_knobs = 'brains route only_values truncate editable'.split()
 	
 	#if this.KNOB.name() in preset_knobs:
 		
@@ -44,11 +48,18 @@ def _dump_preset( this ):
 	for knob_name in preset_knobs:
 		
 		presets( knob_name , this.VALUES( knob_name ) , replace_att = True )
-		
-	presets >> local._user( 'Brain/Brain_Browser.memory' )
+	
+	target = ( local._user if hasattr( local , '_user' )  else local.home )
+	
+	presets >> target( 'Brain/Brain_Browser.memory' )
 
 	
 def _load_preset( this ):
+	
+	return 
+	
+	# DONT APPLY ONLY FOR CODE MAINTENANCE
+	
 	
 	presets = brain( 'Brain_Browser' , Brain() )
 	
@@ -70,18 +81,18 @@ def knobChanged( this ):
 
 def update( this ):
 	
+	#Core.thread( nuke.executeInMainThreadWithResult , this.PANEL.show ).start()
+	
 	onCreate( this )
 	
 	
 def editable( this ):
 	
 	value = this.VALUES.editable
-	
-	print value
-			
+		
 	this.KNOBS.result_txt.setVisible( not value )
 	this.KNOBS.result_box.setVisible( value )
-	
+
 		
 	
 
@@ -122,6 +133,8 @@ def _update_result( this ):
 	
 	
 def onCreate( this ):
+	
+	this.KNOBS.result_box.setVisible( False )
 	
 	brains = [ b for b in dir( main ) if type( getattr( main , b ) ).__name__ == 'Brain' ]
 	

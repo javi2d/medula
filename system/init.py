@@ -1,15 +1,15 @@
 
 # this file is evaluated in main ( __main__ namespace )
 
-import sys
-try: sys.dont_write_bytecode = True
-except: pass
+#import sys
+#try: sys.dont_write_bytecode = True
+#except: pass
 
 #import sop_finder
 import sop
 
-try: sys.dont_write_bytecode = False
-except: pass
+#try: sys.dont_write_bytecode = False
+#except: pass
 
 
 #print sh.license['read']
@@ -27,12 +27,18 @@ if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
 sop.Expose.object(  medula( 'local' )  , 'local' )
 
 
+
+
 sop.Expose.modules( 'nuke nukescripts shutil math threading' )
 ## modules are exposed in main and sop
 
 
+
+
 brain.Lib << medula.system.Lib
 ## Load medula system Lib folder into brain
+
+
 
 
 # This line create a default 
@@ -50,6 +56,8 @@ brain.Lib.sources.normalize()
 
 # By default local.home is included, this just put the toolset in a queue, this dont load anything yet.
 brain.Lib.include.TOOLSET( local.home , recreate = True )
+
+
 
 
 # Executes the file medula/local/_init.py

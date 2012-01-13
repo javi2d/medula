@@ -4,7 +4,7 @@
 
 def update_nbrain( path ):
 	
-	nbrain = brain.Lib.nodeScript2.nodeBrain( path )
+	nbrain = brain.Lib.nodeScript3.nodeBrain( path )
 	# get the nbrain of the user node by path
 	
 	brain.nodeScript( 'byNode' , { } )[ nbrain.name ] = nbrain
@@ -133,7 +133,7 @@ def refresh_unode( nbrain_name ):
 	
 	nbrain = brain.nodeScript.byNode[ nbrain_name ]
 	
-	nbrain = brain.Lib.nodeScript2.nodeBrain( nbrain.path )	
+	nbrain = brain.Lib.nodeScript3.nodeBrain( nbrain.path )	
 	
 	brain.nodeScript.byNode[ nbrain.name ] = nbrain
 	

@@ -84,7 +84,7 @@ def SHELL2MENU( shell_or_path , toolbar = 'Nuke' , memory = True ):
 	bpaths = shell._.__bpaths__()
 	
 	if bpaths:
-	
+		
 		print '\n    >> Registering Commands [ %s ]\n' % shell['$PATH']
 	
 		for bpath in bpaths:
@@ -355,7 +355,7 @@ def registerUserNodes( toolset_shell ):
 	
 	for f in userNode_files:
 		
-		nbrain = brain.Lib.nodeScript2.nodeBrain( f )
+		nbrain = brain.Lib.nodeScript3.nodeBrain( f )
 
 		brain.nodeScript( 'byNode' , { } )[ nbrain.name ] = nbrain
 	
@@ -473,7 +473,22 @@ def find_icon(  bpath , ref ):
 	
 
 
+def _filter_name( name , pattern = "^_\d+_" ):
+
+	import re 
+
+	matches = re.findall( pattern , name, re.IGNORECASE)
+
+	if matches:
+
+		name = name.replace( matches[0] , '' , 1 )
+
+	return name.replace( '_' , ' ' ).lstrip()
+		
+
+
 def _command2menuitem( bpath , toolbar = None , memory = True ):
+	
 	
 	#print 'DBG1' ,  bpath , toolbar
 
@@ -497,8 +512,7 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 		#toolbar = toolbar_name
 		#cmd = auto_command
 		
-		
-		label = cmd_name
+		label = _filter_name( cmd_name  )
 		
 		hotkey = brain( 'Hotkeys.%s' % cmd_name , '' , create_att = False  )
 		
@@ -582,9 +596,10 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 		
 		todo_icons = list( os.path.split( bpath[0] ) ) + bpath[1:] 
 	
+	
+	
 	done = []
-	
-	
+		
 	submenu_routes = [ ]
 	
 	while todo_submenus:
@@ -626,18 +641,24 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 	
 	for submenu_route_string in submenu_routes:
 		
-		submenu_icon = find_icon_from_bpath( bpath , extend = ( 0 if toolbar else 1 ) )   
-			
+		submenu_icon = find_icon_from_bpath( bpath , extend = ( 0 if toolbar else 1 ) )
+		
+		#print '@@@@@@@' , submenu_route_string
+		
+		#submenu_route_string = '/'.join( [ _filter_name( i ) for i in submenu_route_string.split('/') ]  )
+		
 		nuke_menu.addMenu( submenu_route_string , submenu_icon  )
 		
 	
 	route.append( config.label )
-
+	
 	route_string = '/'.join( route )
 
 	hotkey = brain( 'Hotkeys.%s' % cmd_name , config.hotkey , create_att = False  )
 	
 	icon = config.icon or find_icon_from_bpath( bpath + [ cmd_name ] , extend = ( 0 if toolbar else 1 ))          
+	
+	
 	
 	
 	nuke_menu.addCommand( route_string , auto_command , hotkey , icon  )	 

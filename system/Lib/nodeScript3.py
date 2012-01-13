@@ -3,39 +3,6 @@
 # nodeBrain and support functions
 
 
-
-
-
-
-
-
-# Deprecated , use nuke.knobDefault directly
-
-#def knobDefault_processing( nbrain ):
-#	
-#
-#	if hasattr( nbrain.space , 'DEFAULTS' ):
-#
-#		for knobname , value in nbrain.space.DEFAULTS.items():
-#
-#			if type( value ).__name__ in [ 'tuple' , 'list' ]:  # (1,2,3) >> '1 2 3'  
-#
-#				value = ' '.join( [ str(v) for v in value ] )
-#
-#			else:
-#
-#				value = str( value )
-#
-#
-#			route = '.'.join( [ nbrain.name , knobname ] ) # node_class comes from function args
-#			
-#			print 'Setting knobDefault for %s = %s' % ( route , value )
-#			
-#			nuke.knobDefault( route , value )
-#
-
-
-
 def filter_tab_value( tab_value , nbrain ):
 	
 	tab_path = None
@@ -161,7 +128,7 @@ def compute_knobs_and_callbacks( nbrain ):
 		
 		tbrain =  brain.nodeScript.byBasename[ os.path.basename( tab_path ) ] # must exist cause is builded in tab processing
 		
-		nbrain.knobs.extend( __knobs( tbrain ) )
+		nbrain.knobs.extend( knobs_by_tokenize( tbrain ) )
 	
 		for k , v  in  __system_callbacks( tbrain ).items() :
 		
@@ -238,14 +205,6 @@ def nodeBrain( path , inTab = False ):
 	return nbrain
 
 
-		
-
-
-'''
-
-
-'''
-
 
 
 
@@ -295,97 +254,31 @@ def __getCallbacks( nspace ):
 
 
 
-def __knobs( nbrain ):
-	
-	#print '\n\n\n\n%s\n' % nbrain.path
-	
-	
-	#print 'getCOmbined'
-	
-	#print 'processing file   %s' % ( nbrain.name + nbrain.ext )
-	
-	#lines  = __stage0_Isolate_Classes( nbrain.path )
-	
-	#print 'generated lines %s : %s' % ( nbrain.name , lines )
-	
-	#result = __stage1_Process_Lines( lines )
-
-	#knobs  = __stage2_Process_Result( result , nbrain.space )
-	
-	
-	knobs_token = knobs_by_tokenize( nbrain.path , nbrain.space )
-	
-	#print '\n*******BY TOKENIZE KNOBS\n\n%s\n\n' %  knobs_token
-	
-	
-
-	#return knobs
-
-	return knobs_token
-
-
-def knobs_by_tokenize( path , nspace ):
-	
-
-	#isPath = os.path.basename( path ).startswith( 'Convertor_v02' )
+def knobs_by_tokenize( nbrain ):
 		
-	knobs = []
-
-	route = []
-
-	active = False
+	bspace =  Brain() << nbrain.space
 	
-	level = 0
-
-	bspace =  Brain() << nspace
-
-	opened_tabs = 0
-
+	knobs = []
+	
+	route = []
+	
 	names = []
 	
-	
-	
-	for line in brain.Lib.tokenize2.tokenize_classes( sh( path )['read'] ):
+	for line in brain.Lib.tokenize2.tokenize_classes( sh( nbrain.path )['read'] ):
 		
-
-		
-		if active and level == 0 :
-			
-			active = False
-			
-			route = []
-		
-
 		if line == '[':
 
 			pass
-
+			
 		elif line == ']':
 
-			if opened_tabs:
+			knobs.append(']')
 
-				level -= 1
-
-				knobs.append(']')
-
-				opened_tabs -= 1
-				
-				route.pop()
-
+			route.pop()
+		
 		else:
 			
-			
-			
-			isClass = line[0][1] == 'class'
-			
-			isVar = line[1][1] == '='
-			
-
-			if isClass:
-
-				level += 1
-
-				active = True
+			if line[0][1] == 'class':  # is class
 
 				name = line[1][1]
 
@@ -394,31 +287,42 @@ def knobs_by_tokenize( path , nspace ):
 				knobs.append('[')
 
 				knobs.append( nuke.Tab_Knob( name ) )
-
-				opened_tabs += 1
-
 			
-			elif active and isVar:
-
+			elif line[1][1] == '=':  # is knob
+				
 				name = line[0][1]
 
 				route.append( name )
 
 				joined_route = '.'.join( route ) 
 
-
 				knob = bspace( joined_route , None ) # La ruta debe existir en el espacio y deberia representar un knob
-
-				if knob and isinstance( knob , nuke.Knob ):
+				
+				if name in names:
+					
+					suffix = 1
+					
+					while 1:
+						
+						new_name = '%s_%02d' % ( name , suffix ) 
+						
+						if new_name not in names:
+							
+							break
+						
+					
+					error_msg = 'ERROR! DUPLICATED KNOB NAME %s' % joined_route
+					
+					knobs.append( brain.Lib.knobs.errorKnob( new_name , error_msg ) )
+				
+				
+				elif knob and isinstance( knob , nuke.Knob ):
 
 					knob.setName( name )			
 
 					knobs.append( knob )
 					
 					names.append( name )
-					
-					# ??? MIRAR SI HAY NOMBRES DUPLICADOS Y PONER UN ERROR KNOB
-					
 
 				else:
 					
@@ -426,21 +330,10 @@ def knobs_by_tokenize( path , nspace ):
 					
 					knobs.append( brain.Lib.knobs.errorKnob( name , error_msg ) )	
 
-
 				route.pop()
-			
+				
 
-			
-
-
-	for i in range( opened_tabs ):
-		
-		knobs.append(']')
-	
 	return knobs
-
-
-
 
 
 

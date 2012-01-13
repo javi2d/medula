@@ -24,7 +24,6 @@ brain.Lib.include.ADD_RECURSIVE( sh.Icons )
 
 
 brain.Lib.include.SHELL2MENU( sh.Medula , 'Nuke' )
-brain.Lib.include.SHELL2MENU( sh.Help , 'Nuke' )
 
 
 local( '_menu.py' )()
@@ -34,6 +33,7 @@ local( '_menu.py' )()
 brain.Lib.include.GUI_LOAD_QUEUED_TOOLSETS()
 ## Process GUI stuff for queued toolset
 
+brain.Lib.include.ADD_FAV( '[ local ]' , local['$PATH'] )
 
 #sop.Core.output_restore( )
 
@@ -52,9 +52,8 @@ if brain( 'FIRST_RUN' , False  ):
 	
 		sop.time.sleep(.75)
 
-		nuke.executeInMainThread( nuke.message , ( 'nuke medula successfully installed' , ) )
+		nuke.executeInMainThread( nuke.message , ( 'nuke medula successfully installed.\n\nA new toolset called "home" has been\ncreated under medula/local folder' ) )
 
 	sop.Core.thread( delayed_msg ).start()
 
-	
 #sop.sys.exit()

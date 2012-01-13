@@ -12,7 +12,9 @@ def tokenize( source ):
 	TOKENS = []
 	
 	for toktype, toktext, (srow,scol), (erow,ecol), line in tokenize.generate_tokens( source.readline ):
-	
+		
+		
+		
 		tokenID = token.tok_name[toktype]
 
 		bffr.append( ( tokenID , toktext ) )
@@ -25,7 +27,9 @@ def tokenize( source ):
 				item = (  bffr , line )
 			
 				TOKENS.append( item )
-
+				
+				
+				
 			bffr = []
 		
 		
@@ -84,6 +88,9 @@ def tokenize_classes( source ):
 		tokens = [ (ID,TK) for ID,TK in tokens if ID not in 'INDENT DEDENT'.split()  ]
 		
 		result.append( tokens )
+		
+
+		
 	
 	return result
 		
