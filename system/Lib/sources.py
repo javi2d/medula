@@ -73,7 +73,7 @@ def normalize_host( target ):
 		
 		brain.Sources << target
 		
-		print '\nAutomatically Updated Sources.memory file in %s toolset' % target['$PATH']  
+		print '\nAutomatically Updated Sources.memory' 
 	
 
 			

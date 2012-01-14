@@ -100,9 +100,9 @@ Knife knows the project of the script by the Sources system
 
 '''
 
-if not hasattr( sop , 'local' ):
-
-	local = sop.Expose.object(  medula( 'local' )  , 'local' )
+#if not hasattr( sop , 'local' ):
+#
+#	local = sop.Expose.object(  medula( 'local' )  , 'local' )
 
 local._user    = local( 'users/%s' % this.USER_ID )
 

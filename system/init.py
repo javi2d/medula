@@ -7,17 +7,19 @@ sop.Expose.object( sh( os.getcwd() ) , 'cwd' )
 
 sop.Expose.object( sh( '..' ) , 'medula' )
 
-sop.Expose.modules( 'nuke nukescripts shutil math threading' )
 ## modules are exposed in main and sop
+sop.Expose.modules( 'nuke nukescripts shutil math threading' )
 
 
 ## This is a trigger to show the welcome message to medula
 if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
 
-
-brain.Lib << medula.system.Lib
 ## Load medula system Lib folder into brain
+brain.Lib << medula.system.Lib
 
+
+## Local config
+sop.Expose.object(  medula( 'local' )  , 'local' )
 
 ## AUTOMATIC LOCAL CONFIGURATION
 medula( 'local/_init.py' )()
@@ -27,16 +29,13 @@ medula( 'local/_init.py' )()
 brain( 'Sources' , sop.Brain() )
 
 
-if not hasattr( sop , 'local' ):
-	
-	## Local config
-	sop.Expose.object(  medula( 'local' )  , 'local' )
-	
+if not brain( 'toolsets' , [] ):
+		
 	# By default local.home is included, this just put the toolset in a queue, this dont load anything yet.
-	brain.Lib.include.TOOLSET( local( 'home' ) , recreate = True )
+	brain.Lib.include.TOOLSET( medula.local( 'home' ) , recreate = True )
 	
 	# Pre-Process Sources
-	brain.Lib.sources.normalize_host( local.home( 'Brain/Sources.memory' ) )
+	brain.Lib.sources.normalize_host( medula.local.home( 'Brain/Sources.memory' ) )
 
 
 

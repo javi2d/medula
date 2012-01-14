@@ -140,8 +140,10 @@ def update( this ):
 		else:
 			
 			def ask():
-
-				brain.tmp.updater.do_update = nuke.ask( new_version_ask_msg % ( local_ver , github_ver , changelog ) ) 
+				
+				new_changelog = '@'.join( changelog.split('@')[:2] )
+				
+				brain.tmp.updater.do_update = nuke.ask( new_version_ask_msg % ( local_ver , github_ver , new_changelog ) ) 
 
 			nuke.executeInMainThreadWithResult( ask )
 		
