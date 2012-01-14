@@ -23,7 +23,7 @@ def knobChanged():
 	
 		script_path = Normalize.path( this.VALUE )
 	
-		brain.Lib.sources.normalize()
+		#brain.Lib.sources.normalize()
 	
 		match = None
 	

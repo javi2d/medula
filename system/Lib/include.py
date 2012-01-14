@@ -156,11 +156,10 @@ def ADD_FAV( fav , path ):
 
 def ADD_FAV_ALIVE_RESOURCES():
 	
+	#brain.Lib.sources.normalize()
 
 	def alive_resource_search():
-		
-		brain.Lib.sources.normalize()
-		
+
 		alive_resources = []
 		
 		for H , R , path in brain.Lib.sources.alive_resources():	
@@ -263,6 +262,10 @@ def LOAD_TOOLSET( shell_or_path , recreate = False , avoid = [] ):
 	
 			brain( name , Brain() ) << sh( path )
 			
+			if name == 'Sources':
+				
+				brain.Lib.sources.normalize()
+			
 			
 	if 'Node' in FOLDERS:
 
@@ -272,6 +275,7 @@ def LOAD_TOOLSET( shell_or_path , recreate = False , avoid = [] ):
 
 			node_space()  # call node file , trigger nodeSolver
 
+	
 	
 	registerUserNodes( shell )
 	

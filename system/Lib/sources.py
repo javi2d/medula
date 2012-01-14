@@ -59,20 +59,26 @@ def walk( ):
 			yield ( host , hostname , resource , local_resources , remote_resources )
 
 
-def add_current_host_to_sources():
+
+
+def normalize_host( target ):
+		
+	brain.Sources << target
 	
 	if this.HOSTLABEL not in brain.Sources['names']:
 		
-		# Add current host to Sources
+		new_code = 'class %s:\n\n\t_hostname = "%s"\n\n' % ( this.HOSTLABEL , this.HOSTNAME )
 		
-		brain.Sources( this.HOSTLABEL , Brain() )._hostname = this.HOSTNAME
+		target['append']( new_code , backup = False )
 		
-		brain.Sources >> local.home.Brain( 'Sources.memory' )
+		brain.Sources << target
 		
-		
-		
+		print '\nAutomatically Updated Sources.memory file in %s toolset' % target['$PATH']  
+	
 
-def normalize():
+			
+
+def normalize( ):
 	
 	#print '\n\n>> Normalizing Sources'
 
@@ -81,10 +87,10 @@ def normalize():
 
 		LR[:] = [ Normalize.path( p ) for p in LR ]
 		RR[:] = [ Normalize.path( p ) for p in RR ]
+
+	print '\n@msg: Sucessfully Normalized Sources\n' 
+
 		
-		#print brain.Sources( H )( R )
-	
-	#print 'debug end Normalize Sources'
 	
 
 

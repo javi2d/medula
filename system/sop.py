@@ -123,19 +123,28 @@ class Normalize:
 		
 		elif type( path_string ).__name__ in ['str','unicode']:
 			
-			normalized = os.path.normpath( path_string )
+			normalized = path_string
 			
-			normalized = os.path.expandvars( normalized )
+			#normalized = repr( path_string )
+			#normalized = os.path.normpath( normalized )
+			normalized = normalized.replace( '\\' , '/' ).rstrip(  '/' )	
 			
-			normalized = normalized.replace( '\\' , '/' ).strip()
-			
-			normalized = normalized.replace( r'\\' , '/' ).strip()
-			
-			#normalized = normalized.replace( '//' , '/' ).strip()
-			
-			if normalized.endswith('/'):
-				
-				normalized = normalized[:-1]
+			#normalized = os.path.normpath( path_string )	
+			#normalized = os.path.expandvars( normalized )
+			#normalized = normalized.strip().replace( r'\\' , '/' ).replace( '\\' , '/' ).rstrip(  '/' )
+			#normalized = os.path.normpath( normalized )
+	
+			#normalized = normalized.replace( '\\' , '/' ).strip()
+			#
+			#normalized = normalized.replace( r'\\' , '/' ).strip()
+			#
+			##normalized = normalized.replace( '//' , '/' ).strip()
+			#
+			#normalized = normalized.rstrip(  '/' )
+			#
+			#if normalized.endswith('/'):
+			#	
+			#	normalized = normalized[:-1]
 			
 			
 			return normalized
@@ -2212,7 +2221,7 @@ Try some of this:
 		
 		file_text = Normalize.code( self['read'] )	
 		
-		new_text = Normalize.code( new_text ).split('\n')
+		new_text = Normalize.code( new_text ).split('\n')[:-2]
 		
 		old_text = file_text.split('\n') 	
 	

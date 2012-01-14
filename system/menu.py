@@ -26,7 +26,7 @@ brain.Lib.include.ADD_RECURSIVE( sh.Icons )
 brain.Lib.include.SHELL2MENU( sh.Medula , 'Nuke' )
 
 
-local( '_menu.py' )()
+medula.local( '_menu.py' )()
 ## Execute user/local config.menu
 
 

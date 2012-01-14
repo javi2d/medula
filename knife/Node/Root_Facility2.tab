@@ -127,7 +127,7 @@ def relink( this ):
 
 def _RELINK2( node ):
 	
-	brain.Lib.sources.normalize()
+	#brain.Lib.sources.normalize()
 	
 	file_value = this( node ).VALUES.file
 	
@@ -192,7 +192,7 @@ def _RELINK2( node ):
 	
 def _RELINK( node ):
 	
-	brain.Lib.sources.normalize()
+	#brain.Lib.sources.normalize()
 	
 	file_value = this( node ).VALUES.file
 	

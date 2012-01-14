@@ -1,72 +1,46 @@
 
 # this file is evaluated in main ( __main__ namespace )
 
-#import sys
-#try: sys.dont_write_bytecode = True
-#except: pass
-
-#import sop_finder
 import sop
-
-#try: sys.dont_write_bytecode = False
-#except: pass
-
-
-#print sh.license['read']
-
 
 sop.Expose.object( sh( os.getcwd() ) , 'cwd' )
 
 sop.Expose.object( sh( '..' ) , 'medula' )
 
-
-## This is a trigger to show the welcome message to medula
-if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
-
-## Local config
-sop.Expose.object(  medula( 'local' )  , 'local' )
-
-
-
-
 sop.Expose.modules( 'nuke nukescripts shutil math threading' )
 ## modules are exposed in main and sop
 
 
+## This is a trigger to show the welcome message to medula
+if 'local' not in medula['$FOLDER_NAMES']: brain.FIRST_RUN = True
 
 
 brain.Lib << medula.system.Lib
 ## Load medula system Lib folder into brain
 
 
+## AUTOMATIC LOCAL CONFIGURATION
+medula( 'local/_init.py' )()
 
 
-# This line create a default 
-local( 'home' )
+## AUTOMATIC LOCAL CONFIGURATION
+brain( 'Sources' , sop.Brain() )
 
 
-
-# Load the Sources.memory file
-brain.Sources << local.home( 'Brain/Sources.memory' )
-
-brain.Lib.sources.add_current_host_to_sources()
-
-brain.Lib.sources.normalize()
-
-
-# By default local.home is included, this just put the toolset in a queue, this dont load anything yet.
-brain.Lib.include.TOOLSET( local.home , recreate = True )
-
-
-
-
-# Executes the file medula/local/_init.py
-local( '_init.py' )()
+if not hasattr( sop , 'local' ):
+	
+	## Local config
+	sop.Expose.object(  medula( 'local' )  , 'local' )
+	
+	# By default local.home is included, this just put the toolset in a queue, this dont load anything yet.
+	brain.Lib.include.TOOLSET( local( 'home' ) , recreate = True )
+	
+	# Pre-Process Sources
+	brain.Lib.sources.normalize_host( local.home( 'Brain/Sources.memory' ) )
 
 
 
 ## INCLUDED TOOLSETS PROCESSING
-
 
 sop.Core.lap( 'startup.medula.init' )
 ## Start tag lapse 
@@ -78,10 +52,7 @@ sop.Core.lap( 'startup.medula.init' )
 
 
 brain.Lib.include.LOAD_QUEUED_TOOLSETS()
-
 ## Load all queued toolsets
-
-
 
 
 #sop.Core.output_restore( )
@@ -89,7 +60,6 @@ brain.Lib.include.LOAD_QUEUED_TOOLSETS()
 
 sop.Core.lap( '/startup.medula.init' )
 ## Stop tag lapse 
-
 
 
 #sop.sys.exit()

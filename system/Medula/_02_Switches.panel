@@ -11,14 +11,7 @@ class User:
 	
 def normalize_sources( this ):
 	
-	
-	brain.Sources << local.home.Brain( 'Sources.memory' )
-	
-	brain.Lib.sources.add_current_host_to_sources()
-	
 	brain.Lib.sources.normalize()
-	
-	brain.Sources >> local.home.Brain( 'Sources.memory' )
 	
 
 def auto_refresh_node( this ):

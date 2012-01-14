@@ -2,9 +2,18 @@
 
 
 major_version = 1
-minor_version = 44
+minor_version = 45
 
 changeLog = '''
+
+@January 14 2012 v1.45
+
+- New 'maybe risky' in sop.Normalize.path with path normalization 
+- Change the way Sources are normalized
+- added Lib.sources.normalize_host to append the current host to Sources
+- Deactivated memory dump in brain browser
+- Now 'local' can be redefined safely??
+
 
 @January 8 2012 v1.44
 

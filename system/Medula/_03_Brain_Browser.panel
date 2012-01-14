@@ -39,19 +39,29 @@ def _dump_preset( this ):
 	
 	# DONT APPLY ONLY FOR CODE MAINTENANCE
 	
-	preset_knobs = 'brains route only_values truncate editable'.split()
+	target = None
 	
-	#if this.KNOB.name() in preset_knobs:
+	if brain( 'toolsets' , [] ):
 		
-	presets = brain( 'Brain_Browser' , Brain() )
+		target = brain.toolsets[0][0]
+
 	
-	for knob_name in preset_knobs:
+	if target:
+	
+		preset_knobs = 'brains route only_values truncate editable'.split()
 		
-		presets( knob_name , this.VALUES( knob_name ) , replace_att = True )
+		presets = brain( 'Brain_Browser' , Brain() )
 	
-	target = ( local._user if hasattr( local , '_user' )  else local.home )
-	
-	presets >> target( 'Brain/Brain_Browser.memory' )
+		for knob_name in preset_knobs:
+		
+			presets( knob_name , this.VALUES( knob_name ) , replace_att = True )
+
+		presets >> target( 'Brain/Brain_Browser.memory' )
+		
+		
+	else:
+		
+		print 'WARNING ! No toolsets have loaded'
 
 	
 def _load_preset( this ):
@@ -59,7 +69,6 @@ def _load_preset( this ):
 	return 
 	
 	# DONT APPLY ONLY FOR CODE MAINTENANCE
-	
 	
 	presets = brain( 'Brain_Browser' , Brain() )
 	
