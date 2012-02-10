@@ -1,0 +1,15 @@
+
+
+class Content:
+	
+	content_file = fileKnob( 'content file' , '' )
+	
+
+def autolabel( this ):
+	
+	content_file = this.VALUES.content_file
+	
+	if content_file:
+		
+		return '<left>                                  ' + content_file
+		

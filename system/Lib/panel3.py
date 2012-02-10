@@ -158,7 +158,7 @@ class Dynamic_Panel(object):
 			
 			#self.nbrain.name.replace( '_' , ' ' )
 				
-			panel = Dialog( Normalize.label( self.nbrain.name ) , self.nbrain.name ) #pyui.
+			panel = Dialog( sop.Normalize.label( self.nbrain.name ) , self.nbrain.name ) #pyui.
 		
 		
 		node  = nuke.PanelNode() 
@@ -283,7 +283,7 @@ class Dynamic_Panel(object):
 
 		def onSysCallback( panel_id  , cbname ):
 			
-			this = space.this() # current context, this.NODE is well defined
+			this = space.this() # current context, this.NODE is well defined  space.
 			
 			nbrain = brain.nodeScript.byPanel[ panel_id ]
 			

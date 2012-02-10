@@ -11,7 +11,7 @@ def lib_compare_versions():
 
 		changeLog = ''
 	
-	local_medula_version = ( Brain() << defaultVersion ) << medula.system( 'version.memory' )
+	local_medula_version = ( sop.Brain() << defaultVersion ) << medula.system( 'version.memory' )
 	
 	try:
 	
@@ -27,7 +27,7 @@ def lib_compare_versions():
 		
 	github_version_memory['rewrite']( github_medula_version )
 	
-	github_medula_version = Brain() << github_version_memory
+	github_medula_version = sop.Brain() << github_version_memory
 	
 	local_version = '%s.%s' % ( local_medula_version.major_version , local_medula_version.minor_version )
 	
@@ -57,7 +57,7 @@ def lib_download_and_unzip_master_branch():
 		
 		return False
 	
-	target_local_zip_file = Normalize.join(  downloads_path , 'medula_current.zip' )
+	target_local_zip_file = sop.Normalize.join(  downloads_path , 'medula_current.zip' )
 			
 	with open( target_local_zip_file , 'wb' ) as mzip:
 		
@@ -97,9 +97,9 @@ def lib_download_and_unzip_master_branch():
 	
 	medula_zip.extractall( downloads_path )
 
-	medula_unzipped_folder = Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
+	medula_unzipped_folder = sop.Normalize.path( medula_zip.namelist()[0] ).split('/')[0]
 	
-	return sh( downloads_path )( medula_unzipped_folder )
+	return sop.sh( downloads_path )( medula_unzipped_folder )
 	
 	
 def lib_switch_versions( new_medula_version_shell , backup_shell ):

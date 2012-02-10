@@ -1,0 +1,58 @@
+
+
+Class = 'BackdropNode'
+
+
+class Convertor:
+	
+	node_id = idKnob( 'Convertor' ) # id knobs are always hidden
+	
+	target = fileKnob('Target Folder' , '' )
+	
+	sep = sepKnob( ' ' )
+	
+	folderize = boolKnob( 'Folderize Sequences' , 'True' , flags = 'STARTLINE')
+	
+	
+	
+	sep2 = sepKnob( ' ' )
+	
+	add_ref_write = bttnKnob('  Add Reference Write  ', flags  = 'STARTLINE')
+	
+	convert = bttnKnob('  Convert  ')
+	
+	# TODO : priority checkbox
+	
+
+def onCreate( this ):
+	
+	this.NODE.setName( 'Convertor' )
+	
+	this.KNOBS.note_font_size.setValue( 20 )
+	this.KNOBS.bdheight.setValue( this.VALUES.bdheight + 100 )
+
+
+def add_ref_write( this ):
+	
+	write = nuke.nodes.Write()
+	
+	write.knobs()['file_type'].setValue('mov')
+	
+	write.knobs()['label'].setValue( '[ python sh._.Convertor_Write_Info.cmd().Output ]' )
+
+
+def convert( this ):
+	
+	other = [ n for n in nuke.selectedNodes() if not n.Class() == 'Write' and not n == this.NODE  ]
+	
+	other = [ j for i,j in sorted( [ ( n.xpos() , n )  for n in other ] ) ]
+	
+	writes = [ n for n in nuke.selectedNodes() if n.Class() == 'Write' ]
+	
+	writes = [ j for i,j in sorted( [ ( n.xpos() , n )  for n in writes ] ) ]
+	
+	
+	#for n in other:
+	#	
+	#	print n.firstFrame() , n.lastFrame() , nuke.metadata( 'convertor/output_name' )
+	

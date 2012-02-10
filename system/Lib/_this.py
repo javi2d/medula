@@ -7,7 +7,7 @@ class this(object):
 	
 	__counter__ = 0
 	
-	__ext__ = Brain()
+	__ext__ = sop.Brain()
 	
 	
 	def __init__(self , NODE = None , KNOB = None ):
@@ -75,8 +75,8 @@ class this(object):
 		######################################################		
 		# NODES AND KNOBS
 		
-		
-		
+
+			
 		
 		elif att == 'ROOT':
 			
@@ -95,7 +95,11 @@ class this(object):
 			return nuke.Root()
 			
 		
-				
+		elif att == 'THIS_NODE':
+			
+			new_this = this( this.NODE , this.KNOB )
+			return new_this
+					
 		
 		elif att == 'NODE':
 			
@@ -110,8 +114,10 @@ class this(object):
 			
 			try:
         
-				node.knobs()
+				#node.knobs()
 				
+				node.name()
+
 				return node #self.NODE
         
 			except:
@@ -164,7 +170,7 @@ class this(object):
 			
 			if node:
 			
-				KNOBS = Brain()
+				KNOBS = sop.Brain()
 				
 				for knob_name , knb in node.knobs().items():
 					
@@ -180,7 +186,7 @@ class this(object):
 			if type( node ).__name__ == 'PanelNode':
 				
 				knobs = [ self.KNOBS( k.name() ) for k in self.PANEL_NBRAIN.knobs if k not in '[ ]'.split() and k.name() in self.KNOBS['names']]
-				
+	
 				return knobs
 
 			elif hasattr( node , 'allKnobs' ):
@@ -232,7 +238,7 @@ class this(object):
 			
 			if node:
 			
-				VALUES = Brain()
+				VALUES = sop.Brain()
 				
 				for knob_name , knb in node.knobs().items():
 					
@@ -247,18 +253,18 @@ class this(object):
 			
 			if isinstance( NODE, nuke.PanelNode ):
 				
-				return main.brain('DATA.PANELS.%s' % NODE.knobs()['panel_id'].value().replace('.','_') , Brain() )
+				return main.brain('DATA.PANELS.%s' % NODE.knobs()['panel_id'].value().replace('.','_') , sop.Brain() )
 			
 			else:
 				
-				return main.brain('DATA.NODES.%s' % NODE.Class() , Brain() )
+				return main.brain('DATA.NODES.%s' % NODE.Class() , sop.Brain() )
 		
 				
 		elif att == 'NODES':
 			
 			Node = self.NODE  #( self._NODE or nuke.thisNode() )
 			
-			NODES = Brain()
+			NODES = sop.Brain()
 			
 			if isinstance( Node, nuke.Group ):
 				
@@ -279,7 +285,7 @@ class this(object):
 			
 			Node = self.NODE  # ( self._NODE or nuke.thisNode() )
 			
-			NODES = Brain()
+			NODES = sop.Brain()
 			
 			if isinstance( Node, nuke.Group ):
 				
@@ -350,7 +356,7 @@ class this(object):
 
 			Node = self.NODE  # ( self._NODE or nuke.thisNode() )
 			
-			NODES = Brain()
+			NODES = sop.Brain()
 			
 			if isinstance( Node, nuke.Group ):
 				
@@ -493,7 +499,7 @@ class this(object):
 			
 			if tcl_value:
 				
-				return Normalize.path( tcl_value )
+				return sop.Normalize.path( tcl_value )
 				
 			else:
 				
@@ -512,7 +518,7 @@ class this(object):
 			
 			if self.SCRIPT_PATH:
 	
-				return Normalize.dirname( self.SCRIPT_PATH )
+				return sop.Normalize.dirname( self.SCRIPT_PATH )
 
 
 

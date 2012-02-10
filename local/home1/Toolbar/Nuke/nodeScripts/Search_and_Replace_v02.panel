@@ -1,0 +1,58 @@
+
+
+
+
+class User:
+	
+	search_for = strKnob(  'search for' , '' , Tooltip = 'Enter here the string to search for' )
+	
+	replace_with = fileKnob( 'replace with' , '' , 
+					Tooltip = 'Enter here the string to replace with' )
+	
+	mode = enumKnob( 'mode' , [ 'all' , 'selected' ] )
+	replace = bttnKnob( 'replace' )
+
+
+def replace( this ):
+
+	panel_node = nuke.thisNode()
+	search_for_value = panel_node.knobs()['search_for'].value()	
+	replace_with_value = panel_node.knobs()['replace_with'].value()
+	mode_value = panel_node.knobs()['mode'].value()
+
+	if mode_value == 'all':
+
+		SRC_NODES = nuke.allNodes()
+
+	elif mode_value == 'selected':
+
+		SRC_NODES = nuke.selectedNodes()
+
+
+	for node in [ n for n in SRC_NODES if 'file' in n.knobs() ]:
+
+		value = node['file'].value()	
+		new_value = value.replace( search_for_value , replace_with_value )		
+		node['file'].setValue( new_value )
+
+
+def knobChanged( this ):
+	
+	knob_values = this.NODE.writeKnobs( nuke.WRITE_ALL | nuke.TO_VALUE | nuke.TO_SCRIPT )
+	
+	brain.Search_and_Replace.savedKnobs = knob_values
+	
+	
+def onCreate( this ):
+	
+	saved_knobs = brain.Search_and_Replace( 'savedKnobs' , '' , create_att = False )
+	
+	this.NODE.readKnobs( saved_knobs )
+	
+	
+	
+def search_for( this ):
+	
+	pass
+	
+

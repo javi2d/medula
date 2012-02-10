@@ -1,0 +1,156 @@
+
+
+'''
+Create new tool or open existing
+'''
+
+
+BRAIN = sop.tmp( 'Medula_Tool_Manager' , sop.sop.Brain() )
+
+
+def SIZE( size ):
+	
+	return [ ' '*size for _ in range( 1000 ) ]
+
+
+class User:
+	
+	#mode = enumKnob( 'mode', [ 'open' , 'new' ] , clearflags = 'STARTLINE' )
+	#sep = sepKnob()
+	
+	msg1   = sepKnob( 'you are in <b>%s</b> schema' % sop.tmp.schema_brain.SCHEMA )
+	
+	sep = sepKnob()
+	
+	roots   = enumKnob( 'browser' , SIZE(30) )
+	
+	route  = strKnob( '' , '' , clearflags = 'STARTLINE' )
+	
+	choices = enumKnob( '' , SIZE(5) , clearflags = 'STARTLINE')
+	
+	recursive_results = enumKnob( '' , SIZE(5) , clearflags = 'STARTLINE')
+	
+	
+	sep2 = sepKnob()
+	
+	#switcher = bttnKnob( 'edit' )
+	
+	results = enumKnob( 'results' , SIZE(30) )
+	
+	tool_name = strKnob( '' , '' , clearflags = 'STARTLINE')
+		
+	tool_exts = enumKnob( '' , SIZE(20) , clearflags = 'STARTLINE' )
+	
+	tool_save  = bttnKnob( 'save' , clearflags = 'STARTLINE' , flags = 'DISABLED' )
+	
+	
+	
+	mem_label = strKnob( 'label' , '' )
+	
+	mem_hotkey = strKnob( '    hotkey   ' , '' , clearflags = 'STARTLINE')
+	
+	mem_icon = enumKnob( '    icon   ' , [] , clearflags = 'STARTLINE')
+	
+	
+	
+	#recursive = boolKnob( 'recursive' , False )
+	
+	sep3 = sepKnob()
+	
+	#class tool:
+	
+
+	
+	tool_code  = txtboxKnob( '' , ' \n'*100 )
+		
+		
+	#class memory:
+		
+
+		
+	
+	#class code:
+	#	
+	#	#code_basename  = linkKnob( '' , 'tool_name'  )
+	#	
+	#	#code_extension = linkKnob( '' , 'tool_exts' , clearflags = 'STARTLINE' )
+    #
+	#	code_code  = txtboxKnob( '' , '\n'*100 )
+		
+	
+	
+		#code_upgrade  = bttnKnob( 'upgrade' )
+	
+	
+	#target    = strKnob( 'target' , ''  ) #, clearflags = 'STARTLINE'
+	
+	#operation = enumKnob( '' , [ '.' , 'load' , 'edit' , 'edit here' , 'rename' ] , clearflags = 'STARTLINE' )
+	
+
+	#sep5 = sepKnob( ' '*300 , clearflags = 'ENDLINE')
+	
+
+	
+	
+
+
+# LIBRARY EXTENSION INJECTION
+space <<  ( space['name'] + '.library' )
+
+
+def recursive( this ):
+	
+	this.KNOBS.results.setValue( 0 )
+
+
+
+def onCreate( this ):
+
+	@brain.Lib.sugar.nuke_thread
+	def thread():
+
+		_update_all( this )
+		time.sleep( .01 )
+	
+	sop.Core.thread( thread ).start()
+
+
+
+def knobChanged( this ):
+	
+	print '@ knobChanged %s ' % this.KNOB.name() 
+	
+	_update_all( this )
+	
+	
+def choices( this ):
+	
+	print '@ choices'
+	
+	value = this.VALUES.choices
+	
+	route = this.VALUES.route
+	
+	if value == '.':
+		
+		return
+	
+	
+	if value == '..':
+		
+		new_value = os.path.dirname( route )
+	
+	else:
+		
+		new_value = sop.Normalize.join( route , value )
+		
+		
+	this.KNOBS.route.setValue( new_value )	
+	
+	this.KNOBS.choices.setValue( '.' ) 
+	
+
+
+
+	
+

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Toolbar/Nuke/File
+END
+join_shot.menu
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Toolbar/Nuke/File/join_shot.menu
+END
+Safe_Save.py
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Toolbar/Nuke/File/Safe_Save.py
+END
+Safe_Save_As.py
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Toolbar/Nuke/File/Safe_Save_As.py
+END
+Soft_Reload.py
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Toolbar/Nuke/File/Soft_Reload.py
+END
+join_shot.panel
+K 25
+svn:wc:ra_dav:version-url
+V 111
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Toolbar/Nuke/File/join_shot.panel
+END
+Safe_Save_Template.py
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Toolbar/Nuke/File/Safe_Save_Template.py
+END

@@ -18,35 +18,63 @@ sop.Core.lap( 'startup.medula.menu' )
 #sop.Core.output_redirect( logs( '%s.init.log' % this.HOSTLABEL )['file']  )
 ## Redirect output to a log file
 
-
-# Initialize the icons folder
-brain.Lib.include.ADD_RECURSIVE( sh.Icons )
-
-
-brain.Lib.include.SHELL2MENU( sh.Medula , 'Nuke' )
+## Redirect output to __stdout__
+sop.Core.output_redirect()
 
 
-medula.local( '_menu.py' )()
-## Execute user/local config.menu
+if not sop.tmp.schema_brain.SCHEMA == None:
+	
+	# Initialize the icons folder
+	brain.Lib.include.ADD_RECURSIVE( sop.sh.Icons )
 
 
-brain.Lib.include.GUI_LOAD_QUEUED_TOOLSETS()
-## Process GUI stuff for queued toolset
+	brain.Lib.include.SHELL2MENU( sop.sh.Medula , 'Nuke' )
+	
 
-brain.Lib.include.ADD_FAV( '[ local ]' , local['$PATH'] )
+	if sop.tmp.schema_brain.SCHEMA:
 
-#sop.Core.output_restore( )
+		print '\n\n\n-------------------- BREAKPOINT Before Process GUI ------------------------------\n\n\n'
+
+		sop.tmp.schema_config.onMenuStage()
+
+		print '\n\n\n-------------------- 1 ------------------------------\n\n\n'
+
+		brain.Lib.include.GUI_LOAD_QUEUED_TOOLSETS()
+		## Process GUI stuff for queued toolset
+
+
+		print '\n\n\n-------------------- 2 ------------------------------\n\n\n'
+
+		#load queued bookmarks
+		brain.Lib.include.BOOKMARKS()
+
+		print '\n\n\n-------------------- BREAKPOINT After Process GUI ------------------------------\n\n\n'
+
+
+print '--------- %s %s ----------\n\n\n' % ( sop.Core.date() , sop.Core.time() )
+
+
+
+print '\n\n\n-------------------- END OF system/init.py file ------------------------------\n\n\n'
+
+
+
+
+
+
+sop.Core.output_restore( )
 
 
 sop.Core.lap( '/startup.medula.menu' )
 
 print 
 
+
+
 sop.Core.lap( '.startup' )
 
+
 if brain( 'FIRST_RUN' , False  ):
-	
-	del brain.FIRST_RUN
 	
 	def delayed_msg():
 	
@@ -56,4 +84,11 @@ if brain( 'FIRST_RUN' , False  ):
 
 	sop.Core.thread( delayed_msg ).start()
 
+del brain.FIRST_RUN
+	
+	
+
 #sop.sys.exit()
+
+
+

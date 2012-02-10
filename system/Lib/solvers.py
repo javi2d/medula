@@ -1,7 +1,7 @@
 
 
 		
-#class plaintextSolver(Solver):
+#class plaintextSolver( sop.Solver ):
 #	
 #	tag = 'plaintext'
 #	targets = [ '.txt' ]
@@ -20,18 +20,31 @@
 
 
 
+class pythonSolver( sop.Solver ):
+
+	tag = 'python/marshal'
+
+	targets = [ '.py', '.pyc', '.pyo', '.marshal' ]
+
+	def __solve__(self):
+		
+		sop.Core.execution( self.path , self.space)
+		
+pythonSolver()
 
 
 
 
-class knobsSolver(Solver):
+
+
+class knobsSolver( sop.Solver ):
 
 	tag = 'knobs'
 	targets = [ '.knobs'  ]
 
 	def __solve__(self):
 		
-		knobs_space = sh( self.path )
+		knobs_space = sop.sh( self.path )
 
 		knobs_space << brain.Lib.knobs
 
@@ -46,21 +59,21 @@ knobsSolver()
 
 
 
-class userNodeSolver( Solver ):
+class userNodeSolver( sop.Solver ):
 	
 	tag = 'userNode'
 	targets = ['.userNode','.uNode']
 	
 	def __solve__(self):
 		
-		brain.Lib.userNodes4.solve( self.path )
+		brain.Lib.userNodes5.solve( self.path )
 
 userNodeSolver()
 
 
 
 		
-class nodeSolver( Solver ):
+class nodeSolver( sop.Solver ):
 	
 	tag = 'node'
 	targets = ['.node']
@@ -78,7 +91,7 @@ nodeSolver()
 
 
 	
-class panelSolver(Solver):
+class panelSolver( sop.Solver ):
 
 	tag = 'panel'
 	targets = [ '.panel' , '.mpanel' ]
@@ -102,7 +115,7 @@ panelSolver()
 
 
 
-class templateSolver( Solver ):
+class templateSolver( sop.Solver ):
 	
 	tag = 'template'
 	targets = ['.nk']
@@ -132,7 +145,11 @@ class templateSolver( Solver ):
 templateSolver() 			
 
 
-class gizmoSolver(Solver):
+
+
+
+
+class gizmoSolver( sop.Solver ):
 	
 	tag = 'gizmo'
 	targets = [ '.gizmo' ]
@@ -155,31 +172,15 @@ gizmoSolver()
 
 
 
-
-
-class pythonSolver(Solver):
-
-	tag = 'python/marshal'
-
-	targets = [ '.py', '.pyc', '.pyo', '.marshal' ]
-
-	def __solve__(self):
 		
-		Core.execution( self.path , self.space)
-		
-pythonSolver()
-
-
-
-		
-class commandSolver(Solver):
+class commandSolver( sop.Solver ):
 
 	tag = 'cmd'
 	targets = [ '.cmd' ]
 
 	def __solve__(self):
 
-		Core.execution( self.path , self.space)
+		sop.Core.execution( self.path , self.space)
 
 commandSolver()
 

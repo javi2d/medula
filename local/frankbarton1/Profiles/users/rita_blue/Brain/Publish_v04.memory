@@ -1,0 +1,15 @@
+
+ADIVINA_ENTREGAS = 'tmpl_preset_name ADIVINA_ENTREGAS\ntmpl_target_folder S:/PARA_FLAME_NAS2/adivina/ENTREGAS/SACO\ntmpl_date false\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
+
+ADIVINA_PRESENTACIONES = 'tmpl_preset_name ADIVINA_PRESENTACIONES\ntmpl_target_folder S:/PARA_FLAME_NAS2/adivina/PRESENTACIONES\ntmpl_date false\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
+
+PARA_FLAME = 'tmpl_preset_name PARA_FLAME\ntmpl_target_folder S:/PARA_FLAME_NAS2\ntmpl_date false\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
+
+REPSOL_ENTREGAS = 'tmpl_preset_name REPSOL_ENTREGAS\ntmpl_target_folder S:/PARA_FLAME_NAS2/Repsol/Entregas\ntmpl_date false\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
+
+fragiles = 'tmpl_preset_name fragiles\ntmpl_target_folder S:/PARA_FLAME_NAS2/Fragiles/material_in/palabras/nuke\ntmpl_date false\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
+
+genarali_hogar = 'tmpl_preset_name genarali_hogar\ntmpl_target_folder S:/PARA_FLAME_NAS2/generali/DE_NUKE/hogar\ntmpl_date false\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
+
+generali_auto = 'tmpl_preset_name generali_auto\ntmpl_target_folder S:/PARA_FLAME_NAS2/generali/DE_NUKE/auto\ntmpl_date false\ntmpl_folderize true\ntmpl_folderize_mov false\ntmpl_per_version true\ntmpl_overwrite false'
+

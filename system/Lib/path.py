@@ -1,12 +1,12 @@
 
 def normalize( path ):
 	
-	return Normalize.path( path )
+	return sop.Normalize.path( path )
 
 
 def join( *args ):
 
-	return Normalize.join( *args )
+	return sop.Normalize.join( *args )
 
 
 
@@ -14,7 +14,7 @@ def normalize_padding( path ):
 	
 	#path = brain.Lib.path.normalize( path )
 	
-	path = Normalize.path( path )
+	path = sop.Normalize.path( path )
 	
 	dirname , basename = os.path.split( path )
 	
@@ -25,7 +25,7 @@ def normalize_padding( path ):
 		basename =  basename.replace( '#' * pad_count , '%' + ( '%02d' % pad_count ) + 'd' )
 		
 	
-	return Normalize.join( dirname , basename )
+	return sop.Normalize.join( dirname , basename )
 	
 
 def normalize_name( name ):
@@ -88,7 +88,7 @@ def tail( path , start ):
 
 def version( path ):
 
-	path = brain.Lib.path.normalize( path )
+	path = sop.Normalize.path( path )
 
 	dirname , basename = os.path.split( path )
 

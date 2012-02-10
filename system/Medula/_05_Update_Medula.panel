@@ -30,7 +30,7 @@ def onCreate( this ):
 		
 	this.KNOBS.in_backup_versions.setValues( in_backup )
 	
-	current_version = Brain() << medula.system.version.memory
+	current_version = sop.Brain() << medula.system.version.memory
 	
 	majorver = current_version( 'major_version' , '0' )
 	minorver = current_version( 'minor_version' , '0' )
@@ -53,7 +53,7 @@ def in_backup_versions( this ):
 		
 		selected_shell = medula.versions( value )
 		
-		version_info_brain = Brain() << selected_shell.system( 'version.memory' )
+		version_info_brain = sop.Brain() << selected_shell.system( 'version.memory' )
 		
 		version_info = '%s.%s' % ( version_info_brain( 'major_version' , 0 ), version_info_brain( 'minor_version' , 0 ) )
 		
@@ -151,7 +151,7 @@ def update( this ):
 		
 		if brain.tmp.updater.do_update:
 
-			Core.thread( _update_thread ).start()
+			sop.Core.thread( _update_thread ).start()
 				
 			onCreate( this )
 	

@@ -1,0 +1,110 @@
+set cut_paste_input [stack 0]
+version 6.2 v1
+push $cut_paste_input
+Group {
+ name Grain
+ selected true
+ xpos 1282
+ ypos 221
+ addUserKnob {20 User}
+ addUserKnob {41 which T Dissolve1.which}
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 93
+  ypos 129
+ }
+set N25ccced0 [stack 0]
+ Dot {
+  name Dot1
+  xpos 19
+  ypos 133
+ }
+ Dot {
+  name Dot2
+  xpos 19
+  ypos 398
+ }
+push $N25ccced0
+ Read {
+  inputs 0
+  file //freelance01/PROYECTOS/Brugal/PL_BRU_24_26_borrados/Output/Cache/cache_PL_BRU_24_26_GrainLoop_v01_v01/cache_PL_BRU_24_26_GrainLoop_v01_v01.%04d.exr
+  format "1920 1080 0 0 1920 1080 1 HD"
+  last 10
+  after loop
+  origlast 10
+  origset true
+  name Read14
+  tile_color 0xcb7affff
+  xpos 376
+  ypos 137
+  addUserKnob {20 User}
+  addUserKnob {26 END_OF_USER_KNOBS +HIDDEN}
+  addUserKnob {20 References}
+  addUserKnob {6 auto_proxy l "auto find proxy file" t " no tooltip " +STARTLINE}
+  auto_proxy true
+  addUserKnob {26 sep l "" +STARTLINE}
+  addUserKnob {22 switch_source_ref l "switch src ref" t " no tooltip " +STARTLINE}
+  addUserKnob {2 source_reference l "" t " no tooltip " -STARTLINE}
+  addUserKnob {22 create_target_ref l "create trg ref" t " no tooltip " +STARTLINE}
+  addUserKnob {2 target_reference l "" t " no tooltip " -STARTLINE}
+  addUserKnob {26 sep2 l "" +STARTLINE}
+  addUserKnob {22 make_green l "make green" t " no tooltip " +STARTLINE}
+  addUserKnob {22 find_proxy l "find proxy" t " no tooltip " -STARTLINE}
+  addUserKnob {26 sep3 l "" +STARTLINE}
+ }
+set N25ccbeb0 [stack 0]
+push $N25ccced0
+ Merge2 {
+  inputs 2
+  operation plus
+  name Plus
+  xpos 230
+  ypos 197
+ }
+push $N25ccbeb0
+ Mirror {
+  Horizontal true
+  Vertical true
+  name Mirror1
+  xpos 376
+  ypos 322
+ }
+ Merge2 {
+  inputs 2
+  operation minus
+  name Plus1
+  xpos 230
+  ypos 322
+ }
+ Dissolve {
+  inputs 2
+  which 0.554
+  name Dissolve1
+  xpos 93
+  ypos 316
+ }
+ Copy {
+  inputs 2
+  from0 rgba.alpha
+  to0 rgba.alpha
+  name Copy1
+  xpos 93
+  ypos 388
+ }
+set N18388810 [stack 0]
+ Output {
+  name Output1
+  xpos 93
+  ypos 486
+ }
+push $N18388810
+ Viewer {
+  frame 61
+  input_process false
+  name Viewer1
+  xpos 93
+  ypos 426
+ }
+end_group

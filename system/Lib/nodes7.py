@@ -379,7 +379,7 @@ def apply_onKnobCallback_callback( nbrain ):
 			
 			if knob.Class() == 'File_Knob' and knob.value():
 				
-				normalized_value = Normalize.path( knob.value() )
+				normalized_value = sop.Normalize.path( knob.value() )
 				
 				if not normalized_value == knob.value():
 
@@ -479,7 +479,14 @@ def apply_onSysCallback_callback( nbrain ):
 					if result:
 
 						autolabel_combined_result += result
-
+				
+				
+				user_label = this.VALUES.label
+				
+				if user_label.strip():
+					
+					autolabel_combined_result += '\n%s' % user_label
+				
 				return ( autolabel_combined_result or None )
 
 

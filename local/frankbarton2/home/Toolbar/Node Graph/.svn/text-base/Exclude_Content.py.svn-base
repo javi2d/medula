@@ -1,0 +1,20 @@
+
+
+
+
+
+
+
+exclusions = brain.Exclusions( 'excluded' , [] )
+
+for node , file_value in brain.Lib.selection.File():
+	
+	_ , ext = os.path.splitext( file_value )
+	
+	if ext not in exclusions:
+		
+		exclusions.append( ext )
+		
+
+brain.Exclusions >> fsh( 'Brain/Exclusions.memory' )
+

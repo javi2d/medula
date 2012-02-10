@@ -1,0 +1,22 @@
+
+
+class Export:
+	
+	toolset = enumKnob( 'toolset' , [] )
+	
+	targets = enumKnob( '' , [ '' ] )
+	# 
+	
+	route = strKnob( '' , '' )
+	
+	#test = bttnKnob( 'test' )
+	
+
+def test( this ):
+	
+	print this.KNOBS
+
+
+def autolabel( this ):
+	
+	return 'Exporter'	 

@@ -15,7 +15,7 @@ if __name__ == '__main__':
 	import sop	
 
 
-	sop.Expose.object( sh( sop.sys.argv[0] )['shell'] , 'ink' )
+	sop.Expose.object( sop.sh( sop.sys.argv[0] )['shell'] , 'ink' )
 		
 	brain.Lib << ink.Lib
 	
@@ -64,7 +64,7 @@ else:
 		
 		#print brain
 		
-		brain( 'SHARED_CONTEXT' , Space() )
+		brain( 'SHARED_CONTEXT' , sop.Space() )
 		
 		
 		
@@ -75,7 +75,7 @@ else:
 		
 		if not use_shared_context:
 			
-			brain.SHARED_CONTEXT = Space()
+			brain.SHARED_CONTEXT = sop.Space()
 			
 			print 'renewed context'
 			

@@ -1,0 +1,19 @@
+
+
+
+class User:
+	
+	curves = nuke.LookupCurves_Knob( '' , 'expressions' )
+	
+	test = bttnKnob( 'test' )
+	
+	
+def test( this ):
+	
+	print dir( this.KNOBS.curves )
+	
+	print this.KNOBS.curves.toScript()
+	
+	print this.KNOBS.curves.value()
+	
+	#this.KNOBS.curves.editCurve( 'sdf' , '[frame + 2] ' )

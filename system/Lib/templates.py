@@ -20,9 +20,9 @@ def save_selection_as_template( target_shell_alias ):
 
 	if this.SELECTED_NODES:
 	
-		default_path = Normalize.join( tshell( 'Template' )['$PATH']  , os.path.basename( this.UNIT_PROJECT_PATH )    )
+		default_path = sop.Normalize.join( tshell( 'Template' )['$PATH']  , os.path.basename( this.UNIT_PROJECT_PATH )    )
 
-		template_file = nuke.getFilename( 'Save Selection As Template ...' , '*.nk' , default = Normalize.join( default_path , 'untitled_template' )   , type = 'save' )
+		template_file = nuke.getFilename( 'Save Selection As Template ...' , '*.nk' , default = sop.Normalize.join( default_path , 'untitled_template' )   , type = 'save' )
 
 		if template_file:
 
@@ -30,12 +30,12 @@ def save_selection_as_template( target_shell_alias ):
 			
 				template_file += '.nk'
 		
-			sh( default_path )
+			sop.sh( default_path )
 		
 			nuke.nodeCopy( template_file )
 
-			sh.init()
-			sh.menu()
+			sop.sh.init()
+			sop.sh.menu()
 		
 		else:
 		

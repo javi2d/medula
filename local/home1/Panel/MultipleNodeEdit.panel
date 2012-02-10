@@ -1,0 +1,97 @@
+
+
+class User:
+	
+	MNE_grabKnobs = bttnKnob( 'grab' )
+	
+	MNE_cleanup = bttnKnob( 'cleanup' )
+	
+	MNE_system_sep = sepKnob()
+
+
+def onCreate( this ):
+	
+	#this.BRAIN.__proto__ = None
+	
+	this.BRAIN.__proto__ = this.NODE.knobs()
+	
+	#print '????', this.BRAIN.__proto__
+
+
+def _link_knobs( this ):
+	
+	#print this.SORTED_KNOBS
+	
+	#print [ k.Class() for k in this.NODE.knobs().values() ]
+	
+	#return []
+	
+	return 
+
+#def knobChanged( this ):
+#	
+#	print '\n>>KNOB CHANGED:' ,  this.KNOB.name()
+
+
+def MNE_cleanup( this ):
+	
+	_cleanUp( this )
+	
+	#nuke.executeInMainThreadWithResult( _cleanUp , ( this , ) )   #
+
+
+def _cleanUp( this ):
+	
+	print '>> CleanUp'
+	
+	#print this.NODE.knobs().values()
+	
+	print this.NODE.knobs()
+	
+	
+	#external_knobs = [ k for k in .values() if k not in this.BRAIN.__proto__.values() ]
+    #
+	#for knob in external_knobs:
+	#	
+	#	print knob
+	#	
+	#	this.NODE.removeKnob( knob )
+	#
+	##print this.NODE.knobs()
+    #
+	#print 'cleaned up' , time.time()
+		
+
+
+def MNE_grabKnobs( this ):
+
+	nuke.executeInMainThread( _grabKnobs , ( this , ) )   #WithResult
+
+
+def _grabKnobs( this ):
+
+	print '>> Grabing knobs'
+	
+	nodes = space.this.SELECTED_NODES
+		
+	if not nodes:
+		
+		nuke.message( 'select some nodes' )
+		
+	ref = nodes[0]
+	
+	for knob in ref.SORTED_KNOBS:
+		
+		knobType = getattr( nuke , knob.Class() )
+		
+		new_knob = knobType( knob.name() , knob.label() )
+		
+		new_knob.fromScript( knob.toScript() )
+		
+		this.NODE.addKnob( new_knob )
+		
+		print new_knob
+		
+
+		
+		

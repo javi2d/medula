@@ -1,0 +1,16 @@
+
+
+
+DEFAULT_RESOURCE = local( 'Units/Sessions' )['$PATH']
+
+#DEFAULT_PROJECT  = '' #'sessionsProject'
+
+#DEFAULT_UNIT     = '' #'sessions_from_%s' % sop.Core.date()
+
+
+SCRIPTS = 'nuke' 
+INPUT   = 'Input'
+OUTPUT  = 'Output'
+
+
+CONVERSION_TARGET = None

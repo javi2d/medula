@@ -1,0 +1,7 @@
+
+hotkey = 'shift+r'
+
+icon = None
+
+label = 'knife Reload all nodes'
+

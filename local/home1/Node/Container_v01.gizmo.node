@@ -1,0 +1,10 @@
+
+
+class User:
+	
+	show_group = bttnKnob( 'show' )
+	
+	
+def show_group( this ):
+	
+	nuke.showDag( this.NODES.Group1 )

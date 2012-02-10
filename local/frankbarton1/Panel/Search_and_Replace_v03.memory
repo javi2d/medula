@@ -1,0 +1,7 @@
+
+hotkey = 'ctrl+f'
+
+icon = None
+
+label = 'Search and Replace'
+

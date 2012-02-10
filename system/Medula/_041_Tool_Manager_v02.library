@@ -1,0 +1,174 @@
+
+
+def _update_all( this ):
+	
+	print '@ _update_all'
+	
+	data = _data( this )
+	
+	choices = ['.']
+	
+	this.KNOBS.choices.setValues(  choices  )	
+		
+	if not data: return 
+	
+	
+	this.KNOBS.results.setEnabled( True )
+	
+	if os.path.isfile( data.route_path ):
+		
+		data.route_path = os.path.dirname( data.route_path )
+		data.route = os.path.dirname( data.route )
+	
+	
+	
+	folder_names = [ ]
+
+	if os.path.exists( data.route_path ):
+		
+		folder_names = sop.sh( data.route_path )['$FOLDER_NAMES']
+	
+
+	if data.route:
+		
+		choices += ['..']
+	
+	
+	choices += folder_names
+	
+	
+	if data.route == '':
+		
+		suggestions = [ x for x in brain.Lib.include.FULL_STRUCTURE if x not in choices ]
+		
+		if suggestions : choices += ['-'] + suggestions
+		
+	
+	elif data.route == 'Toolbar':
+
+		
+		suggestions = [ x for x in brain.Lib.include.TOOLBAR_STRUCTURE if x not in choices ]
+	
+		if suggestions : choices += ['-'] + suggestions
+	
+	
+	relative_paths = [ ]	
+	
+	if os.path.exists( data.route_path ):
+		
+		dir_result = sop.sh( data.route_path )['$DIR']
+		
+		if this.VALUES.recursive:
+		
+			dir_result = sop.sh( data.route_path )._['$DIR']
+				
+		relative_paths = [ p.replace( data.route_path + '/' , '' ) for p in dir_result ]	
+	
+	else:
+		
+		this.KNOBS.results.setValues(  []  )
+		this.KNOBS.results.setEnabled( False )
+	
+
+	this.KNOBS.choices.setValues(  choices  )
+	this.KNOBS.results.setValues( ['.'] + relative_paths  )
+	
+	
+	result = this.VALUES.results
+ 	
+
+	if result.isdigit():
+		
+		print 'WARNING: NO COMPATIBLE RESULT'
+		
+		this.KNOBS.results.setValue(0)
+	
+	
+	result = this.VALUES.results
+	
+	
+	
+	suggestions = [ '-' ]
+	
+	[ suggestions.extend( solver() ) for solver in sop.Solver.__solvers__ ] 
+		
+	
+	if result == '.':
+		
+		
+		
+		extensions = suggestions
+	
+	else:
+
+		tool_folder , tool_name =  os.path.split( sop.Normalize.join( data.route_path , result ) )
+	
+		shell = sop.sh( tool_folder )
+	
+		space = getattr( shell , tool_name )
+		
+		available_extensions = space['exts'].keys()
+
+		extensions = [ '.' ] + available_extensions + suggestions
+		
+		
+	this.KNOBS.tool_exts.setValues(  extensions  )
+	
+	
+	
+	
+	
+
+
+#------------------------
+
+
+
+def _roots( this ):
+	
+	self = _roots
+
+	self.items = [ ( item[0]['$NAME'] , item[0] ) for item in brain.toolsets ]
+
+	self.toolsets = [ item[1] for item in self.items ]
+
+	self.names = [ item[0] for item in self.items ]
+
+	self.dict = dict( self.items )
+	 
+	this.KNOBS.roots.setValues( self.names )
+	
+	
+	return self
+
+
+
+def _data( this ):
+	
+	self = _data
+	
+	self.roots = _roots( this )
+
+	if self.roots.names:
+		
+		self.root = this.VALUES.roots
+		
+		self.shell = self.roots.dict[ self.root ]
+		
+		self.shell_path = self.shell['$PATH']
+		
+		self.route = this.VALUES.route
+	
+		self.route_path = sop.Normalize.join( self.shell_path , self.route )
+
+		return self
+
+
+
+
+
+
+
+
+
+

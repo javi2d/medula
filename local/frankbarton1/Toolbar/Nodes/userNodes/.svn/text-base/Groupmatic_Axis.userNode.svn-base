@@ -1,0 +1,108 @@
+
+
+Class = 'Group'
+
+
+class DynGroup:
+	
+	cards = intKnob('Number of Cards', 0)
+	anim_lag   = floatKnob('Anim Lag', 1.0)
+	build  = bttnKnob('build', flags = 'STARTLINE')
+
+def onCreate( this ):
+	
+	this.NODE.begin()
+
+	nuke.nodes.Input().setName('Texture')
+	nuke.nodes.Input().setName('Axis')
+	
+	nuke.nodes.Output().setInput( 0, nuke.nodes.Scene() )
+	
+	this.NODE.end()
+
+	
+def build( this ):
+	
+	# Card nodes creation
+	
+	
+	this.NODE.begin()
+	
+	card_nodes = this.NODES_BY_CLASS('Card' , []) # cause maybe there is no cards
+		
+	diff = int( this.VALUES.cards - len( card_nodes ) )
+	
+	
+	if diff > 0:
+		
+		for i in range( diff ):
+			
+			newCard = nuke.nodes.Card()	
+			newCard['rows'].setValue(5)
+			newCard['columns'].setValue(5)
+			this.NODES.Scene1.setInput( nuke.inputs( this.NODES.Scene1 )  , newCard  )
+			
+			newCard.setInput( 0, this.NODES.Texture )
+						
+	elif diff < 0:
+		
+		to_delete = card_nodes[diff:]
+		for node in to_delete:
+			node.setInput(0, None)
+			nuke.delete( node )
+	
+
+	
+	# apply_Expressions
+		
+	axis_input = this.NODE.input(1)
+	
+	all_card_nodes = this.NODES_BY_CLASS('Card' , [])
+	
+	for i,n in enumerate( all_card_nodes ):
+		
+		if axis_input:
+		
+			axisName = axis_input.fullName()
+			
+			lag = this.VALUES.anim_lag * i
+			
+			n.knobs()['translate'].setExpression( '%s.translate(frame - %s)' % (axisName , lag ) )
+			n.knobs()['rotate'].setExpression( '%s.rotate(frame - %s)' % (axisName , lag ) )
+			n.knobs()['scaling'].setExpression( '%s.scaling(frame - %s)' % (axisName , lag ) )
+			n.knobs()['uniform_scale'].setExpression( '%s.uniform_scale(frame - %s)' % (axisName , lag ) )
+			
+		else:
+			n.knobs()['translate'].fromScript( '0 0 0' )
+			n.knobs()['rotate'].fromScript( '0 0 0' )
+			n.knobs()['scaling'].fromScript( '1 1 1' )
+			n.knobs()['uniform_scale'].fromScript( '1	' )
+
+	
+	# Group DAG nodes layout
+	
+	
+	n_card_nodes = len( all_card_nodes )
+	
+	xpos = - n_card_nodes*50
+	
+	for n in all_card_nodes:
+		n.setXYpos( xpos , 0 )
+		xpos += 100
+	
+	amplitude = n_card_nodes/2
+	
+	this.NODES.Texture.setXYpos( 0 , - 150 - amplitude )	
+	this.NODES.Axis.setXYpos( 100 , - 150 - amplitude )	
+	this.NODES.Scene1.setXYpos( 0 , 200  + amplitude )
+	this.NODES.Output1.setXYpos( 0, 300  + amplitude )
+	
+	
+	
+	this.NODE.end()
+
+
+
+
+	
+	

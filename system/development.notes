@@ -1,0 +1,36 @@
+
+DONE - Colorize nodes with end /
+
+DONE - reverted to only button callback on userNodes
+
+- scan sequences progress bar
+
+- look default jpeg value on write node
+
+- Tokenize Cache ( space read cache UNIVERSAL by absolute path )
+
+- Space hasChanged
+
+- Database
+
+- Single User Mode ( only config + home )
+
+- Knobs files
+
+	knob = space
+	
+	
+- Space content is the content of ProtoSpace or exposed variables dict
+
+
+	Everything becomes sop.Normalize
+
+
+- Remove sh from code??????	
+
+
+- New tool panel ( we don't need to recreate toolsets )
+
+- Expression editor
+
+

@@ -38,7 +38,7 @@ def update_nbrain( path ):
 	
 	if not nbrain:
 		
-		nbrain = brain.nodeScript.byBasename[ basename ] = Brain()
+		nbrain = brain.nodeScript.byBasename[ basename ] = sop.Brain()
 	
 		
 	nbrain.path = path
@@ -49,7 +49,7 @@ def update_nbrain( path ):
 	
 	nbrain.ext  = ext
 
-	nbrain.shell = sh( dirname )
+	nbrain.shell = sop.sh( dirname )
 	
 	nbrain.space = __execute_with_knobs( path )
 		
@@ -160,29 +160,16 @@ def nodeBrain( path , inTab = False ):
 	'''
 	UPDATES STRUCTURE IN brain.nodeScript.Path[ nodeScript file path ] , doesn´t change the brain
 	
-	
 	Returns a new nodeBrain structure
 	
 	Everytime this function is called the nodeScript file will be reloaded ( when a new node is created )
 	
 	This function exposes nbrain into "brain.nodeScript"
-	
-	
+		
 	'''
-	
-	
-	
-	
 	# Simplemente redefinimos el que ya existe o nos devuelve uno nuevo
-	
 
-	# base structure
-	
 	nbrain = update_nbrain( path ) # include execution and tab paths normalize
-	
-	#print '\n>> DEBUG .... %s class_brain updated.' % nbrain.basename
-	
-	#print '\n\t.... %s nbrain updated.' % nbrain.basename
 	
 	for tab_path in [ x for x in nbrain.tabs if x != nbrain.path ]:
 
@@ -190,7 +177,7 @@ def nodeBrain( path , inTab = False ):
 		
 		#print '\n\t>> DEBUG .... %s tab_brain updated.' % tab_brain.basename
 		
-		
+			
 	compute_knobs_and_callbacks( nbrain )
 	
 	#print '\n\t.... %s computed knobs and callbacks.' % nbrain.basename
@@ -205,6 +192,48 @@ def nodeBrain( path , inTab = False ):
 	return nbrain
 
 
+
+
+def __execute_with_knobs( path ):
+	
+	# make a cache system per path and per time
+	
+	#dirname , basename , name, ext = sop.Normalize.split()
+
+	nspace = sop.sh( path )
+	
+	nspace << brain.Lib.knobs
+	
+	nspace.DEFAULTS = sop.Brain()
+
+	nspace.__proto__ = sorted( nspace.__dict__.copy().items() )
+	
+	nspace['exec']
+			
+	return nspace
+
+
+
+#def knobDefault_processing( nbrain ):
+#	
+#	if hasattr( nbrain.space , 'DEFAULTS' ):
+#			
+#		for knobname , value in nbrain.space.DEFAULTS.items():
+#
+#			if type( value ).__name__ in [ 'tuple' , 'list' ]:  # (1,2,3) >> '1 2 3'  
+#
+#				value = ' '.join( [ str(v) for v in value ] )
+#
+#			else:
+#
+#				value = str( value )
+#
+#
+#			route = '.'.join( [ nbrain.name , knobname ] ) # node_class comes from function args
+#			
+#			print 'Setting knobDefault for %s = %s' % ( route , value )
+#			
+#			nuke.knobDefault( route , value )
 
 
 
@@ -256,7 +285,7 @@ def __getCallbacks( nspace ):
 
 def knobs_by_tokenize( nbrain ):
 		
-	bspace =  Brain() << nbrain.space
+	bspace =  sop.Brain() << nbrain.space
 	
 	knobs = []
 	
@@ -264,8 +293,9 @@ def knobs_by_tokenize( nbrain ):
 	
 	names = []
 	
-	for line in brain.Lib.tokenize2.tokenize_classes( sh( nbrain.path )['read'] ):
+	for line in brain.Lib.tokenize2.tokenize_classes( sop.sh( nbrain.path )['read'] ):
 		
+			
 		if line == '[':
 
 			pass
@@ -278,308 +308,89 @@ def knobs_by_tokenize( nbrain ):
 		
 		else:
 			
-			if line[0][1] == 'class':  # is class
+			try:
+				
+				if len( line ) == 1:
+					
+					# para pass en una clase de nodescript
+					
+					continue
 
-				name = line[1][1]
 
-				route.append( name )
+				elif line[0][1] == 'class':  # is class
 
-				knobs.append('[')
+					name = line[1][1]
 
-				knobs.append( nuke.Tab_Knob( name ) )
+					route.append( name )
+
+					knobs.append('[')
+
+					knobs.append( nuke.Tab_Knob( name ) )
 			
-			elif line[1][1] == '=':  # is knob
+				elif line[1][1] == '=':  # is knob
 				
-				name = line[0][1]
+					name = line[0][1]
 
-				route.append( name )
+					route.append( name )
 
-				joined_route = '.'.join( route ) 
+					joined_route = '.'.join( route ) 
 
-				knob = bspace( joined_route , None ) # La ruta debe existir en el espacio y deberia representar un knob
+					knob = bspace( joined_route , None ) # La ruta debe existir en el espacio y deberia representar un knob
 				
-				if name in names:
+					if name in names:
 					
-					suffix = 1
+						suffix = 1
 					
-					while 1:
+						while 1:
 						
-						new_name = '%s_%02d' % ( name , suffix ) 
+							new_name = '%s_%02d' % ( name , suffix ) 
 						
-						if new_name not in names:
+							if new_name not in names:
 							
-							break
+								break
 						
 					
-					error_msg = 'ERROR! DUPLICATED KNOB NAME %s' % joined_route
+						error_msg = 'ERROR! DUPLICATED KNOB NAME %s' % joined_route
 					
-					knobs.append( brain.Lib.knobs.errorKnob( new_name , error_msg ) )
+						knobs.append( brain.Lib.knobs.errorKnob( new_name , error_msg ) )
 				
 				
-				elif knob and isinstance( knob , nuke.Knob ):
+					elif knob and isinstance( knob , nuke.Knob ):
 
-					knob.setName( name )			
+						knob.setName( name )			
 
-					knobs.append( knob )
+						knobs.append( knob )
 					
-					names.append( name )
-
-				else:
-					
-					error_msg = 'ERROR! WITH ROUTE %s = %s' % ( joined_route , knob )
-					
-					knobs.append( brain.Lib.knobs.errorKnob( name , error_msg ) )	
-
-				route.pop()
+						names.append( name )
 				
+				
+					elif isinstance( knob , sop.Space ):
+					
+						print 'DEBUG TODO KNOBS INTERFACE WITH SPACE: ' , knob
 
+
+					else:
+					
+						error_msg = 'ERROR! WITH ROUTE %s = %s' % ( joined_route , knob )
+					
+						knobs.append( brain.Lib.knobs.errorKnob( name , error_msg ) )	
+
+					route.pop()
+			
+			except:
+				
+				raise RuntimeError , 'problem tokenizing line: %s' % line
+				
 	return knobs
 
 
 
-def __execute_with_knobs( path ):
-	
-	
-	
-	# make a cache system per path and per time
 
-	dirname , basename = os.path.split( path )
-	name, ext = os.path.splitext( basename )
 
-	#nspace = sh( '' )
-	
-	
-	nspace = sh( path )
-	
-	nspace << brain.Lib.knobs
-	
-	#print nspace['info']
-	
-	nspace.__proto__ = sorted( nspace.__dict__.copy().items() )
-	
-	nspace['exec']
-		
-	#nspace = Core.execution( path , nspace )  #This function executes and set __called__
-	
-	#print '****' , nspace['info']
-	
-	#brain.nscript[ path ].space = nspace
 
-	#print '3 DEBUG EOF Core.execution' , nspace
-	
-	#print '\n\t.... Reloaded file with knobs: %s' % basename
-	
-	return nspace
 
 
 
-
-def __stage0_Isolate_Classes( path ):
-	
-	#print '+++++++++ %s' % path
-	
-	f = open( path )
-
-	lines = [ l for l in f.readlines() if ( l.strip() and not l.strip().startswith('#') ) ]  #and ) ]
-	
-	#print '+++++++++ %s' % line
-	
-	f.close()
-
-	isolated_lines = []
-
-	add = False
-
-	last_level = 0
-
-	for line in lines:
-		
-		
-		
-		lstrip_line = line.lstrip()
-		level = len(lstrip_line) - len( line )
-
-		if level == 0 and line.startswith( 'class' ):
-			add = True
-
-		elif level == 0 and not line.startswith( 'class' ):
-			add = False
-
-
-		if add:
-
-			if ( '=' in line or 'class' in line):
-
-				isolated_lines.append( line )
-
-				#print line
-
-
-	return isolated_lines
-
-
-
-def __stage1_Process_Lines( lines  ):
-
-	def process_line( line ):
-
-		strip_line = line.rstrip()
-
-		tab_varname = strip_line.split( '=' )[0].rstrip()
-
-		varname     = tab_varname.strip()
-
-		level =  len(tab_varname) - len( varname )
-
-		if varname.startswith('class'):
-
-			varname  =  varname[5:].replace(':' , '').strip()
-
-		#print level , tab_varname
-
-		return level , varname
-
-
-	last_level = 0	
-
-	result = []
-
-	step = 0
-
-	valid = False
-
-	opened_groups = 0
-
-	for line in lines:
-
-		level , varname = process_line( line )
-
-		if level == 0 : #and varname != 'knobDefault':
-
-			valid = True
-
-		elif level == 0:
-
-			valid = False
-
-		if not valid:
-
-			continue
-
-		if last_level == 0:			
-			step = level
-
-		if level == last_level:
-
-			result.append( '%s' % varname )	
-
-		elif level > last_level:
-
-			last = result.pop()
-
-			result.append( '[' )
-
-			opened_groups += 1
-
-			result.append( '%s' % last )
-			result.append( '%s' % varname )	
-
-		elif level < last_level:
-
-
-			result.append( ']' )
-			opened_groups -= 1
-
-			jump = ( last_level/step )-( level/step ) 
-
-			if jump > 1:
-
-				#print '???JUMPS' , jump
-
-				for i in range( jump-1):
-
-					##NEW!!!! , before was flat
-
-					result.append( ']' )
-					opened_groups -= 1	
-
-			result.append( '%s' % varname )	
-
-		last_level = level	
-
-	for i in range( opened_groups ):
-
-		result += ']'
-
-	return result
-
-
-
-
-def __stage2_Process_Result( result , nspace ):
-	
-	# route 
-	
-	route = []
-
-	add_to_route = False
-
-	prev_name = None
-
-	knobs = []
-
-	bspace =  Brain() << nspace	
-	
-	for name in result:
-
-		#print '++ %s ' % name 
-
-		if name == '[':
-
-			knobs.append( '[' ) #nuke.BeginTabGroup_Knob('[')
-
-		elif name == ']':
-
-			route.pop()
-			knobs.append( ']' ) #nuke.EndTabGroup_Knob(']')
-
-
-		elif prev_name == '[':
-
-			route.append( name )
-			knobs.append( nuke.Tab_Knob( name ) )
-
-		else:
-			
-			# ruta para el atributo del espacio
-			
-			route.append( name )
-			
-			joined_route = '.'.join( route ) 
-			
-			
-			knob = bspace( joined_route , None ) # La ruta debe existir en el espacio y deberia representar un knob
-
-			if knob and isinstance( knob , nuke.Knob ):
-					
-				knob.setName( name )			
-				
-				knobs.append( knob )
-				
-			else:
-				
-				knobs.append( brain.Lib.knobs.errorKnob( name ) )
-				
-				#raise AttributeError( 'Invalid Knob' )
-			
-			route.pop()
-
-		prev_name = name
-	
-	
-	print '\n\n**REGULAR KNOBS\n%s\n\n' % knobs	
-	
-	return knobs
 
 
 

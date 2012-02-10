@@ -104,7 +104,7 @@ class Normalize:
 	@staticmethod
 	def dirname( path_string ):
 
-		return Normalize.path( os.path.dirname( path_string ) )
+		return sop.Normalize.path( os.path.dirname( path_string ) )
 		
 		
 	
@@ -120,17 +120,22 @@ class Normalize:
 		if path_string == '' :
 			
 			return ''
+			
 		
 		elif type( path_string ).__name__ in ['str','unicode']:
 			
+			
+			
 			normalized = path_string
+			
+			normalized = os.path.expandvars( normalized )
 			
 			#normalized = repr( path_string )
 			#normalized = os.path.normpath( normalized )
 			normalized = normalized.replace( '\\' , '/' ).rstrip(  '/' )	
 			
 			#normalized = os.path.normpath( path_string )	
-			#normalized = os.path.expandvars( normalized )
+			
 			#normalized = normalized.strip().replace( r'\\' , '/' ).replace( '\\' , '/' ).rstrip(  '/' )
 			#normalized = os.path.normpath( normalized )
 	
@@ -151,13 +156,13 @@ class Normalize:
 		
 		else:
 			
-			raise AttributeError( '\n\nERROR : sop.Normalize.path need string as arg !!\n\n' )
+			raise AttributeError( '\n\nERROR : sop.sop.Normalize.path need string as arg !!\n\n' )
 
 
 	@staticmethod
 	def split( path ):
 		
-		path = Normalize.path( path )
+		path = sop.Normalize.path( path )
 		
 		dirname , basename = os.path.split( path )
 		name , ext = os.path.splitext( basename )
@@ -169,7 +174,7 @@ class Normalize:
 		
 		for P,D,F in os.walk( path ):
 			
-			P = Normalize.path( P )
+			P = sop.Normalize.path( P )
 			
 			yield P,D,F
 			
@@ -188,14 +193,18 @@ class Normalize:
 		path = ''
 
 		for item in args:
-
-			if type( item ).__name__ == 'Shell':
+			
+			if not item:
+				
+				item = ''
+			
+			elif type( item ).__name__ == 'Shell':
 
 				item = item['$PATH']
 				
 			elif type( item ).__name__ == 'Brain':
 				
-				raise RuntimeError , 'Brain in Normalize.join args %s\nProbably brain route is incorrect.' % item['routes']
+				raise RuntimeError , 'Brain in sop.Normalize.join args %s\nProbably brain route is incorrect.' % item['routes']
 		
 			#item = os.path.normalize( item )
 		
@@ -211,7 +220,7 @@ class Normalize:
 				
 				path = os.path.join( path , item )
 				
-		return Normalize.path( path )
+		return sop.Normalize.path( path )
 	
 	
 		
@@ -245,7 +254,7 @@ class Normalize:
 			
 		elif type( shell_or_path ).__name__ == 'Space':
 			
-			raise RuntimeError( 'Space passed to Normalize.shell' )
+			raise RuntimeError( 'Space passed to sop.Normalize.shell' )
     
 		else:
     		
@@ -265,11 +274,11 @@ class Normalize:
 			
 			else:
 				
-				raise RuntimeError( 'Not monofile Space passed to Normalize.space' )
+				raise RuntimeError( 'Not monofile Space passed to sop.Normalize.space' )
 			
 		elif type( space_or_path ).__name__ == 'Shell':
 			
-			raise RuntimeError( 'Shell passed to Normalize.space' )
+			raise RuntimeError( 'Shell passed to sop.Normalize.space' )
     
 		else:
     		
@@ -277,6 +286,7 @@ class Normalize:
     	
 		return path
 		
+
 		
 	
 
@@ -284,34 +294,30 @@ class Normalize:
 
 
 class Expose:
-
+	
+	
+	
 	@staticmethod
-	def object( obj , label  ):
+	def object( obj , label , overwrite = False ):
 
 		'''
 		Expose obj as label into main and sop, making obj widely available
 
 		'''
 		
-		if label == 'brain':    # Not exposed
-
-			if not hasattr( main, label ):
-
-				setattr( main , label , obj )
-
-			if not hasattr( sop, label ):	
-
-				setattr( sop , label , obj )
+		targets = [ main , sop , sop.Namespace  ] + ( [  Space.__active__ ] if  Space.__active__ else [] )
 		
-
-		else:
-
-			setattr( main , label , obj )
-
-			setattr( sop , label , obj )
+		for target in targets:
 			
-			#print sop == main.sop
-		
+			if not hasattr( target , label ):
+				
+				setattr( target , label , obj )
+			
+			elif overwrite:
+				
+				setattr( target , label , obj )
+				
+						
 		return obj
 		
 
@@ -338,7 +344,7 @@ class Expose:
 				try:
 
 					module = __import__( name )
-					Expose.object(  module , name  )
+					sop.Expose.object(  module , name  )
 
 				except ImportError:
 
@@ -352,7 +358,7 @@ class Expose:
 	@staticmethod				
 	def folder( shell_or_path , into = '' , recursive = False , marshalize = False ):
 
-		shell = Normalize.shell( shell_or_path )
+		shell = sop.Normalize.shell( shell_or_path )
 
 		if recursive:
 
@@ -380,7 +386,7 @@ class Expose:
 			route = '.'.join( [ into , route ] )
 			
 			
-			setattr( main.brain( route , Brain() ) , item_space['name'] , item_space() )
+			setattr( main.brain( route , sop.Brain() ) , item_space['name'] , item_space() )
 
 			# memory loaded item info
 
@@ -395,16 +401,78 @@ class Expose:
 
 class Core:
 	
+	__read_cache__ = {}
+	
 	__interpreter__ = None
 	
 	__stdout__ = None
 	
 	#__domains__ = [  ] 
+
+
+	@staticmethod
+	def read_cache( path ):
+		
+		#print '\n@msg: accessing read cache >> %s' % path
+		
+		cache = sop.tmp( 'read_cache' , {} )   #sop.Core.__read_cache__
+		
+		
+		new_stats = os.stat( path )[-2:]
+		
+		if path in cache:
+				
+			stats , read_cache = cache[ path ]
+		
+		else:
+			
+			open( path , 'a' ).close()
+			
+			stats = read_cache = None
+		
+		
+		new_stats = os.stat( path )[-2:]
+		
+		
+		#print '\n@msg: stats , new_stats >> %s %s' % ( stats , new_stats )
+			
+			
+		if not new_stats == stats:
+			
+			if stats: # Only printed when the file has changed
+			
+				print '\n\n@msg: UPDATED READ CACHE >> %s\n\n' % path
+			
+			with open( path ) as f:
+				
+				read_cache = f.read()
+				
+				cache[ path ] = new_stats , read_cache		
+				
+		
+		#print '\ndebug read cache : %s  %s' % ( len( read_cache)  , path ) 
+				
+		return read_cache
+
 	
+
+	@staticmethod
+	def brains( namespace = None ):
+		
+		if namespace:
+
+			return [ ( k,v ) for  k,v in vars( namespace ).items() if type( v ).__name__ == 'Brain' ]
+		
+		else:
+			
+			return Core.brains( Namespace ) + Core.brains( main ) + Core.brains( sop ) 
+		
+		
+
 	@staticmethod
 	def output_redirect( path = None ):
 		
-		Core.__stdout__ = sys.stdout
+		sop.Core.__stdout__ = sys.stdout
 		
 		if path:
 		
@@ -418,7 +486,7 @@ class Core:
 	@staticmethod
 	def output_restore():
 		
-		if not Core.__stdout__:
+		if not sop.Core.__stdout__:
 			
 			raise RuntimeError( 'Cannot Restore Output' )
 		
@@ -426,33 +494,33 @@ class Core:
 			
 			sys.stdout.close()
 		
-		sys.stdout = Core.__stdout__
-		Core.__stdout__ = None
+		sys.stdout = sop.Core.__stdout__
+		sop.Core.__stdout__ = None
 	
 	
 	#@staticmethod
 	#def add_domain( path ):
 	#	
-	#	if path not in Core.__domains__:
+	#	if path not in sop.Core.__domains__:
 	#		
-	#		Core.__domains__.append(  Normalize.path( path )  )
+	#		sop.Core.__domains__.append(  sop.Normalize.path( path )  )
 	#
 	#
 	#		
 	#@staticmethod
 	#def remove_domain( path ):
     #
-	#	if path in Core.__domains__:
+	#	if path in sop.Core.__domains__:
     #
-	#		Core.__domains__.remove( path )
+	#		sop.Core.__domains__.remove( path )
 	#
 	#		
 	#@staticmethod
 	#def in_domain( path ):
 	#	
-	#	path = Normalize.path( path )
+	#	path = sop.Normalize.path( path )
     #
-	#	matches = [ x for x in Core.__domains__ if path.startswith( x ) ]
+	#	matches = [ x for x in sop.Core.__domains__ if path.startswith( x ) ]
 	#	
 	#	print '???' , path
 	#	print matches
@@ -468,7 +536,9 @@ class Core:
 		import threading
 		return threading.Thread( None ,  fun , args = args , kwargs = kwargs )
 	
+	
 
+	
 	
 	@staticmethod
 	def date( ):
@@ -484,34 +554,35 @@ class Core:
 	@staticmethod
 	def lap( route ):
 		
+
 		now = time.time()
 		
 		if not route:
 			
-			raise AttributeError( '\nbrain.lapses route needed' )
+			raise AttributeError( '\nsop.tmp.lapses route needed' )
 		
 		
 		elif route == '.':
 			
 			print '\nPublic Lapses : ',
 			
-			print brain.lapses.public
+			print tmp.lapses.public
 
 
 		elif route == '_':
 			
 			print '\nPrivate Lapses : ',
 			
-			print brain.lapses.private
+			print tmp.lapses.private
 		
 		
 		elif route.startswith('//'):
 			
 			route = route[2:]
 			
-			b = ( brain.lapses.private 	if route.startswith( '_' ) else brain.lapses.public	)
+			b = ( tmp.lapses.private 	if route.startswith( '_' ) else tmp.lapses.public	)
 			
-			Core.lap( '/' + route )
+			sop.Core.lap( '/' + route )
 			
 			lapses = [ float( x ) for x in b( route , [] ) ]
 
@@ -523,9 +594,9 @@ class Core:
 	
 			route = route[3:]
 			 
-			b = ( brain.lapses.private 	if route.startswith( '_' ) else brain.lapses.public	)
+			b = ( tmp.lapses.private 	if route.startswith( '_' ) else tmp.lapses.public	)
 			
-			Core.lap( '/' + route )
+			sop.Core.lap( '/' + route )
 			
 			lapses = [ float( x ) for x in b( route , [] ) ]
 
@@ -539,14 +610,14 @@ class Core:
 			
 			route = route[2:]
 
-			Core.lap( '/' + route )
-			Core.lap( '.' + route )
+			sop.Core.lap( '/' + route )
+			sop.Core.lap( '.' + route )
 		
 			
 		elif route.startswith(':'):
 			
 			route = route[1:]
-			b = ( brain.lapses.private 	if route.startswith( '_' ) else brain.lapses.public	)	
+			b = ( tmp.lapses.private 	if route.startswith( '_' ) else tmp.lapses.public	)	
 			b( route , [] )[:] = []
 			
 		
@@ -554,7 +625,7 @@ class Core:
 		# Print laps for tag
 		
 			route = route[1:]
-			b = ( brain.lapses.private 	if route.startswith( '_' ) else brain.lapses.public	)	
+			b = ( tmp.lapses.private 	if route.startswith( '_' ) else tmp.lapses.public	)	
 			
 			print '\nLapses for "%s" tag :\n %s\n' % ( route , b( route ) )
 			
@@ -564,15 +635,15 @@ class Core:
 			
 			route = route[1:]
 			
-			b = ( brain.lapses.private 	if route.startswith( '_' ) else brain.lapses.public	)	
+			b = ( tmp.lapses.private 	if route.startswith( '_' ) else tmp.lapses.public	)	
 			
-			lap = brain.lapses._laps( route , None  )
+			lap = tmp.lapses._laps( route , None  )
 			
 			if lap:
 			
 				b( route , [] ).insert( 0 , '%.4f' % ( now - lap ) ) #
 				
-				brain.lapses._laps( route , None , replace_att = True )
+				tmp.lapses._laps( route , None , replace_att = True )
 			
 			
 			
@@ -580,7 +651,7 @@ class Core:
 		else:
 		# Time mark for tag
 		
-			brain.lapses._laps( route , now , replace_att = True )
+			tmp.lapses._laps( route , now , replace_att = True )
 
 	
 	@staticmethod
@@ -613,7 +684,7 @@ class Core:
 		
 		
 		
-		__code__ = Normalize.code( code  )
+		__code__ = sop.Normalize.code( code  )
 		
 		import code
 		
@@ -623,6 +694,49 @@ class Core:
 		
 		
 		return space
+	
+	
+	
+	@staticmethod
+	def interpreter( codestring , space = None ):
+		
+		
+		''' 
+		debe implementar una cola de yields y correr el codigo en el mismo objeto interprete
+		
+		( code , space , interpreter )
+		
+		el thread se crea se checkea y se destruye
+		
+		'''
+		
+		import code
+		
+		# READ CACHE
+		
+		__code__ = codestring
+		
+		if __code__.strip():
+
+			__code__ = sop.Normalize.code( __code__ )
+			
+			interpreter = code.InteractiveInterpreter( vars( space ) )
+			
+			sop.Core.__interpreter__ = interpreter
+			
+			code_object = code.compile_command( __code__ , 'sop.Space >> %s' % path , 'exec' )
+
+			interpreter.runcode( code_object )
+				
+			#interpreter.runsource( __code__  , 'sop.Space >> %s' % path , 'exec') #os.path.basename(path)
+		
+		
+	#'string on air'		
+	#	
+    #
+	#'yield '
+	
+	
 		
 	
 	@staticmethod
@@ -630,15 +744,20 @@ class Core:
 		
 		# Execute path file over space
 
-		path = Normalize.path( path )
+		path = sop.Normalize.path( path )
 
 		if not space:
 			space = Space( [ path ] )
 
 		else:
 			space.space = space
-
-		dirname, basename, name, ext = Normalize.split( path )
+		
+		
+		sop.Space.__active__ = space
+		
+		
+		
+		dirname, basename, name, ext = sop.Normalize.split( path )
 		
 		
 		
@@ -646,8 +765,8 @@ class Core:
 		
 		# start lapse 
 		
-		#lapse_tag = 'sop.Core.execution.%s' % basename
-		#Core.lap( lapse_tag )
+		#lapse_tag = 'sop.sop.Core.execution.%s' % basename
+		#sop.Core.lap( lapse_tag )
 				
 		
 		
@@ -659,8 +778,6 @@ class Core:
 
 			setattr( space, k, v)
 
-		
-		
 		try:
 		
 			if ext in ['.pyc','.pyo']:
@@ -709,20 +826,24 @@ class Core:
 			else:
 			
 				import code
+				
+				# READ CACHE
+				
+				__code__ = sop.Core.read_cache( path )
+				
+				#f = open( path )
+                #
+				#__code__ = f.read()	
+                #
+				#f.close()
 
-				f = open( path )
+				if __code__.strip():
 
-				__code__ = f.read()	
-
-				f.close()
-
-				if __code__:
-
-					__code__ = Normalize.code( __code__ )
+					__code__ = sop.Normalize.code( __code__ )
 					
 					interpreter = code.InteractiveInterpreter( vars( space ) )
 					
-					Core.__interpreter__ = interpreter
+					sop.Core.__interpreter__ = interpreter
 					
 					code_object = code.compile_command( __code__ , 'sop.Space >> %s' % path , 'exec' )
 
@@ -737,11 +858,15 @@ class Core:
 			
 		finally:
 			
+			#pass
+			
 			os.chdir( current_cwd )
-		
+			
+			Space.__active__ = None
+			
 		
 		# close the lapse 
-		#Core.lap( '/%s' % lapse_tag  )
+		#sop.Core.lap( '/%s' % lapse_tag  )
 		
 		
 		if type(space).__name__ == 'Space' and space['file']:
@@ -756,7 +881,9 @@ class Core:
 
 			Space.__spaces__['lock']
 
-
+		
+		
+		
 		return space
 
 
@@ -788,18 +915,24 @@ class Core:
 			import code
 			import marshal
 
-			path = Normalize.path( path )
+			path = sop.Normalize.path( path )
 
 			dirname, basename = os.path.split(path)
 			name, ext = os.path.splitext( basename )
 
-			f = open(path)
+			#f = open(path)
+            #
+			#codeString  = f.read()
+			
+			
+			codeString = sop.Core.read_cache( path )
+			
+			
+			# READ CACHE
+			
+			if codeString.strip():
 
-			codeString  = f.read()
-
-			if codeString:
-
-				codeString = Normalize.code( codeString )
+				codeString = sop.Normalize.code( codeString )
 
 				basename = os.path.basename( path )
 
@@ -807,18 +940,15 @@ class Core:
 
 				solver_path = os.path.splitext( path )[0] + '.marshal'
 
-				solver_path = Normalize.path( solver_path )
+				solver_path = sop.Normalize.path( solver_path )
+				
+				with open( solver_path , 'wb' ) as target:
+	
+					marshal.dump( co, target )
 
-				target = open( solver_path , 'wb' )
-
-				marshal.dump( co, target )
-
-				target.close()
+				#target.close()
 
 				print '>> %s file has been Marshalized' % basename
-
-
-
 
 
 
@@ -849,6 +979,8 @@ class Void(object):
 	def __nonzero__( self ):
 
 		return False
+
+
 
 	
 	
@@ -968,7 +1100,7 @@ class Brain(object):
 
 			if value_type in [ 'Space' , 'classobj' , 'Brain']:
 						
-				self( name , Brain() ) << value
+				self( name , sop.Brain() ) << value
 					
 			else:
 				
@@ -984,25 +1116,30 @@ class Brain(object):
 			
 			if other['$DIR']:
 			
-				print '\n( brain << shell ) %s\n' % other['$PATH']
+				print '\n@operation "brain << shell [ %s ]"\n' % other['$PATH']
 			
 				for relpath in other['$DIR']:
-				
+					
 					dirname , name = os.path.split( relpath )
 					
 					space = getattr( other( dirname ) , name )
 				
 					route = relpath.replace( '/' , '.' )
-												
-					self( route , space() , replace_att = True )
 					
-					relative_path_to_space = Normalize.join( other['$NAME'] , relpath )
-					
+					relative_path_to_space = sop.Normalize.join( other['$NAME'] , relpath )
+
+
 					for brain_route in self['routes']:
 					
 						print '     %s.%s << %s' % ( brain_route , name , relative_path_to_space )
-						
-				print
+
+										
+					self( route , space() , replace_att = True )
+					
+					
+					
+				print						
+				
 			
 	
 		elif type(other).__name__ == 'Space':
@@ -1021,7 +1158,7 @@ class Brain(object):
 					
 						exts.extend( solver() )
 					
-					dirname , basename , name , ext = Normalize.split( other[ 'file' ] )
+					dirname , basename , name , ext = sop.Normalize.split( other[ 'file' ] )
 					
 					if ext in exts:
 						
@@ -1118,14 +1255,14 @@ space['files'] = %s
 		
 		memo_file =  other['file']
 		
-		#if memo_file and not Core.in_domain( memo_file ):
+		#if memo_file and not sop.Core.in_domain( memo_file ):
 		#	
-		#	raise RuntimeError( '\nBrain out of DOMAIN :: %s\n\nAvailables domains are >> %s\n' % ( memo_file , Core.__domains__ ) )
+		#	raise RuntimeError( '\nBrain out of DOMAIN :: %s\n\nAvailables domains are >> %s\n' % ( memo_file , sop.Core.__domains__ ) )
 		
 		
 		
 		
-		dirname, basename , name , ext = Normalize.split( memo_file )
+		dirname, basename , name , ext = sop.Normalize.split( memo_file )
 		
 		if ext not in ['.log' , '.memory' ]:
 			
@@ -1136,26 +1273,33 @@ space['files'] = %s
 			
 			log_file = target_file
 			
-			memo_file = Normalize.join( dirname , name + '.memory' )
+			memo_file = sop.Normalize.join( dirname , name + '.memory' )
 			
-			f = open( memo_file )
 			
-			memory = f.read()
+			# READ CACHE
 			
-			f.close()
+			memory = sop.Core.read_cache( memo_file )
 			
-			h = open( log_file , 'a' )
+			#f = open( memo_file )
+			#
+			#memory = f.read()
+			#
+			#f.close()
 			
-			separator_line = '\n\n# < AUTOSAVED HISTORY  %s-%s-%s  %s:%s.%s >\n\n' % time.localtime()[:6]
+			with open( log_file , 'a' ) as h:
+			
+			#h = 
+			
+				separator_line = '\n\n# < AUTOSAVED HISTORY  %s-%s-%s  %s:%s.%s >\n\n' % time.localtime()[:6]
 
-			h.write( separator_line + memory )
+				h.write( separator_line + memory )
 
-			h.close()
+				#h.close()
 		
 
 		# Overwrite .memory file
 		
-		lock_file = Normalize.join( dirname , name + '.lock' )
+		lock_file = sop.Normalize.join( dirname , name + '.lock' )
 		
 		new_code = self.__code__()
 		
@@ -1179,7 +1323,7 @@ space['files'] = %s
 		
 		try:
 		
-			f.write( new_code  )  #Normalize.code( ''.join( new_code ) , end_error = False )  pasado a __code__
+			f.write( new_code  )  #sop.Normalize.code( ''.join( new_code ) , end_error = False )  pasado a __code__
 		
 		except:
 			
@@ -1295,7 +1439,7 @@ Error description on operation brain.__code__
 						''' % ( name , repr( value ) )  )
 		
 
-		return Normalize.code( ''.join( CODE ) , end_error = False )
+		return sop.Normalize.code( ''.join( CODE ) , end_error = False )
 	
 	
 	
@@ -1351,7 +1495,7 @@ Error description on operation brain.__code__
 		
 		else:
 						
-			newBrain = Brain()
+			newBrain = sop.Brain()
 			
 			setattr( self, att, newBrain )
 		
@@ -1447,11 +1591,25 @@ Error description on operation brain.__code__
 		
 		brains = []
 		
-		for k,v in vars( main ).items():
+		for brain_items in sop.Core.brains():
+			
+			if brain_items not in brains and not brain_items[1] == self:
 				
-			if not v == self and type( v ).__name__ == 'Brain':
+				brains.append( brain_items )
 				
-				brains.append( ( k,v ) )
+				
+				
+		
+		
+		#brains = [ x for x in sop.Core.brains() if not x[1] == self ]
+			
+		#brains = []
+		#
+		#for k,v in vars( sop ).items():
+		#		
+		#	if not v == self and type( v ).__name__ == 'Brain':
+		#		
+		#		brains.append( ( k,v ) )
 		
 		
 		done  = []
@@ -1622,7 +1780,6 @@ Error description on operation brain.__code__
 		
 
 
-
 	
 
 class Space(object):
@@ -1634,17 +1791,19 @@ class Space(object):
 	
 	'''
 	
-	__spaces__ = Brain()
+	__active__ = None
+	
+	__spaces__ = sop.Brain()
 	
 	__chain__ = []
 
 	def __new__(cls, files = [ ] ):
 		
-		files = [ Normalize.path( f ) for f in files ]
+		files = [ sop.Normalize.path( f ) for f in files ]
 		
-		#if files and not Core.in_domain( files[0] ):
+		#if files and not sop.Core.in_domain( files[0] ):
 		#	
-		#	raise RuntimeError( '\nSpace out of DOMAIN :: %s\n\nAvailables domains are >> %s\n' % ( files[0] , Core.__domains__ ) )
+		#	raise RuntimeError( '\nSpace out of DOMAIN :: %s\n\nAvailables domains are >> %s\n' % ( files[0] , sop.Core.__domains__ ) )
 		
 		
 		self = super(Space, cls).__new__(cls)
@@ -1654,8 +1813,8 @@ class Space(object):
 		self.__file__   = ( files[0] if len(files)==1 else None )
 		
 		self.space      = self
-		
-		self << sop
+	
+		self << Namespace #sop
 		
 		self.__called__ = False
 		
@@ -1803,7 +1962,7 @@ class Space(object):
 
 			if self['file']:
 
-				space =  Core.execution( self['file'] , self )
+				space =  sop.Core.execution( self['file'] , self )
 				
 				# space == self
 
@@ -1818,7 +1977,7 @@ class Space(object):
 		
 		elif  query == 'marshalize':
 			
-			Core.marshalize( self )
+			sop.Core.marshalize( self )
 			
 			return self
 			
@@ -2040,7 +2199,7 @@ Try some of this:
 		
 	def __marshalize__(self):
 
-		Core.marshalize( self )
+		sop.Core.marshalize( self )
 				
 
 	
@@ -2083,7 +2242,7 @@ Try some of this:
 			
 			other_space = self['shell']( other )
 			
-			Core.execution( other_space['file'] , self )
+			sop.Core.execution( other_space['file'] , self )
 		
 		
 		else:
@@ -2219,9 +2378,9 @@ Try some of this:
 		
 		self.__validate__()
 		
-		file_text = Normalize.code( self['read'] )	
+		file_text = sop.Normalize.code( self['read'] )	
 		
-		new_text = Normalize.code( new_text ).split('\n')[:-2]
+		new_text = sop.Normalize.code( new_text ).split('\n')[:-2]
 		
 		old_text = file_text.split('\n') 	
 	
@@ -2245,13 +2404,19 @@ Try some of this:
 
 	def __read__( self ):
 		
+		#new_stats = os.stat( source['file'] )[-2:]
+		
+		
 		self.__validate__()
 		
-		open( self.__file__ , 'a' ).close()
+		code = sop.Core.read_cache( self.__file__ )
 		
-		f = open( self.__file__ )
-		code = f.read()
-		f.close()
+		#open( self.__file__ , 'a' ).close()
+		#
+		#f = open( self.__file__ )
+		#code = f.read()
+		#f.close()
+		
 		return code	
 	
 	
@@ -2278,7 +2443,7 @@ Try some of this:
 	#	
 	#	if self.__file__:
 	#		
-	#		return Core.execution( self.__file__ )
+	#		return sop.Core.execution( self.__file__ )
 	#		
 	#	else:
 	#		
@@ -2465,9 +2630,9 @@ class Shell(object):
 	def __new__(cls, path = None , flat = False ):
 		
 
-		#if path and not Core.in_domain( path ):
+		#if path and not sop.Core.in_domain( path ):
 		#	
-		#	raise RuntimeError( '\n\n\nShell out of DOMAIN :: %s\n\nAvailables domains are >> %s\n' % ( path, Core.__domains__ ) )
+		#	raise RuntimeError( '\n\n\nShell out of DOMAIN :: %s\n\nAvailables domains are >> %s\n' % ( path, sop.Core.__domains__ ) )
 		
 		#print '\n\n\nsop.DEBUG : Globals' , globals().keys()
 		
@@ -2480,18 +2645,18 @@ class Shell(object):
 			
 			if hasattr( main , 'sop_finder' ):
 				
-				self.__path__ =  Normalize.path( os.path.dirname( os.path.abspath( main.sop_finder.__file__ ) ) )
+				self.__path__ =  sop.Normalize.path( os.path.dirname( os.path.abspath( main.sop_finder.__file__ ) ) )
 			
 			else:
 			
-				self.__path__ =  Normalize.path( os.path.dirname( os.path.abspath( sop.__file__ ) ) )
+				self.__path__ =  sop.Normalize.path( os.path.dirname( os.path.abspath( sop.__file__ ) ) )
 			
 			
 			
 			
 		
 		#elif path == 0:	
-		#	self.__path__ =  Normalize.path( os.getcwd() )
+		#	self.__path__ =  sop.Normalize.path( os.getcwd() )
 		
 		elif path and not os.path.exists(path):
 			
@@ -2499,7 +2664,7 @@ class Shell(object):
 		
 		else:
 
-			self.__path__ = Normalize.path( path )
+			self.__path__ = sop.Normalize.path( path )
 
 		
 		self.__flat__    =  flat
@@ -2542,17 +2707,17 @@ class Shell(object):
 		
 		if path_element == None:   # Returns an Empty Space
 			
-			return Space()
+			return sop.Space()
 			
 		
-		elif path_element == '' :  # Return same shell
+		elif path_element == '':  # Return same shell
 			
 			return self
 			
 		
 		else:
 			
-			path_element = Normalize.path( path_element ) #self.__raw__( path_element )	
+			path_element = sop.Normalize.path( path_element ) #self.__raw__( path_element )	
 			
 			points = 0   # this evaluates points at string start
 			
@@ -2572,7 +2737,7 @@ class Shell(object):
 	
 				else:
 				
-					fullPath = Normalize.join( self.__path__ , path_element )  #  sopbox/folder joined to /other_folder gives you /other_folder		
+					fullPath = sop.Normalize.join( self.__path__ , path_element )  #  sopbox/folder joined to /other_folder gives you /other_folder		
 		
 			else:
 			
@@ -2582,12 +2747,12 @@ class Shell(object):
 					
 					parent_path = os.path.dirname( parent_path )
 
-				fullPath = Normalize.join( parent_path , path_element[points+1:] ) 
+				fullPath = sop.Normalize.join( parent_path , path_element[points+1:] ) 
 				
 		
 			# PATH_FIX
 	
-			fullPath = Normalize.path( fullPath ) 
+			fullPath = sop.Normalize.path( fullPath ) 
 	
 			ext = os.path.splitext( fullPath )[1]
 			
@@ -2745,7 +2910,7 @@ class Shell(object):
 				
 				if ext in exts:
 					
-					route = Normalize.join( dirname , name )[base_index:]
+					route = sop.Normalize.join( dirname , name )[base_index:]
 					att_list.append(route)
 			
 			return  sorted( list( set( att_list ) ) )
@@ -2770,13 +2935,22 @@ class Shell(object):
 			
 			files = parent[ '$FILE_NAMES %s.*' % self['$NAME'] ]
 			
-			return Space( [ Normalize.join( parent['$PATH'] , f ) for f in files  ] )
+			return Space( [ sop.Normalize.join( parent['$PATH'] , f ) for f in files  ] )
 		
 		
 		#elif query == '$FILES':
 			
 		# USAGE  '$FILES *.py'
 		
+		elif query.startswith( '$TAILS' ):
+			
+			self.__walk__()	
+			
+			files = self.__query__( query , self.__all_files__ )
+		
+			return [ p.replace( self['$PATH'] + '/' , '' ) for p in files ]
+			
+			
 		
 		
 		elif query.startswith( '$FILES' ):
@@ -2840,7 +3014,7 @@ class Shell(object):
 			
 				for P,D,F in os.walk( self['$PATH'] ):
 					
-					P = Normalize.path( P )
+					P = sop.Normalize.path( P )
 					
 					F = [ f for f in F if not avoid(f) ]
 					
@@ -2920,7 +3094,7 @@ class Shell(object):
 			return Shell( self.__path__ , flat = True)
 		
 		elif att == '__':
-			return Shell() # root, parent
+			return sop.Shell() # root, parent
 								
 		else:
 			return self.__solver__( att )
@@ -3015,8 +3189,8 @@ class Shell(object):
 				name, ext = os.path.splitext(f)
 				if att == name:
 					
-					target_path = Normalize.join( P,f )
-					target_path = Normalize.path( target_path )       #os.path.expandvars( target_path ).replace( '\\' , '/' )
+					target_path = sop.Normalize.join( P,f )
+					target_path = sop.Normalize.path( target_path )       #os.path.expandvars( target_path ).replace( '\\' , '/' )
 					
 					matched_files.append( target_path )
 			
@@ -3027,8 +3201,8 @@ class Shell(object):
 		
 			if matched_folder:
 				
-				target_path = Normalize.join(P, matched_folder)
-				target_path = Normalize.path( target_path )    #os.path.expandvars( target_path ).replace( '\\' , '/' )
+				target_path = sop.Normalize.join(P, matched_folder)
+				target_path = sop.Normalize.path( target_path )    #os.path.expandvars( target_path ).replace( '\\' , '/' )
 				
 				
 				context = Shell( target_path )
@@ -3052,7 +3226,7 @@ class Shell(object):
 				break
 		
 		
-		raise AttributeError( 'No file or folder named < %s > in %s' % (att, self.__path__) )#.__parent__()
+		raise AttributeError( 'No file or folder named %s/%s' % ( self.__path__ , att ) )#.__parent__()
 
 	
 	# NEW! Changed to make 
@@ -3066,8 +3240,8 @@ class Shell(object):
 		
 		for P,D,F in self['$WALK']:
 			
-			self.__all_files__.extend( [ Normalize.join( P , f ) for f in F ] )
-			self.__all_folders__.extend( [ Normalize.join( P , d ) for d in D ] )
+			self.__all_files__.extend( [ sop.Normalize.join( P , f ) for f in F ] )
+			self.__all_folders__.extend( [ sop.Normalize.join( P , d ) for d in D ] )
 			
 			if not self.__flat__:
 				
@@ -3096,8 +3270,8 @@ class Shell(object):
 	#		D[:] = [ d for d in D if filter_name(d) ]
 	#			
 	#		
-	#		self.__all_files__.extend( [ Normalize.join( P , f ) for f in F ] )
-	#		self.__all_folders__.extend( [ Normalize.join( P , d ) for d in D ] )
+	#		self.__all_files__.extend( [ sop.Normalize.join( P , f ) for f in F ] )
+	#		self.__all_folders__.extend( [ sop.Normalize.join( P , d ) for d in D ] )
 	#		
 	#		if not ( self.__flat__ or flat ):
 	#			
@@ -3234,7 +3408,7 @@ class Solver(object):
 				
 				self.path = by_extension[ trg_ext ]
 				
-				self.dirname, self.basename , self.name, self.ext  = Normalize.split( self.path )
+				self.dirname, self.basename , self.name, self.ext  = sop.Normalize.split( self.path )
 				
 				exec_info = '%s :: [%s]' % ( self.tag , self.basename )
 
@@ -3252,58 +3426,66 @@ class Solver(object):
 		
 		if sop.Solver.__debug_print__: sys.__stdout__.write( '\n\nSolving using default python solver\n' )
 		
-		Core.execution( self.path , self.space )
+		sop.Core.execution( self.path , self.space )
 
 
 Solver()
 
 
-	
-	
 
-def __init( main ):
+
+
+
+
+	
+if not hasattr( sop , 'Namespace' ):
 	
 	print '\nSpace Oriented Python initialization...'
 	
-	Expose.object( Shell() , 'sh' ) 
+	class Namespace:
+
+		main = main
+		sop = sop
 	
-	Expose.object( Brain() , 'brain' )
+	sop.tmp = sop.Brain()
+	
+	#sop.sh = sop.Shell()	
+		
+	
+	sop.Expose.object( sop.Shell() , 'sh' ) 
+	
+	sop.Expose.object( sop.Brain() , 'brain' )
+	
+	
+	#print dir( main )
+	#print dir( sop )
+	#print dir( Namespace )
+	
+	#print Space()
+	
+	#sys.exit()
 	
 
-	# define cwd ( original )
-	
-	#if not Shell.__cwd__:		
+	## Define main.space	
+	#
+	#if hasattr( main , '__file__' ):
 	#	
-	#	Shell.__cwd__ = Shell( os.getcwd() ) #
+	#	file_path = sop.Normalize.join( os.getcwd() , main.__file__ )
 	#	
-	#	#print '?????', os.getcwd()
-		
-		
-		
+	#	main.space = sop.Shell()( file_path )
+   	#
+   	#elif sys.argv and os.path.isfile( sys.argv[0] ):
+    #	
+	#	# result in a python interactive session with file args
+    #
+   	#	main.space = sop.Shell()( sys.argv[0] )
+    #
+	#else:
+	#	
+	#	# result in a python interactive session without file args
+	#	
+	#	main.space = sop.Space()
 	
-	# Define main.space	
-	
-	if hasattr( main , '__file__' ):
-		
-		file_path = Normalize.join( os.getcwd() , main.__file__ )
-		
-		main.space = Shell()( file_path )
-   	
-   	elif sys.argv and os.path.isfile( sys.argv[0] ):
-    	
-		# result in a python interactive session with file args
-
-   		main.space = Shell()( sys.argv[0] )
-
-	else:
-		
-		# result in a python interactive session without file args
-		
-		main.space = Space()
-	
-
-__init( main )
-
 
 
 

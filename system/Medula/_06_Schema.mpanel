@@ -1,0 +1,69 @@
+
+html = brain.Lib.html
+
+class User:
+	
+	schemas = enumKnob( 'SCHEMA = ' , []  )
+	
+	schema = strKnob( '' , '' , clearflags = 'STARTLINE' )
+	
+	save = bttnKnob( 'save' )
+	
+	info = txtKnob( '' , '\nafter save operation a hard restart is recomended.' )
+
+
+def onCreate( this ):
+	
+	schemas_list = [''] + sop.tmp.schema_brain.LOCAL['$FOLDER_NAMES']
+	
+	this.KNOBS.schemas.setValues( schemas_list )
+	
+	this.KNOBS.schemas.setValue( sop.tmp.schema_brain.SCHEMA )
+	
+	schemas( this )
+
+def schema( this ):
+	
+	value = this.VALUES.schema
+	
+	values = this.KNOBS.schemas.values()
+	
+	if value and value not in values:
+		
+		this.KNOBS.schemas.setEnabled( False )
+	
+	else:
+		
+		if not value:
+			
+			this.KNOBS.schemas.setValue( sop.tmp.schema_brain.SCHEMA )
+			
+			schemas( this )
+			
+			
+		else:
+			
+			this.KNOBS.schemas.setValue( value )
+		
+		
+		this.KNOBS.schemas.setEnabled( True )	
+	
+
+def schemas( this ):
+	
+	value = this.VALUES.schemas
+	
+	this.KNOBS.schema.setValue( value )
+
+
+def save( this ):
+	
+	b = sop.Brain()
+	
+	b.SCHEMA = this.VALUES.schema
+
+	b >> medula( 'local/_schema.memory' )
+	
+	this.PANEL.hide()
+	
+	

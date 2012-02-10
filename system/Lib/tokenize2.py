@@ -63,6 +63,7 @@ def tokenize( source ):
 
 def tokenize_classes( source ):
 	
+
 	if not source.endswith('\n'):
 		
 		source += '\n'

@@ -1,5 +1,5 @@
 
-version_memo = Brain() << sh( 'version.memory' )
+version_memo = sop.Brain() << sop.sh( 'version.memory' )
 
 version = '%s.%s' % ( version_memo( 'major_version' , 0 ) , version_memo( 'minor_version' , 0 ) )
 
@@ -23,7 +23,7 @@ Read the full medula license at
 
 ChangeLog: %s
 
-''' % ( version , sh.Medula._99_Medula_License.html['file'] , changeLog )
+''' % ( version , sop.sh.Medula._99_Medula_License.html['file'] , changeLog )
 
 
 msg = brain.Lib.html.txt( msg )

@@ -1,0 +1,14 @@
+
+Class = 'Switch'
+
+class Distribution:
+	
+	
+	sd_target_unit = fileKnob( 'target unit' , this.UNIT_PATH )
+		
+	
+	sd_apply = bttnKnob( 'apply' )
+	
+	
+
+

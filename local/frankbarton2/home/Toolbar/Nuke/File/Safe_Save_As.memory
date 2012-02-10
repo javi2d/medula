@@ -1,0 +1,7 @@
+
+hotkey = 'ctrl+shift+s'
+
+icon = None
+
+label = 'knife Save As ...'
+

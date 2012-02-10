@@ -50,7 +50,7 @@ def _dump_preset( this ):
 	
 		preset_knobs = 'brains route only_values truncate editable'.split()
 		
-		presets = brain( 'Brain_Browser' , Brain() )
+		presets = brain( 'Brain_Browser' , sop.Brain() )
 	
 		for knob_name in preset_knobs:
 		
@@ -70,7 +70,7 @@ def _load_preset( this ):
 	
 	# DONT APPLY ONLY FOR CODE MAINTENANCE
 	
-	presets = brain( 'Brain_Browser' , Brain() )
+	presets = brain( 'Brain_Browser' , sop.Brain() )
 	
 	for att, value in presets['items']:
 		
@@ -90,7 +90,7 @@ def knobChanged( this ):
 
 def update( this ):
 	
-	#Core.thread( nuke.executeInMainThreadWithResult , this.PANEL.show ).start()
+	#sop.Core.thread( nuke.executeInMainThreadWithResult , this.PANEL.show ).start()
 	
 	onCreate( this )
 	
@@ -111,8 +111,10 @@ def _type( obj ):
 
 
 def _active_brain( this  ):
-		
-	active_brain = getattr( main , this.VALUES.brains )
+	
+	active_brain = dict( sop.Core.brains( sop.Namespace ) )[ this.VALUES.brains ]
+	
+	#active_brain = getattr( sop , this.VALUES.brains )
 
 	current_brain = active_brain( this.VALUES.route , None , create_att = False )
 	
@@ -124,28 +126,34 @@ def _update_result( this ):
 	
 	current_brain = _active_brain( this )
 	
-	for kname in [ n for n in this.KNOBS['names'] if n.startswith( 'result' ) ]:
+	if current_brain:
+
+		for kname in [ n for n in this.KNOBS['names'] if n.startswith( 'result' ) ]:
 	
-		if not current_brain:
+			if not current_brain:
 
-			this.KNOBS( kname ).setValue( '\nINVALID ROUTE' )	
+				this.KNOBS( kname ).setValue( '\nINVALID ROUTE' )	
 
-		else:
+			else:
 		
-			this.KNOBS( kname ).setValue( ''.join( _brain_lines( this ) ) )
+				this.KNOBS( kname ).setValue( ''.join( _brain_lines( this ) ) )
 	
-	brains = [ b for b in current_brain['names'] if _type( getattr( current_brain , b ) ) == 'Brain' ]
+		brains = [ b for b in current_brain['names'] if _type( getattr( current_brain , b ) ) == 'Brain' ]
 		
-	this.KNOBS.browser.setValues( DOTS + brains  )
+		this.KNOBS.browser.setValues( DOTS + brains  )
 		
-
+	else:
+		
+		this.KNOBS.browser.setValues( [] )
 	
 	
 def onCreate( this ):
 	
 	this.KNOBS.result_box.setVisible( False )
 	
-	brains = [ b for b in dir( main ) if type( getattr( main , b ) ).__name__ == 'Brain' ]
+	#brains = [ b for b in dir( sop ) if type( getattr( sop , b ) ).__name__ == 'Brain' ]
+	
+	brains = [ x[0] for x in sop.Core.brains( sop.Namespace ) ]
 	
 	this.KNOBS.brains.setValues( brains )
 	

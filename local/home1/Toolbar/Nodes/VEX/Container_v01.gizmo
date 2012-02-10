@@ -1,0 +1,32 @@
+#! /Applications/Nuke6.2v4/NukeX6.2v4.app/../Nuke6.2v4.app/Contents/MacOS/Nuke6.2v4 -nx
+version 6.2 v4
+Gizmo {
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos 0
+ }
+ Group {
+  name Group1
+  selected true
+  xpos 0
+  ypos 131
+ }
+  Input {
+   inputs 0
+   name Input1
+   xpos 0
+  }
+  Output {
+   name Output1
+   xpos 0
+   ypos 300
+  }
+ end_group
+ Output {
+  name Output1
+  xpos 0
+  ypos 300
+ }
+end_group

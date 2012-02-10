@@ -1,6 +1,6 @@
 
 '''
-This file is about manipulation of data contained in Brain/Sources.memory
+This file is about manipulation of data contained in config/Brain/Sources.memory
 
 Sources.memory define structures like this
 
@@ -62,9 +62,9 @@ def walk( ):
 
 
 def normalize_host( target ):
-		
+			
 	brain.Sources << target
-	
+		
 	if this.HOSTLABEL not in brain.Sources['names']:
 		
 		new_code = 'class %s:\n\n\t_hostname = "%s"\n\n' % ( this.HOSTLABEL , this.HOSTNAME )
@@ -85,8 +85,8 @@ def normalize( ):
 	for H , HN , R , LR , RR in walk():
 
 
-		LR[:] = [ Normalize.path( p ) for p in LR ]
-		RR[:] = [ Normalize.path( p ) for p in RR ]
+		LR[:] = [ sop.Normalize.path( p ) for p in LR ]
+		RR[:] = [ sop.Normalize.path( p ) for p in RR ]
 
 	print '\n@msg: Sucessfully Normalized Sources\n' 
 
@@ -128,7 +128,7 @@ def resource( path ):
 
 
 
-# DEPRECATED
+# DEPRECATED  Why? and by What?
 
 def valid_resource( host , resource ):
 
@@ -142,51 +142,24 @@ def valid_resource( host , resource ):
 
 
 
-def alive_path( host , resource ):
-	
-	LR , RR = brain.Sources( host )( resource )
-	
-	paths = RR[:]
-	
-	if host.lower() == this.HOSTNAME.lower():
-		
-		paths += LR		
-	
-	timeout = 30
-	
-	for path in paths:
-		
-		alive_resources = brain( 'alive_resources' , {} )
-		
-		if path in alive_resources and ( time.time() - alive_resources[ path ] ) < timeout:
-			
-			return path 
-		
-		
-		# Cambiado a que devuelva el recurso incluso vacio
-		
-		elif os.path.isdir( path ): # and os.listdir( path ):
-			
-			brain( 'alive_resources' , {} )[ path ] = time.time()
-			
-			return path
-	
-	
-
-
 def alive_resources():
-	
-	alive = [ ]
 	
 	for H , HN , R , LR , RR in walk():
 		
-		path = alive_path( H , R )
-		
-		if path:
+		paths = RR[:]
+
+		if HN.lower() == this.HOSTNAME.lower():
+
+			paths += LR
 			
-			alive.append( ( H, R , path ) )
-	
-	return alive
+		for path in paths:
+			
+			if os.path.isdir( path ):
+				
+				yield  ( H, R , path ) 
+				
+				break
+
 
 
 
@@ -341,7 +314,7 @@ def __relink( this , knob ,  source_host = None ):
 	#		
 	#			print 'Relinking %s : %s >> %s' % ( this.NODE.name() , match , comp )
 	#			
-	#			new_knob_value = Normalize.join( test_dirname , basename)
+	#			new_knob_value = sop.Normalize.join( test_dirname , basename)
 	#			
 	#			this.KNOBS( knob ).setValue( new_knob_value )
 	#			

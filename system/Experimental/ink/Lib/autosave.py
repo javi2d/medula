@@ -44,7 +44,7 @@ def save_history( space ):
 	
 		backup_file = '%s.%04d' % ( space['file'] , idx )
 		
-		backup_file = Normalize.join( history_path ,  os.path.basename( backup_file ) )
+		backup_file = sop.Normalize.join( history_path ,  os.path.basename( backup_file ) )
 		
 		if not os.path.isfile( backup_file ):
 			

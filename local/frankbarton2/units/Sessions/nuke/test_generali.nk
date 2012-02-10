@@ -1,0 +1,116 @@
+#! /Applications/Nuke6.2v4/NukeX6.2v4.app/../Nuke6.2v4.app/Contents/MacOS/Nuke6.2v4 -nx
+version 6.2 v4
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="642" y="22" w="1920" h="1174" screen="0">
+        <splitter orientation="1">
+            <split size="958"/>
+            <splitter orientation="1">
+                <split size="40"/>
+                <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                    <page id="Toolbar.1"/>
+                </dock>
+                <split size="914"/>
+                <splitter orientation="2">
+                    <split size="746"/>
+                    <dock id="" activePageId="Viewer.1">
+                        <page id="Viewer.1"/>
+                    </dock>
+                    <split size="402"/>
+                    <splitter orientation="1">
+                        <split size="910"/>
+                        <dock id="" activePageId="Properties.1">
+                            <page id="Properties.1"/>
+                        </dock>
+                        <split size="0"/>
+                        <dock id="" activePageId="Script Editor.1">
+                            <page id="Script Editor.1"/>
+                            <page id="Curve Editor.1"/>
+                            <page id="DopeSheet.1"/>
+                        </dock>
+                    </splitter>
+                </splitter>
+            </splitter>
+            <split size="958"/>
+            <splitter orientation="2">
+                <split size="1152"/>
+                <dock id="" activePageId="DAG.1">
+                    <page id="DAG.1"/>
+                </dock>
+            </splitter>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name /Users/user/Dropbox/github/medula/local/frankbarton2/units/sessions/nuke/test_generali.nk
+ last_frame 55
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ addUserKnob {20 User}
+ addUserKnob {26 END_OF_USER_KNOBS +HIDDEN}
+ addUserKnob {20 Facility}
+ addUserKnob {1 source_host l "source host" t " no tooltip "}
+ addUserKnob {22 relink t " no tooltip " -STARTLINE}
+ addUserKnob {22 restore t " no tooltip " -STARTLINE +DISABLED}
+}
+Read {
+ inputs 0
+ file "/Volumes/ExFAT 400/PRUEBAS_FONDO3D_Generali/cache_PL_GNR_AUTO_03_fondo_para_3d_v02/cache_PL_GNR_AUTO_03_fondo_para_3d_v02.%04d.sgi"
+ format "1920 1080 0 0 1920 1080 1 HD"
+ last 55
+ origlast 55
+ origset true
+ name Read2
+ tile_color 0x7a7a7aff
+ xpos 49
+ ypos 1
+ addUserKnob {20 User}
+ addUserKnob {26 END_OF_USER_KNOBS +HIDDEN}
+ addUserKnob {20 References}
+ addUserKnob {6 auto_proxy l "auto find proxy file" t " no tooltip " +STARTLINE}
+ auto_proxy true
+ addUserKnob {26 sep l "" +STARTLINE}
+ addUserKnob {22 switch_source_ref l "switch src ref" t " no tooltip " +STARTLINE}
+ addUserKnob {2 source_reference l "" t " no tooltip " -STARTLINE}
+ addUserKnob {22 create_target_ref l "create trg ref" t " no tooltip " +STARTLINE}
+ addUserKnob {2 target_reference l "" t " no tooltip " -STARTLINE}
+ addUserKnob {26 sep2 l "" +STARTLINE}
+ addUserKnob {22 make_green l "make green" t " no tooltip " +STARTLINE}
+ addUserKnob {22 find_proxy l "find proxy" t " no tooltip " -STARTLINE}
+}
+Read {
+ inputs 0
+ file "/Volumes/ExFAT 400/PRUEBAS_FONDO3D_Generali/cache_PL_GNR_AUTO_03_fondo_para_3d_v01/cache_PL_GNR_AUTO_03_fondo_para_3d_v01.%04d.sgi"
+ format "1920 1080 0 0 1920 1080 1 HD"
+ last 55
+ origlast 55
+ origset true
+ name Read1
+ tile_color 0x7a7a7aff
+ xpos -55
+ ypos -123
+ addUserKnob {20 User}
+ addUserKnob {26 END_OF_USER_KNOBS +HIDDEN}
+ addUserKnob {20 References}
+ addUserKnob {6 auto_proxy l "auto find proxy file" t " no tooltip " +STARTLINE}
+ auto_proxy true
+ addUserKnob {26 sep l "" +STARTLINE}
+ addUserKnob {22 switch_source_ref l "switch src ref" t " no tooltip " +STARTLINE}
+ addUserKnob {2 source_reference l "" t " no tooltip " -STARTLINE}
+ addUserKnob {22 create_target_ref l "create trg ref" t " no tooltip " +STARTLINE}
+ addUserKnob {2 target_reference l "" t " no tooltip " -STARTLINE}
+ addUserKnob {26 sep2 l "" +STARTLINE}
+ addUserKnob {22 make_green l "make green" t " no tooltip " +STARTLINE}
+ addUserKnob {22 find_proxy l "find proxy" t " no tooltip " -STARTLINE}
+}
+Viewer {
+ frame 1
+ input_process false
+ name Viewer1
+ selected true
+ xpos -41
+ ypos -10
+}

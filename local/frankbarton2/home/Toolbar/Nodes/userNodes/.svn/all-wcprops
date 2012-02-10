@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Gizmos/userNodes
+END
+FrameHold_CF.py
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Gizmos/userNodes/FrameHold_CF.py
+END
+Groupmatic_Axis.userNode
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Gizmos/userNodes/Groupmatic_Axis.userNode
+END
+Switch_Distribution.userNode
+K 25
+svn:wc:ra_dav:version-url
+V 123
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Gizmos/userNodes/Switch_Distribution.userNode
+END
+Convertor_Name.userNode
+K 25
+svn:wc:ra_dav:version-url
+V 118
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Gizmos/userNodes/Convertor_Name.userNode
+END
+Convertor_Write_Info.cmd
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Gizmos/userNodes/Convertor_Write_Info.cmd
+END
+Convertor_v02.userNode
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Gizmos/userNodes/Convertor_v02.userNode
+END
+Convertor_v03.userNode
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/sopbox/!svn/ver/4/trunk/nuke_sopbox/nuke_sopbox_toolsets/shared/Facility/Gizmos/userNodes/Convertor_v03.userNode
+END

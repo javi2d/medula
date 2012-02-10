@@ -7,58 +7,84 @@ TOOLBAR_STRUCTURE = [ 'Animation' , 'Axis' , 'Node Graph' , 'Nodes' , 'Nuke' , '
 
 
 
+
 def THIS( this_space ):
 	
 	this << this_space
 
 
+def CALLBACK( cb_id , callback , nodeClass = None , name = None ):
+
+	'''
+	This function register a single callback
+
+	'''
+
+
+	brain( 'Callbacks' , {} )
+
+	if not name:
+
+		name = callback.__name__
+	
+	cb_name = name[0].upper() + name[1:]
+	
+	cb_add_function = getattr( nuke ,  'add' + cb_name  , None )
+
+	if cb_add_function:
+		
+		active_callback = brain.Callbacks.get( cb_id , None )    #brain.Callbacks( cb_id , None )
+	
+		if active_callback:
+			
+			cb_remove_function = getattr( nuke ,  'remove' + cb_name  )
+			
+			if nodeClass:
+
+				cb_remove_function( active_callback , nodeClass = nodeClass )	
+			
+			else:
+
+				cb_remove_function( active_callback )	
+
+
+			del brain.Callbacks[ cb_id ]
+			
+		if nodeClass:
+
+			cb_add_function( callback , nodeClass = nodeClass )	
+		
+		else:
+
+			cb_add_function( callback )	
+
+
+		brain.Callbacks[ cb_id ] = callback
+		
+		print '\n@msg: registered global callback [ %s ]' % cb_id
+
+
+
+
 def CALLBACKS( cb_space ):
 	
+	'''
+	This function register all callbacks in space 
+
+	'''
+
+
 	if not cb_space['file']:
 		
 		raise RuntimeError , 'monofile space needed'
 	
 	cb_space['exec']
-	
-	brain( 'Callbacks' , {} )
 		
-	for k,v in cb_space['user_logic'].items():
+	for name , callback in cb_space['user_logic'].items():
 		
-		cb_name = k[0].upper() + k[1:]
-		
-		cb_add_function = getattr( nuke ,  'add' + cb_name  , None )
+		cb_id = cb_space['file'] + '/%s' % name     #sop.Normalize.join( cb_space['file'] , k )
 
-		if cb_add_function:
-			
-			cb_id = cb_space['file'] + '/%s' % k      #Normalize.join( cb_space['file'] , k )
-			
-			active_callback = brain.Callbacks.get( cb_id , None )    #brain.Callbacks( cb_id , None )
-		
-			if active_callback:
-				
-				cb_remove_function = getattr( nuke ,  'remove' + cb_name  , None )
-				
-				cb_remove_function( active_callback )	
-				
-				#brain.Callbacks( cb_id , None , replace_att = True )
-				
-				del brain.Callbacks[ cb_id ]
-				
-				#print '\nDEBUG GLOBAL CALLBACK xx %s' % ( k )
-				
-				
-			cb_add_function( v )
-
-			#brain.Callbacks( cb_id , v , replace_att = True )
-			
-			brain.Callbacks[ cb_id ] = v
-			
-			#print '\nDEBUG GLOBAL CALLBACK ++ %s >> %s' % ( k , cb_space['file'] )
-			
-		#else:
-			
-		#	print '\nDEBUG GLOBAL CALLBACK , WARNING : %s not match any nuke callback type' % k
-
+		CALLBACK( cb_id , callback )
 
 
 
@@ -66,9 +92,9 @@ def ADD_RECURSIVE( shell_or_path ):
 	
 	''' Given a shell or path to folder, add recursively all child folders to the nuke plugin path '''
 
-	shell = Normalize.shell( shell_or_path )
+	shell = sop.Normalize.shell( shell_or_path )
 
-	for folder in [ f for f in shell._['$FOLDERS'] if  sh( f )['$FILE_NAMES' ] ]:
+	for folder in [ f for f in shell._['$FOLDERS'] if  sop.sh( f )['$FILE_NAMES' ] ]:
    		
 			nuke.pluginAddPath( folder )
 
@@ -77,7 +103,7 @@ def SHELL2MENU( shell_or_path , toolbar = 'Nuke' , memory = True ):
 	
 	# Shell to menu , Generate Menus
 	
-	shell = Normalize.shell( shell_or_path )
+	shell = sop.Normalize.shell( shell_or_path )
 
 	ADD_RECURSIVE( shell )
 
@@ -89,7 +115,7 @@ def SHELL2MENU( shell_or_path , toolbar = 'Nuke' , memory = True ):
 	
 		for bpath in bpaths:
 		
-			print '            > %s' % Normalize.join( *bpath[1:] )
+			print '            > %s' % sop.Normalize.join( *bpath[1:] )
 		
 			_command2menuitem( bpath ,  toolbar = toolbar , memory = True )
 	
@@ -103,7 +129,7 @@ def MENU( shell_or_path , toolbar = 'Nuke' ):
 	
 def TEMPLATE( shell_or_path  ):
 	
-	shell = Normalize.shell( shell_or_path )
+	shell = sop.Normalize.shell( shell_or_path )
 	
 	SHELL2MENU(  shell , 'Nuke' )
 
@@ -111,7 +137,7 @@ def TEMPLATE( shell_or_path  ):
 	
 def RECREATE( shell_or_path ):
 	
-	shell = Normalize.shell( shell_or_path )
+	shell = sop.Normalize.shell( shell_or_path )
 
 	for name in FULL_STRUCTURE:
 
@@ -126,7 +152,7 @@ def RECREATE( shell_or_path ):
 
 def TOOLSET( shell_or_path , recreate = False , avoid = [] ):
 	
-	shell = Normalize.shell( shell_or_path )
+	shell = sop.Normalize.shell( shell_or_path )
 	
 	shell_name = shell['$NAME']
 	
@@ -143,45 +169,41 @@ def TOOLSET( shell_or_path , recreate = False , avoid = [] ):
 
 
 
-# FAVS MANAGEMENT
+# BOOKMARKS MANAGEMENT
 
-
-def ADD_FAV( fav , path ):
-
-	nuke.removeFavoriteDir( fav )
-
-	nuke.addFavoriteDir( fav , path )
-
-
-
-def ADD_FAV_ALIVE_RESOURCES():
+def BOOKMARK( fav , path ):
 	
-	#brain.Lib.sources.normalize()
+	if not path.endswith('/'):
+		
+		path += '/'
+	
+	
+	brain.bookmarks = [ item for item in brain( 'bookmarks' , [] ) if not item[0] == fav ] 
+	
+	brain.bookmarks.append( ( fav , path ) )
+	
 
-	def alive_resource_search():
+def SOURCES_BOOKMARKS():
 
-		alive_resources = []
+	for H , R , path in brain.Lib.sources.alive_resources():	
+
+		resource_label = '%s/%s' % ( H.lower() , R.upper() )
 		
-		for H , R , path in brain.Lib.sources.alive_resources():	
+		resource_path = path + '/'
 		
-			#print '\nDEBUG ADD_FAV_ALIVE_RESOURCES' , H , R , path
+		BOOKMARK( resource_label , resource_path )
+
 		
-			resource_label = '%s/%s' % ( H.lower() , R.upper() )
-			
-			resource_path = path + '/'
-			
-			alive_resources.append( ( resource_label , resource_path ) )
-			
-		
-		for resource_label , resource_path in alive_resources:
-			
-			nuke.executeInMainThreadWithResult( ADD_FAV , ( resource_label , resource_path ) )
-				
-			print '\n@@ Alive resource found %s = %s\n' % ( resource_label , resource_path )
-			
-		
-	Core.thread( alive_resource_search ).start()
-		
+def BOOKMARKS():
+	
+	print '\n\nBOOKMARKS %s\n\n' % brain( 'bookmarks' , [] )
+	
+	for fav, path in brain( 'bookmarks' , [] ):
+	
+		nuke.removeFavoriteDir( fav )
+		nuke.addFavoriteDir( fav , path )
+
+
 
 
 # CHAIN LOADERS
@@ -226,58 +248,62 @@ def GUI_LOAD_QUEUED_TOOLSETS():
 	
 def LOAD_TOOLSET( shell_or_path , recreate = False , avoid = [] ):
 	
+	shell = sop.Normalize.shell( shell_or_path )
 	
-	shell = Normalize.shell( shell_or_path )
+	print '\n( toolset ) %s\n' % shell['$PATH']
 	
 	#print 'DEBUG RECREATE' , recreate , shell
 	
-	
-	shell( 'Brain/Hotkeys.memory' ) # ( autocreate Hotkeys.memory file)
+	#shell( 'Brain/Hotkeys.memory' ) # ( autocreate Hotkeys.memory file)
 
 	if recreate:
 		
 		RECREATE( shell )
 
-
 	FOLDERS = [ F for F in shell['$FOLDER_NAMES'] if F not in avoid ]
 
+	if 'Brain' in FOLDERS:
+		
+		for path in shell.Brain['$FILES *.memory']:  #
+			
+			dirname , basename , name , ext = sop.Normalize.split( path )
+			
+			brain( name , sop.Brain() ) << sop.sh( path )
+			
+			if basename == 'Sources.memory':
+				
+				brain.Lib.sources.normalize_host( sop.sh( path )  )
+					
+				brain.Lib.sources.normalize()
+				
+			print '    brain.%s << %s' % ( name , path )
+	
+	
+	if 'Lib' in FOLDERS:
 
+		brain.Lib << shell.Lib    #LIB( shell.Lib )
+	
+	
 	if 'Toolbar' in FOLDERS:
 		
 		if not nuke.GUI:
 		
 			ADD_RECURSIVE( shell( 'Toolbar' ) )
-
-
-	if 'Lib' in FOLDERS:
-		
-		brain.Lib << shell.Lib    #LIB( shell.Lib )
-	
-	
-	if 'Brain' in FOLDERS:
-		
-		for path in shell.Brain['$FILES *.memory']:  #
-			
-			dirname , basename , name , ext = brain.Lib.path.brk( path )
-	
-			brain( name , Brain() ) << sh( path )
-			
-			if name == 'Sources':
-				
-				brain.Lib.sources.normalize()
 			
 			
 	if 'Node' in FOLDERS:
 
 		for path in shell.Node['$FILES *.node']:
 
-			node_space = sh( path )
+			node_space = sop.sh( path )
 
 			node_space()  # call node file , trigger nodeSolver
 
 	
 	
 	registerUserNodes( shell )
+	
+	return shell
 	
 
 
@@ -324,7 +350,7 @@ def GUI_LOAD_TOOLSET( shell , avoid = [] ):
 		
 		name  =  shell( fn )['name']
 
-		menu_brain = Brain() 
+		menu_brain = sop.Brain() 
     	
 		menu_brain << shell( fn )
 		
@@ -386,7 +412,7 @@ def registerViewerProcess(  viewerProcess_shell ):
 
 	for path in files:
 
-		dirname, basename , name, ext = Normalize.split( path )
+		dirname, basename , name, ext = sop.Normalize.split( path )
 
 		print '    >> Registering [ %s ] as ViewerProcess' % os.path.basename( basename )
 		
@@ -456,7 +482,7 @@ def find_icon(  bpath , ref ):
 	
 	while bpath:
 		
-		shell = sh( Normalize.join( *bpath ) )
+		shell = sop.sh( sop.Normalize.join( *bpath ) )
 		
 		potential_icon = ref + '.png'
 		
@@ -498,17 +524,17 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 
 	cmd_name = bpath.pop()
 		
-	shell = sh( Normalize.join( *bpath ) )
+	shell = sop.sh( sop.Normalize.join( *bpath ) )
 
 	cmd_space = getattr( shell , cmd_name )
 	
 	#toolbar_name = toolbar
 
-	auto_command = "sh('%s').%s()" % ( shell['$PATH'] , cmd_name )	
+	auto_command = "sop.sh('%s').%s()" % ( shell['$PATH'] , cmd_name )	
 		
 	auto_icon = find_icon( bpath , cmd_name )
 
-	memory_file = Normalize.join( shell['$PATH'] , cmd_name + '.memory' )
+	memory_file = sop.Normalize.join( shell['$PATH'] , cmd_name + '.memory' )
 	
 	
 	class defaultConfig:
@@ -524,7 +550,7 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 	
 	# Convert defaultConfig to a brain structure
 	
-	config = Brain() << defaultConfig
+	config = sop.Brain() << defaultConfig
 	
 	# Check if memory file is present and push into config 
 	
@@ -535,7 +561,7 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 			
 			try:
 			
-				memory_config = Brain() << sh( memory_file )
+				memory_config = sop.Brain() << sop.sh( memory_file )
 			
 				config << memory_config 
 		
@@ -545,7 +571,7 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 			
 					#print 'DEBUG 2'
 			
-					config >> sh( memory_file )
+					config >> sop.sh( memory_file )
 			
 					print '\nCommand memory file updated >> %s\n\n' % os.path.basename( memory_file )
 			
@@ -553,9 +579,9 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 				
 				nuke.warning( 'Error in command memory file >> %s' % os.path.basename( memory_file ) )
 				
-				if Core.__interpreter__:
+				if sop.Core.__interpreter__:
 					
-					Core.__interpreter__.showsyntaxerror()
+					sop.Core.__interpreter__.showsyntaxerror()
 				
 				
 				
@@ -563,7 +589,7 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 			# Create a new 	memory_file	
 		
 			config.hotkey = ''
-			config >> sh( memory_file )
+			config >> sop.sh( memory_file )
 	
 
 
@@ -633,7 +659,7 @@ def _command2menuitem( bpath , toolbar = None , memory = True ):
 		while bpath:
 			
 			png =  bpath + [ bpath.pop() + '.png' ]
-			png = Normalize.join( *png )   
+			png = sop.Normalize.join( *png )   
 
 			if os.path.isfile( png ):
 				
