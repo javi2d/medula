@@ -1,3 +1,0 @@
-
-excluded = ['.hip', '.bgeo', '.pmap', '.autosave', '.nk~', '.nk', '.ptp', '.ims', '.shk', '.pts', '.ma', '.ptl', '.pta', '.ptu', '.zip', '.ifl', '.rar', '.mtl', '.txt', '.wmv', '.CR2', '.xmp', '.sni', '.clip', '.aep']
-

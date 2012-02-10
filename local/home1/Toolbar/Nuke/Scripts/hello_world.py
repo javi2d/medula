@@ -1,3 +1,0 @@
-
-
-print 'Goodbye World! sssddddsss'
