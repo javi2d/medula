@@ -1,3 +1,6 @@
 # medula
-Suite of tools for high speed programming in Python
+A suite of tools for robust & high speed programming in Python
+
+
+
 
